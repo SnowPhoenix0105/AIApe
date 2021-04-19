@@ -1,12 +1,17 @@
 # BackEnd
 
-## builds
+## Builds and Auto-Generations
+
 [Bb]in/
 [Oo]bj/
 [Ll]ib/
+[Pp]ackages/
+*.exe
+*.lib
+*.dll
 
 ## IDE and Tools
-[Pp]ackages/
+
 .[Vv]s/
 .[Vv]scode/
 
