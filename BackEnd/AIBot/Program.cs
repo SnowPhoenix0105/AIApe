@@ -21,14 +21,14 @@ namespace Buaa.AIBot.BackEnd
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .UseSerilog((context, services, configureation) => 
-                {
-                    configureation
-                        .ReadFrom.Configuration(context.Configuration)
-                        .ReadFrom.Services(services)
-                        .WriteTo.Console()
-                        .WriteTo.File(LOG_FILE_PATH);
-                })
+                // .UseSerilog((context, services, configureation) => 
+                // {
+                //     configureation
+                //         .ReadFrom.Configuration(context.Configuration)
+                //         .ReadFrom.Services(services)
+                //         .WriteTo.Console()
+                //         .WriteTo.File(LOG_FILE_PATH);
+                // })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.ConfigureLogging((logging) =>
