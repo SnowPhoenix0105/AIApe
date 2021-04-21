@@ -1,3 +1,15 @@
+# General
+
+## Archives
+*.zip
+*.7z
+*.rar
+*.gz
+*.tar
+
+## Logs
+*.log
+
 # BackEnd
 
 ## Builds and Auto-Generations
@@ -6,10 +18,20 @@
 [Oo]bj/
 [Ll]ib/
 [Pp]ackages/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+[Ll]og/
+
 *.exe
 *.lib
 *.dll
+*.obj
 
+## Tests and Logs
 ## IDE and Tools
 
 .[Vv]s/
