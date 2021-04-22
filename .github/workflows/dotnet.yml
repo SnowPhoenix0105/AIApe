@@ -2,9 +2,9 @@ name: .NET
 
 on:
   push:
-    branches: [ master ]
+    branches: [ github-ci ]
   pull_request:
-    branches: [ master ]
+    branches: [ github-ci ]
 
 jobs:
   build:
