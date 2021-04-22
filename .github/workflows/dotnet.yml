@@ -18,7 +18,7 @@ jobs:
       with:
         dotnet-version: 3.1.x
     - name: Restore dependencies
-      run: dotnet BackEnd restore
+      run: dotnet restore BackEnd 
     - name: Build
       run: dotnet build BackEnd --no-restore
     - name: Test
