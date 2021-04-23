@@ -11,9 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using Buaa.AIBot.BackEnd.Bot;
+using Buaa.AIBot.Bot;
 
-namespace Buaa.AIBot.BackEnd
+namespace Buaa.AIBot
 {
     public class Startup
     {

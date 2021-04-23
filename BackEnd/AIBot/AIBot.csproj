@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <RootNamespace>Buaa.AIBot.BackEnd</RootNamespace>
-    <AssemblyName>Buaa.AIBot.BackEnd</AssemblyName>
+    <RootNamespace>Buaa.AIBot</RootNamespace>
+    <AssemblyName>Buaa.AIBot</AssemblyName>
   </PropertyGroup>
 
 

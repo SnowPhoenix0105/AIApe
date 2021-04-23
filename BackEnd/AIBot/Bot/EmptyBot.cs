@@ -10,7 +10,7 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 
-namespace Buaa.AIBot.BackEnd.Bot
+namespace Buaa.AIBot.Bot
 {
     public class EmptyBot : ActivityHandler
     {
