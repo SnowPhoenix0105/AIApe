@@ -4,6 +4,7 @@
 // Generated with EmptyBot .NET Template version v4.12.2
 
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
@@ -20,16 +21,19 @@ namespace Buaa.AIBot.Controllers
     {
         private readonly IBotFrameworkHttpAdapter Adapter;
         private readonly IBot Bot;
+        private readonly ILogger<BotController> logger;
 
-        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
+        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot, ILogger<BotController> logger)
         {
             Adapter = adapter;
             Bot = bot;
+            this.logger = logger;
         }
 
         [HttpPost, HttpGet]
         public async Task PostAsync()
         {
+            // logger.LogInformation("Bot get body: {RequestBody}", body);
             // Delegate the processing of the HTTP POST to the adapter.
             // The adapter will invoke the bot.
             await Adapter.ProcessAsync(Request, Response, Bot);

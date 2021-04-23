@@ -64,7 +64,7 @@ namespace Buaa.AIBot
 
                 .UseRouting()
 
-                //.UseAuthorization()
+                .UseAuthorization()
 
                 // Record IP Address of the requester.
                 .UseIpAddressRecord()
