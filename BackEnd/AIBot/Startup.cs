@@ -35,7 +35,7 @@ namespace Buaa.AIBot
             services.AddSingleton<IBotFrameworkHttpAdapter, BotFrameworkHttpAdapter>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, EmptyBot>();
+            services.AddTransient<IBot, AIApeBot>();
 
             // Create HttpContextAccessor to access HttpContext at any time
             services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
