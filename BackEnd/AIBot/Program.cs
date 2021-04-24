@@ -49,6 +49,7 @@ namespace Buaa.AIBot
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                // Configure logging
                 .ConfigureLoggingWithSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
