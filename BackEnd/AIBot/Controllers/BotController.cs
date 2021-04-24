@@ -4,12 +4,13 @@
 // Generated with EmptyBot .NET Template version v4.12.2
 
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Logging;
 
-namespace Buaa.AIBot.BackEnd.Controllers
+namespace Buaa.AIBot.Controllers
 {
     // This ASP Controller is created to handle a request. Dependency Injection will provide the Adapter and IBot
     // implementation at runtime. Multiple different IBot implementations running at different endpoints can be
@@ -20,16 +21,19 @@ namespace Buaa.AIBot.BackEnd.Controllers
     {
         private readonly IBotFrameworkHttpAdapter Adapter;
         private readonly IBot Bot;
+        private readonly ILogger<BotController> logger;
 
-        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot)
+        public BotController(IBotFrameworkHttpAdapter adapter, IBot bot, ILogger<BotController> logger)
         {
             Adapter = adapter;
             Bot = bot;
+            this.logger = logger;
         }
 
         [HttpPost, HttpGet]
         public async Task PostAsync()
         {
+            // logger.LogInformation("Bot get body: {RequestBody}", body);
             // Delegate the processing of the HTTP POST to the adapter.
             // The adapter will invoke the bot.
             await Adapter.ProcessAsync(Request, Response, Bot);

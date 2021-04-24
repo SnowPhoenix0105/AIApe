@@ -10,9 +10,9 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Logging;
 
-namespace Buaa.AIBot.BackEnd.Bot
+namespace Buaa.AIBot.Bot
 {
-    public class EmptyBot : ActivityHandler
+    public class AIApeBot : ActivityHandler
     {
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -23,6 +23,11 @@ namespace Buaa.AIBot.BackEnd.Bot
                     await turnContext.SendActivityAsync(MessageFactory.Text($"Hello world!"), cancellationToken);
                 }
             }
+        }
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var replyText = $"Echo: {turnContext.Activity.Text}";
+            await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
         }
     }
 }

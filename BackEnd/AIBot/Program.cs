@@ -7,36 +7,113 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Buaa.AIBot.Utils.Logging;
+using System;
+using System.Threading.Tasks;
 
-namespace Buaa.AIBot.BackEnd
+namespace Buaa.AIBot
 {
-     public class Program
+    public class Program
     {
         public static readonly string LOG_FILE_PATH = "";
 
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .Enrich.FromLogContext()
+                .WriteTo.Console()
+                .CreateBootstrapLogger();
+
+            try
+            {
+                PrintWelcomeInfo();
+                var host = CreateHostBuilder(args).Build();
+                Log.Information("Host build success!");
+                Log.Information("");
+                Log.Information("");
+                host.Run();
+                Log.Information("Host terminated success");
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Log.Fatal(e, "Host terminated unexpectedly");
+                return 1;
+            }
+            finally
+            {
+                Log.CloseAndFlush();
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                // .UseSerilog((context, services, configureation) => 
-                // {
-                //     configureation
-                //         .ReadFrom.Configuration(context.Configuration)
-                //         .ReadFrom.Services(services)
-                //         .WriteTo.Console()
-                //         .WriteTo.File(LOG_FILE_PATH);
-                // })
+                // Configure logging
+                .ConfigureLoggingWithSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.ConfigureLogging((logging) =>
-                    {
-                        logging.AddDebug();
-                        logging.AddConsole();
-                    });
                     webBuilder.UseStartup<Startup>();
                 });
+
+        private static void PrintWelcomeInfo()
+        {
+            var messages = new string[]
+            {
+                @"                                                                                       ",
+                @"                                                                                       ",
+                @"                                                                                       ",
+                @"                                                                                       ",
+                @"                                                                                       ",
+                @"                                                                                       ",
+                @"                                        _ooOoo_                                        ",
+                @"                                       o8888888o                                       ",
+                 "                                       88\" . \"88                                     ",
+                @"                                       (| -_- |)                                       ",
+                @"                                       O\  =  /O                                       ",
+                @"                                    ____/`---'\____                                    ",
+                @"                                  .'  \\|     |//  `.                                  ",
+                @"                                 /  \\|||  :  |||//  \                                 ",
+                @"                                /  _||||| -:- |||||-  \                                ",
+                @"                                |   | \\\  -  /// |   |                                ",
+                @"                                | \_|  ''\---/''  |   |                                ",
+                @"                                \  .-\__  `-`  ___/-. /                                ",
+                @"                              ___`. .'  /--.--\  `. . __                               ",
+                @"                           ."" '<  `.___\_<|>_/___.'  >'"".                            ",
+                @"                          | | :  `- \`.;`\ _ /`;.`/ - ` : | |                          ",
+                @"                          \  \ `-.   \_ __\ /__ _/   .-` /  /                          ",
+                @"                     ======`-.____`-.___\_____/___.-`____.-'======                     ",
+                @"                                        `=---='                                        ",
+                @"                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^                     ",
+                @"                                                                                       ",
+                @"                                   佛祖保佑   永无BUG                                    ",
+                @"                                                                                       ",
+                @"                                                                                       ",
+                @"                                                                                       ",
+
+
+                @"=======================================================================================",
+                @"=======================================================================================",
+                @"           ___          ________              ___         _________     __________     ",
+                @"          /   \        |__    __|            /   \       |   ____  \   |   _______|    ",
+                @"         /  .  \          |  |              /  .  \      |  |    \  \  |  |            ",
+                @"        /  / \  \         |  |             /  / \  \     |  |     |  | |  |______      ",
+                @"       /  /___\  \        |  |            /  /___\  \    |  |____/  /  |   ______|     ",
+                @"      /  _______  \       |  |           /  _______  \   |   ______/   |  |            ",
+                @"     /  /       \  \   ___|  |___       /  /       \  \  |  |          |  |_______     ",
+                @"    /__/         \__\ |__________|     /__/         \__\ |__|          |__________|    ",
+                @"=======================================================================================",
+                @"=======================================================================================",
+
+
+                @"AIApe 正在启动...                                                                       ",
+                @"                                                                                       ",
+                @"                                                                                       ",
+            };
+            foreach (var line in messages)
+            {
+                Log.Information(line);
+            }
+        }
     }
 }

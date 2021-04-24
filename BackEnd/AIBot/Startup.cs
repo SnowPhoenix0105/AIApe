@@ -5,15 +5,17 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Buaa.AIBot.Bot;
+using Buaa.AIBot.Utils.Logging;
+using Serilog;
 
-using Buaa.AIBot.BackEnd.Bot;
-
-namespace Buaa.AIBot.BackEnd
+namespace Buaa.AIBot
 {
     public class Startup
     {
@@ -33,7 +35,13 @@ namespace Buaa.AIBot.BackEnd
             services.AddSingleton<IBotFrameworkHttpAdapter, BotFrameworkHttpAdapter>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, EmptyBot>();
+            services.AddTransient<IBot, AIApeBot>();
+
+            // Create HttpContextAccessor to access HttpContext at any time
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
+
+            // Create IpAddressRecorder.
+            services.AddTransient<IpAddressRecorder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,11 +52,23 @@ namespace Buaa.AIBot.BackEnd
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseDefaultFiles()
+            app
+                // Use serilog request-logging instead of origin.
+                .UseSerilogRequestLogging()
+
+                .UseDefaultFiles()
+
                 .UseStaticFiles()
+
                 .UseWebSockets()
+
                 .UseRouting()
+
                 .UseAuthorization()
+
+                // Record IP Address of the requester.
+                .UseIpAddressRecord()
+
                 .UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();
