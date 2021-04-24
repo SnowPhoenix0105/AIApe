@@ -9,7 +9,7 @@ namespace Buaa.AIBot.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AnswerController : ControllerBase
+    public class QuestionsController : ControllerBase
     {
     }
 }
