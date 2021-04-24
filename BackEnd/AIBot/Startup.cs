@@ -53,6 +53,7 @@ namespace Buaa.AIBot
                 // Use serilog request-logging instead of origin.
                 .UseSerilogRequestLogging()
 
+                // We use Nginx, So redirection to https is not necessary
                 // .UseHttpsRedirection()
 
                 .UseRouting()
