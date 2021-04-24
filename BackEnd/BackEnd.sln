@@ -5,8 +5,6 @@ VisualStudioVersion = 16.6.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AIBot", "AIBot\AIBot.csproj", "{DC9372F3-9E83-4CFB-929B-738A0386A796}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{3EF54318-06AC-486E-B03A-03394B75C0CB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,26 +19,6 @@ Global
 		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Debug|x64.Build.0 = Debug|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Debug|x86.Build.0 = Debug|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Release|x64.ActiveCfg = Release|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Release|x64.Build.0 = Release|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Release|x86.ActiveCfg = Release|Any CPU
-		{DC9372F3-9E83-4CFB-929B-738A0386A796}.Release|x86.Build.0 = Release|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Debug|x64.Build.0 = Debug|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Debug|x86.Build.0 = Debug|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Release|x64.ActiveCfg = Release|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Release|x64.Build.0 = Release|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Release|x86.ActiveCfg = Release|Any CPU
-		{3EF54318-06AC-486E-B03A-03394B75C0CB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
