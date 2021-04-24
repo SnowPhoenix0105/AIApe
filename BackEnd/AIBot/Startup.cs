@@ -5,15 +5,14 @@
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Bot.Builder;
-using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Buaa.AIBot.Utils.Logging;
+using Serilog;
 
-using Buaa.AIBot.BackEnd.Bot;
-
-namespace Buaa.AIBot.BackEnd
+namespace Buaa.AIBot
 {
     public class Startup
     {
@@ -27,13 +26,19 @@ namespace Buaa.AIBot.BackEnd
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddNewtonsoftJson();
+            services
+                .AddControllers()
+                // .AddNewtonsoftJson()
+                ;
 
-            // Create the Bot Framework Adapter with error handling enabled.
-            services.AddSingleton<IBotFrameworkHttpAdapter, BotFrameworkHttpAdapter>();
+            services
+                // Create HttpContextAccessor to access HttpContext at any time
+                .AddTransient<IHttpContextAccessor, HttpContextAccessor>()
 
-            // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, EmptyBot>();
+                // Create IpAddressRecorder.
+                .AddTransient<IpAddressRecorder>()
+                
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,17 +49,24 @@ namespace Buaa.AIBot.BackEnd
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseDefaultFiles()
-                .UseStaticFiles()
-                .UseWebSockets()
+            app
+                // Use serilog request-logging instead of origin.
+                .UseSerilogRequestLogging()
+
+                // We use Nginx, So redirection to https is not necessary
+                // .UseHttpsRedirection()
+
                 .UseRouting()
-                .UseAuthorization()
+
+                // .UseAuthorization()
+
+                // Record IP Address of the requester.
+                .UseIpAddressRecord()
+
                 .UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();
                 });
-
-            // app.UseHttpsRedirection();
         }
     }
 }
