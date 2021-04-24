@@ -22,9 +22,6 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
-[Tt]est[Rr]esult*/
-[Bb]uild[Ll]og.*
-[Ll]og/
 
 *.exe
 *.lib
@@ -32,10 +29,20 @@
 *.obj
 
 ## Tests and Logs
+[Tt]est[Rr]esult*/
+[Ll]og/
+[Bb]uild[Ll]og.*
+
+
+
 ## IDE and Tools
 
 .[Vv]s/
 .[Vv]scode/
+
+
+## user profiles
+*.csproj.user
 
 
 
