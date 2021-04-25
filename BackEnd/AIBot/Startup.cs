@@ -10,7 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Buaa.AIBot.Utils.Logging;
+using Buaa.AIBot.Services;
 using Serilog;
+
 
 namespace Buaa.AIBot
 {
@@ -39,6 +41,11 @@ namespace Buaa.AIBot
                 .AddTransient<IpAddressRecorder>()
                 
                 ;
+            
+            services
+                // Add UserServices
+                .AddUserServices(Configuration)
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -57,8 +64,10 @@ namespace Buaa.AIBot
                 // .UseHttpsRedirection()
 
                 .UseRouting()
+                // Start Authentication and Authorization
+                .UseAuthentication()
 
-                // .UseAuthorization()
+                .UseAuthorization()
 
                 // Record IP Address of the requester.
                 .UseIpAddressRecord()
