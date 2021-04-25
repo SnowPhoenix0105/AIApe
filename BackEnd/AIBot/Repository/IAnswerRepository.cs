@@ -9,10 +9,10 @@ namespace Buaa.AIBot.Repository
     interface IAnswerRepository
     {
         /// <summary>
-        /// Select a answer by id.
+        /// Select an answer by id.
         /// </summary>
         /// <param name="answerId">aid</param>
-        /// <returns>a AnswerInfo object if exist, or null</returns>
+        /// <returns>an AnswerInfo object if exist, or null</returns>
         Task<AnswerInfo> SelectAnswerByIdAsync(int answerId);
 
         /// <summary>
@@ -28,12 +28,12 @@ namespace Buaa.AIBot.Repository
         Task<int> InsertAnswerAsync(AnswerInfo answer);
 
         /// <summary>
-        /// Update the answer with qid=<paramref name="answer"/>.QuestionId and aid=<paramref name="answer"/>.AnswerId.
+        /// Update the answer with aid=<paramref name="answer"/>.AnswerId.
         /// </summary>
         /// <remarks>
         /// Use <paramref name="question"/>.QuestionId and aid=<paramref name="answer"/>.AnswerId to appoint the question to be update.
         /// Every <paramref name="question"/>'s not-null Property will replace the old value.
-        /// CreateTime, CreaterId will never change. ModifyTime will fresh automatically.
+        /// CreateTime, CreaterId, QuestionId will never change. ModifyTime will fresh automatically.
         /// No operation if any exception occurs.
         /// </remarks>
         /// <exception cref="AnswerNotExistException">There is no answer with qid=<paramref name="answer"/>.QuestionId and aid=<paramref name="answer"/>.AnswerId.</exception>
@@ -42,11 +42,11 @@ namespace Buaa.AIBot.Repository
         Task UpdateAnswerAsync(AnswerInfo answer);
 
         /// <summary>
-        /// Make sure no answer with qid=<paramref name="questionId"/> and aid=<paramref name="answerId"/>. (no operation if it has already not exist).
+        /// Make sure no answer with aid=<paramref name="answerId"/>. (no operation if it has already not exist).
         /// </summary>
         /// <param name="questionId">qid</param>
         /// <param name="answerId">aid</param>
         /// <returns></returns>
-        Task DeleteAnswerByIdAsync(int questionId, int answerId);
+        Task DeleteAnswerByIdAsync(int answerId);
     }
 }

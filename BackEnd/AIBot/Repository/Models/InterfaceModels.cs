@@ -47,7 +47,6 @@ namespace Buaa.AIBot.Repository.Models
 
     public class AnswerInfo
     {
-        public int QuestionId { get; set; }
         public int AnswerId { get; set; }
 
         /// <summary>

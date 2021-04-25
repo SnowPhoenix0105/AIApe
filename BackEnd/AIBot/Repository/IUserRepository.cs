@@ -40,8 +40,8 @@ namespace Buaa.AIBot.Repository
         /// Select all qid by uid;
         /// </summary>
         /// <param name="userId">uid</param>
-        /// <returns>list of <code>$"{qid}/{aid}"</code>, may empty</returns>
-        Task<IEnumerable<string>> SelectAnswersIdByIdAsync(int userId);
+        /// <returns>list of aid, may empty</returns>
+        Task<IEnumerable<int>> SelectAnswersIdByIdAsync(int userId);
 
         /// <summary>
         /// Insert a new user. UserId will be generated automatically.
