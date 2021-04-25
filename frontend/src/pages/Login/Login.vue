@@ -16,6 +16,7 @@
 
 <script>
 import Chat from '../../components/Chat/Chat.vue'
+import axios from "axios";
 
 export default {
   data() {
@@ -30,6 +31,37 @@ export default {
     onSubmit() {
       console.log('submit!');
 
+      // axios.get('https://aiape.snowphoenix.design/api/test/coffee',
+      //   {
+      //     Key: "key",
+      //     Value: "value",
+      //     Description: "description"
+      //   })
+      //   .then(function (response) {
+      //     console.log(response);
+      //   })
+      //   .catch(function (error) {
+      //     console.log(error);
+      //   });
+
+      // https://aiape.snowphoenix.design/api/test/echojson
+
+      axios.post('https://aiape.snowphoenix.design/api/test/echojson', {
+        firstName: 'lalala',
+        lastName: 'Flintstone'
+      }, {
+        // headers: {
+        //   'Content-Type': 'application/json'
+        // }
+      })
+        .then(function (response) {
+          alert('no error!')
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
     },
     goToRegister() {
       this.$router.replace('/register');
@@ -39,20 +71,20 @@ export default {
 </script>
 
 <style scoped>
-  .el-form {
-    position: absolute;
-    left: 35%;
-    top: 35%;
-  }
+.el-form {
+  position: absolute;
+  left: 35%;
+  top: 35%;
+}
 
-  .el-button {
-    position: absolute;
-    left: 35%;
-  }
+.el-button {
+  position: absolute;
+  left: 35%;
+}
 
-  .el-link {
-    position: absolute;
-    margin-top: 20px;
-    left: 37.5%;
-  }
+.el-link {
+  position: absolute;
+  margin-top: 20px;
+  left: 37.5%;
+}
 </style>
