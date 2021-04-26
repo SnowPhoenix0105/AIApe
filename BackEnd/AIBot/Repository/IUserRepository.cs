@@ -23,6 +23,13 @@ namespace Buaa.AIBot.Repository
         Task<UserInfo> SelectUserByEmailAsync(string email);
 
         /// <summary>
+        /// Select a User by name.
+        /// </summary>
+        /// <param name="name">name</param>
+        /// <returns>a UserInfo object if exist, or null</returns>
+        Task<UserInfo> SelectUserByNameAsync(string name);
+
+        /// <summary>
         /// Select the bcrypt result of a User by email.
         /// </summary>
         /// <param name="email">email</param>
@@ -33,15 +40,29 @@ namespace Buaa.AIBot.Repository
         /// Select all qid by uid;
         /// </summary>
         /// <param name="userId">uid</param>
-        /// <returns>list of qid, may empty</returns>
+        /// <returns>list of qid, may empty. null if not exist</returns>
         Task<IEnumerable<int>> SelectQuestionsIdByIdAsync(int userId);
+
+        /// <summary>
+        /// Select all qid by uid, sorted by modifyTime
+        /// </summary>
+        /// <param name="userId">uid</param>
+        /// <returns>list of qid, may empty. null if not exist</returns>
+        Task<IEnumerable<int>> SelectQuestionsIdByIdOrderByModifyTimeAsync(int userId);
 
         /// <summary>
         /// Select all qid by uid;
         /// </summary>
         /// <param name="userId">uid</param>
-        /// <returns>list of aid, may empty</returns>
+        /// <returns>list of aid, may empty. null if not exist</returns>
         Task<IEnumerable<int>> SelectAnswersIdByIdAsync(int userId);
+
+        /// <summary>
+        /// Select all qid by uid, sorted by modifyTime
+        /// </summary>
+        /// <param name="userId">uid</param>
+        /// <returns>list of aid, may empty. null if not exist</returns>
+        Task<IEnumerable<int>> SelectAnswersIdByIdByModifyTimeAsync(int userId);
 
         /// <summary>
         /// Insert a new user. UserId will be generated automatically.
@@ -51,6 +72,7 @@ namespace Buaa.AIBot.Repository
         /// </remarks>
         /// <exception cref="ArgumentNullException">Email, Bcrypt, or Name is null.</exception>
         /// <exception cref="EmailHasExistException">There is already a user using the same email with <paramref name="user"/>.Email</exception>
+        /// <exception cref="NameHasExistException">There is already a user using the same name with <paramref name="user"/>.Name</exception>
         /// <param name="user">the new user to store</param>
         /// <returns>uid</returns>
         Task<int> InsertUserAsync(UserInfo user);
@@ -65,6 +87,7 @@ namespace Buaa.AIBot.Repository
         /// No operation if any exception occurs.
         /// </remarks>
         /// <exception cref="UserNotExistException">There is no user with uesr.UserId == <paramref name="user"/>.UserId</exception>
+        /// <exception cref="NameHasExistException">There is already a user using the same name with <paramref name="user"/>.Name</exception>
         /// <param name="user">the new info for the user</param>
         /// <returns></returns>
         Task UpdateUserAsync(UserInfo user);

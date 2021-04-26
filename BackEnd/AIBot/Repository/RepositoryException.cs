@@ -17,6 +17,11 @@ namespace Buaa.AIBot.Repository
         public EmailHasExistException(string email) : base($"User with email={email} has already existed.") { }
     }
 
+    public class NameHasExistException : RepositoryException
+    {
+        public NameHasExistException(string name) : base($"User with name={name} has already existed.") { }
+    }
+
     public class TagNameHasExistException : RepositoryException
     {
         public TagNameHasExistException(string name) : base($"Tag with name={name} has already existed.") { }
