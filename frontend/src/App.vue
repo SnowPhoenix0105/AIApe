@@ -62,4 +62,10 @@ html, body, #app, div {
   border-radius: 3px;
 }
 
+.el-table {
+  -ms-flex: none !important;
+  flex: none !important;
+  height: max-content;
+}
+
 </style>
