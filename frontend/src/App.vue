@@ -48,5 +48,16 @@ html, body, #app, div{
   left: 40%;
   top: 0;
   width: 57%;
+  border-right: 1px solid lightgrey;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #eaecf1;
+  border-radius: 3px;
 }
 </style>

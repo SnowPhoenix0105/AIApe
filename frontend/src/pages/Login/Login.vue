@@ -30,6 +30,9 @@ export default {
   methods: {
     onSubmit() {
       console.log('submit!');
+      this.$router.replace('/questionList');
+
+
 
       // axios.get('https://aiape.snowphoenix.design/api/test/coffee',
       //   {
@@ -44,23 +47,21 @@ export default {
       //     console.log(error);
       //   });
 
-      // https://aiape.snowphoenix.design/api/test/echojson
-
-      axios.post('https://aiape.snowphoenix.design/api/test/echojson', {
-        firstName: 'lalala',
-        lastName: 'Flintstone'
-      }, {
-        // headers: {
-        //   'Content-Type': 'application/json'
-        // }
-      })
-        .then(function (response) {
-          alert('no error!')
-          console.log(response);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      // axios.post('https://aiape.snowphoenix.design/api/test/echojson', {
+      //   firstName: 'lalala',
+      //   lastName: 'Flintstone'
+      // }, {
+      //   // headers: {
+      //   //   'Content-Type': 'application/json'
+      //   // }
+      // })
+      //   .then(function (response) {
+      //     alert('no error!')
+      //     console.log(response);
+      //   })
+      //   .catch(function (error) {
+      //     console.log(error);
+      //   });
 
     },
     goToRegister() {
