@@ -11,6 +11,7 @@
 
 <script>
 import Chat from './components/Chat/Chat.vue'
+
 export default {
   components: {
     Chat
@@ -28,7 +29,7 @@ export default {
 /*  margin-top: 60px;*/
 /*}*/
 
-html, body, #app, div{
+html, body, #app, div {
   height: 99.99%;
   width: 100%;
   padding: 0;
@@ -48,8 +49,8 @@ html, body, #app, div{
   left: 40%;
   top: 0;
   width: 57%;
-  border-right: 1px solid lightgrey;
 }
+
 
 ::-webkit-scrollbar {
   width: 3px;
@@ -60,4 +61,5 @@ html, body, #app, div{
   background-color: #eaecf1;
   border-radius: 3px;
 }
+
 </style>
