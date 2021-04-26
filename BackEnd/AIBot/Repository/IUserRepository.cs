@@ -6,7 +6,7 @@ using Buaa.AIBot.Repository.Models;
 
 namespace Buaa.AIBot.Repository
 {
-    interface IUserRepository
+    public interface IUserRepository
     {
         /// <summary>
         /// Select a User by uid.

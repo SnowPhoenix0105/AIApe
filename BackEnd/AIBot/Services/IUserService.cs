@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,47 +11,62 @@ using System.Text;
 using System;
 
 using Buaa.AIBot.Controllers.Models;
+using Buaa.AIBot.Repository;
+using Buaa.AIBot.Repository.Models;
+
+using BNBCrypt = BCrypt.Net.BCrypt;
 
 namespace Buaa.AIBot.Services
 {
     public interface IUserService
     {
-        public string AuthorizeAccount(UserInfo userInfo);
+        Task<string> AuthorizeAccountAsync(UserBody userBody);
     }
 
     public class UserService : IUserService
     {
-        public UserService(IOptions<TokenManagement> tokenManagement)
+        public UserService(IOptions<TokenManagement> tokenManagement, IUserRepository userRepository)
         {
             this.tokenManagement = tokenManagement.Value;
+            this.userRepository = userRepository;
         }
 
-        private readonly Dictionary<int, string> roleMap = new Dictionary<int, string>
+        private readonly Dictionary<AuthLevel, string> roleMap = new Dictionary<AuthLevel, string>
         {
-            {0, "Traveler"},
-            {1, "User"},
-            {2, "Administrator"}
+            {AuthLevel.None, "Traveler"},
+            {AuthLevel.User, "User"},
+            {AuthLevel.Admin, "Administrator"}
         };
 
         private readonly TokenManagement tokenManagement;
 
-        private bool AuthenticateAccount(UserInfo userInfo)
+        private readonly IUserRepository userRepository;
+
+        private async Task<UserInfo> AuthenticateAccountAsync(UserBody userbody)
         {
-            // TODO
-            return true;
+            UserInfo userInfo = await userRepository.SelectUserByEmailAsync(userbody.Email);
+            if (!(userInfo == null))
+            {
+                if (BNBCrypt.Verify(userbody.Password, userInfo.Bcrypt))
+                {
+                    return userInfo;
+                }
+            }
+            return null;
         }
         
-        public string AuthorizeAccount(UserInfo userInfo)
+        public async Task<string> AuthorizeAccountAsync(UserBody userBody)
         {
             string token = string.Empty;
-            if(!AuthenticateAccount(userInfo))
+            UserInfo userInfo = await AuthenticateAccountAsync(userBody);
+            if(userInfo == null)
             {
                 return token;
             }
 
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, userInfo.Name),
+                new Claim(ClaimTypes.Email, userInfo.Email),
                 new Claim(ClaimTypes.Role, roleMap[userInfo.Auth])
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenManagement.Secret));

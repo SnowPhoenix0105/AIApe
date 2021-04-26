@@ -26,7 +26,7 @@ namespace Buaa.AIBot.Controllers
         /// </summary>
         [AllowAnonymous]
         [HttpPost("signup")]
-        public IActionResult SignUp(UserInfo body)
+        public IActionResult SignUp(UserBody body)
         {
             return Ok(new StatusMessageResponse {Status = "success", Message = "signup success"});
         }
@@ -36,7 +36,7 @@ namespace Buaa.AIBot.Controllers
         /// </summary>
         [AllowAnonymous]
         [HttpPost("login")]
-        public IActionResult Login(UserInfo body)
+        public IActionResult Login(UserBody body)
         {
             return Ok(new {Status = "success", Message = "login success", Token = "1", Auth = 1, Timeout = 600});
         }
@@ -79,7 +79,7 @@ namespace Buaa.AIBot.Controllers
         /// </summary>
         [Authorize(Policy = "UserAdmin")]
         [HttpPut("modify")]
-        public IActionResult Modify(UserInfo body)
+        public IActionResult Modify(UserBody body)
         {
             return Ok(new List<StatusMessageResponse>());
         }
@@ -111,7 +111,7 @@ namespace Buaa.AIBot.Controllers
         /// </summary>
         [AllowAnonymous]
         [HttpPost("fresh")]
-        public IActionResult Fresh(UserInfo body)
+        public IActionResult Fresh(UserBody body)
         {
             return Ok(new {Status = "", Message = "", Token = "", Timeout = 0});
         }

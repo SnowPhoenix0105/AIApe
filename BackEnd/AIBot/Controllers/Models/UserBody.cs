@@ -12,7 +12,5 @@ namespace Buaa.AIBot.Controllers.Models
 
         // 0 is Traveler, 1 is User, 2 is Administrator
         public int Auth {get; set;}
-
-        public string Token {get; set;}
     }
 }
