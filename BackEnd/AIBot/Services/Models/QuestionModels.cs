@@ -13,7 +13,7 @@ namespace Buaa.AIBot.Services.Models
         public int? Best { get; set; }
         public DateTime CreatTime { get; set; }
         public DateTime ModifyTime { get; set; }
-        public IEnumerable<int> Tags { get; set; }
+        public Dictionary<string, int> Tags { get; set; }
         public IEnumerable<int> Answers { get; set; }
     }
 
