@@ -64,6 +64,8 @@ namespace Buaa.AIBot
             services
                 // Add UserServices
                 .AddUserServices(Configuration)
+
+                .AddTransient<IQuestionService, QuestionService>()
                 ;
         }
 

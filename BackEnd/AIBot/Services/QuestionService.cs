@@ -10,11 +10,14 @@ using Buaa.AIBot.Repository.Models;
 
 namespace Buaa.AIBot.Services
 {
+    /// <summary>
+    /// Implemention of IQuestionService
+    /// </summary>
     public class QuestionService : IQuestionService
     {
-        private IQuestionRepository questionRepository;
-        private IAnswerRepository answerRepository;
-        private ITagRepostory tagRepostory;
+        private readonly IQuestionRepository questionRepository;
+        private readonly IAnswerRepository answerRepository;
+        private readonly ITagRepostory tagRepostory;
 
         public QuestionService(IQuestionRepository question, IAnswerRepository answerRepository, ITagRepostory tagRepostory)
         {
