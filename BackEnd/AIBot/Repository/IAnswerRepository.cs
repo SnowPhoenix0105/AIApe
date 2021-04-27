@@ -6,7 +6,7 @@ using Buaa.AIBot.Repository.Models;
 
 namespace Buaa.AIBot.Repository
 {
-    interface IAnswerRepository
+    public interface IAnswerRepository
     {
         /// <summary>
         /// Select an answer by id.
@@ -15,6 +15,8 @@ namespace Buaa.AIBot.Repository
         /// <returns>an AnswerInfo object if exist, or null</returns>
         Task<AnswerInfo> SelectAnswerByIdAsync(int answerId);
 
+        Task<AnswerInfo> SelectAnswerByQuestionAndUserAsync(int questionId, int userId); 
+
         /// <summary>
         /// Insert a new answer. AnswerId, CreateTime, ModifyTime will be generated automatically.
         /// </summary>
@@ -22,6 +24,7 @@ namespace Buaa.AIBot.Repository
         /// QuestionId and CreaterId is required.
         /// No operation if any exception occurs.
         /// </remarks>
+        /// <exception cref="UserHasAnswerTheQuestion">There us an answer with given uid and qid</exception>
         /// <exception cref="QuestionNotExistException">There is no question with qid=<paramref name="answer"/>.QuestionId</exception>
         /// <param name="answer">the new answer to store</param>
         /// <returns></returns>

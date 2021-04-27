@@ -6,8 +6,9 @@ using Buaa.AIBot.Repository.Models;
 
 namespace Buaa.AIBot.Repository
 {
-    interface ITagRepostory
+    public interface ITagRepostory
     {
+        Task<Dictionary<string, int>> SelectAllTags();
 
         /// <summary>
         /// Select a tag by id.
@@ -37,6 +38,6 @@ namespace Buaa.AIBot.Repository
         /// </summary>
         /// <param name="tagId">tid</param>
         /// <returns></returns>
-        Task DeleteTag(int tagId);
+        Task DeleteTagAsync(int tagId);
     }
 }

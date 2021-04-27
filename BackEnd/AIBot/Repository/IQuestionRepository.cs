@@ -6,14 +6,14 @@ using Buaa.AIBot.Repository.Models;
 
 namespace Buaa.AIBot.Repository
 {
-    interface IQuestionRepository
+    public interface IQuestionRepository
     {
         /// <summary>
         /// Select
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        Task<IEnumerable<int>> SelectQuestionsWithTags(List<int> tags);
+        Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags);
 
         /// <summary>
         /// Select a question by id.
@@ -42,7 +42,7 @@ namespace Buaa.AIBot.Repository
         /// </remarks>
         /// <param name="questionId">qid</param>
         /// <returns>name-tid dictionary for tags.</returns>
-        Task<IEnumerable<Tuple<string, int>>> SelectTagsForQuestionByIdAsync(int questionId);
+        Task<IEnumerable<KeyValuePair<string, int>>> SelectTagsForQuestionByIdAsync(int questionId);
 
         /// <summary>
         /// Insert a new question. QuestionId, CreateTime, and ModifyTime will be generated automatically.
