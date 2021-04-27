@@ -7,7 +7,7 @@ using Buaa.AIBot.Services.Exceptions;
 
 namespace Buaa.AIBot.Services
 {
-    interface IQuestionService
+    public interface IQuestionService
     {
         /// <summary>
         /// 
