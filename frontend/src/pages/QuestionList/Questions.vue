@@ -1,21 +1,16 @@
 <template>
-  <div>
+  <div class="outside">
     <el-table
-      :data="tableData"
+      :data="questions"
       style="width: 100%">
       <el-table-column
-        prop="date"
-        label="日期"
+        prop="id"
+        label="编号"
         width="180">
       </el-table-column>
       <el-table-column
-        prop="name"
-        label="姓名"
-        width="180">
-      </el-table-column>
-      <el-table-column
-        prop="address"
-        label="地址">
+        prop="title"
+        label="问题">
       </el-table-column>
     </el-table>
   </div>
@@ -25,28 +20,42 @@
 export default {
   data() {
     return {
-      tableData: [{
-        date: '2016-05-02',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1518 弄'
-      }, {
-        date: '2016-05-04',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1517 弄'
-      }, {
-        date: '2016-05-01',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1519 弄'
-      }, {
-        date: '2016-05-03',
-        name: '王小虎',
-        address: '上海市普陀区金沙江路 1516 弄'
-      }]
+      questions: []
+    }
+  },
+  mounted() {
+    this.getQuestions();
+  },
+  methods: {
+    getQuestions() {
+      let _this = this;
+      let questionIdList;
+      _this.$axios.post('https://aiape.snowphoenix.design/api/test/questions/questionlist', {
+        number: 70
+      })
+      .then(function (response) {
+        let questionIdList = response.data;
+        questionIdList.sort();
+        for (let qid of questionIdList) {
+          _this.$axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + qid)
+            .then(function (response) {
+              _this.$data.questions.push({'id': qid, 'title': response.data.message});
+            });
+        }
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+.outside {
+  height: 100%;
+  overflow: hidden;
+}
 
+.el-table {
+  overflow: scroll;
+  margin-left: 20px;
+}
 </style>

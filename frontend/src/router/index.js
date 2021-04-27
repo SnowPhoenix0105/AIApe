@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Register from '../pages/Register/Register.vue'
 import Login from '../pages/Login/Login.vue'
 import QuestionList from "../pages/QuestionList/QuestionList";
+import Questions from "../pages/QuestionList/Questions";
 
 Vue.use(Router)
 
@@ -23,6 +24,10 @@ export default new Router({
     {
       path: '/',
       redirect: 'login'
+    },
+    {
+      path: '/questions',
+      component: Questions
     }
   ]
 })

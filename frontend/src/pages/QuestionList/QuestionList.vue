@@ -16,7 +16,24 @@
         <li v-for="item of this.tableData"><span>{{ item }}</span></li>
       </ul>
     </div>
-
+    <el-table
+      :data="tableData"
+      style="width: 100%">
+      <el-table-column
+        prop="date"
+        label="日期"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="name"
+        label="姓名"
+        width="180">
+      </el-table-column>
+      <el-table-column
+        prop="address"
+        label="地址">
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
@@ -38,11 +55,11 @@ export default {
       }
     ).then(function (response) {
       console.log("qid列表如下");
-      var qidLs = response.data;
+      let qidLs = response.data;
       console.log(qidLs);
 
-      for (var idx = 0; idx < qidLs.length; idx++) {
-        var qid = qidLs[idx];
+      for (let idx = 0; idx < qidLs.length; idx++) {
+        let qid = qidLs[idx];
         axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + qid)
           .then(function (response) {
             __this.tableData.push(response.data.message);

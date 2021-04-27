@@ -6,11 +6,13 @@ import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import store from "./vuex/store";
+import axios from 'axios';
+import VueAxios from 'vue-axios';
 
+Vue.prototype.$axios = axios;
 Vue.use(ElementUI);
 Vue.prototype.$store = store;
 
-/* eslint-disable no-new */
 new Vue({
   el: '#app',
   render: h => h(App),

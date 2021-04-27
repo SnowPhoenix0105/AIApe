@@ -29,7 +29,7 @@ export default {
   methods: {
     onSubmit() {
       this.$store.commit('setUsername', 'huang');
-      this.$router.replace('/questionList');
+      this.$router.replace('/questions');
     },
     goToRegister() {
       this.$router.replace('/register');
