@@ -9,8 +9,14 @@
         width="180">
       </el-table-column>
       <el-table-column
-        prop="title"
         label="问题">
+        <template slot-scope="scope">
+          <el-popover trigger="hover" placement="top">
+            <p>编号: {{ scope.row.id }}</p>
+            <p>问题: {{ scope.row.title }}</p>
+            <el-link :href="scope.row.link" slot="reference">{{scope.row.title}}</el-link>
+          </el-popover>
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -39,7 +45,9 @@ export default {
         for (let qid of questionIdList) {
           _this.$axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + qid)
             .then(function (response) {
-              _this.$data.questions.push({'id': qid, 'title': response.data.message});
+              _this.$data.questions.push({'id': qid,
+                'title': response.data.message,
+                'link': 'http://www.baidu.com'});
             });
         }
       })
@@ -58,4 +66,5 @@ export default {
   overflow: scroll;
   margin-left: 20px;
 }
+
 </style>

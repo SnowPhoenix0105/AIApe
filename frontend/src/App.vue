@@ -68,4 +68,9 @@ html, body, #app, div {
   height: max-content;
 }
 
+.el-popover {
+  height: 100px;
+  width: 100px;
+}
+
 </style>
