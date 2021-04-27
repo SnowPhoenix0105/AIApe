@@ -7,22 +7,22 @@ import Questions from "../pages/QuestionList/Questions";
 Vue.use(Router)
 
 export default new Router({
-  routes: [
-    {
-      path: '/register',
-      component: Register
-    },
-    {
-      path: '/login',
-      component: Login
-    },
-    {
-      path: '/',
-      redirect: 'login'
-    },
-    {
-      path: '/questions',
-      component: Questions
-    }
-  ]
+    routes: [
+        {
+            path: '/register',
+            component: Register
+        },
+        {
+            path: '/login',
+            component: Login
+        },
+        {
+            path: '/',
+            redirect: 'login'
+        },
+        {
+            path: '/questionList',
+            component: Questions
+        }
+    ]
 })

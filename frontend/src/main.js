@@ -14,8 +14,8 @@ Vue.use(ElementUI);
 Vue.prototype.$store = store;
 
 new Vue({
-  el: '#app',
-  render: h => h(App),
-  router
+    el: '#app',
+    render: h => h(App),
+    router
 })
 
