@@ -28,11 +28,16 @@ namespace Buaa.AIBot
             try
             {
                 PrintWelcomeInfo();
-                var host = CreateHostBuilder(args).Build();
+                var builder = CreateHostBuilder(args);
+                // Configure logging
+                ConfigureLogging(builder);
+
                 Log.Information("Host build success!");
                 Log.Information("");
                 Log.Information("");
-                host.Run();
+
+                builder.Build().Run();
+
                 Log.Information("Host terminated success");
                 return 0;
             }
@@ -49,12 +54,20 @@ namespace Buaa.AIBot
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                // Configure logging
-                .ConfigureLoggingWithSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+        public static void ConfigureLogging(IHostBuilder builder)
+        {
+            var settings = new LoggingSettings()
+            {
+                ConsoleLevel = Serilog.Events.LogEventLevel.Information,
+                EnableIpLog = false,
+            };
+            builder.ConfigureLoggingWithSerilog(settings);
+        }
 
         private static void PrintWelcomeInfo()
         {
