@@ -4,23 +4,24 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Buaa.AIBot.Repository.Models
 {
-    public class User
+    public class UserData
     {
         [Key]
         public int UserId { get; set; }
 
         [Required]
+        [Column(TypeName = "varchar(254) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci")]
         public string Email { get; set; }
 
         [Required]
+        [Column(TypeName = "char(60)")]
         public string Bcrypt { get; set; }
 
         [Required]
+        [Column(TypeName = "varchar(18) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci UNIQUE")]
         public string Name { get; set; }
 
         [Required]
@@ -28,11 +29,11 @@ namespace Buaa.AIBot.Repository.Models
         public AuthLevel Auth { get; set; }
 
         // relation references
-        public List<Question> Questions { get; set; }
-        public List<Answer> Answers { get; set; }
+        public List<QuestionData> Questions { get; set; }
+        public List<AnswerData> Answers { get; set; }
     }
 
-    public class Question
+    public class QuestionData
     {
         [Key]
         public int QuestionId { get; set; }
@@ -40,6 +41,7 @@ namespace Buaa.AIBot.Repository.Models
         public int? UserId { get; set; }
 
         [Required]
+        [Column(TypeName = "varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci")]
         public string Title { get; set; }
 
         [Required]
@@ -52,12 +54,12 @@ namespace Buaa.AIBot.Repository.Models
         public DateTime ModifyTime { get; set; }
 
         // relation references
-        public User User { get; set; }
-        public List<Answer> Answers { get; set; }
-        public List<Tag> Tags { get; set; }
+        public UserData User { get; set; }
+        public List<AnswerData> Answers { get; set; }
+        public List<QuestionTagRelation> QuestionTagRelation { get; set; }
     }
 
-    public class Answer
+    public class AnswerData
     {
         [Key]
         public int AnswerId { get; set; }
@@ -75,22 +77,33 @@ namespace Buaa.AIBot.Repository.Models
 
 
         // relation references
-        public User User { get; set; }
-        public Question Question { get; set; }
+        public UserData User { get; set; }
+        public QuestionData Question { get; set; }
     }
 
-    public class Tag
+    public class TagData
     {
         [Key]
         public int TagId { get; set; }
 
         [Required]
+        [Column(TypeName = "varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci UNIQUE")]
         public string Name { get; set; }
 
         [Required]
         public string Desc { get; set; }
 
         // relation references
-        public List<Question> Questions { get; set; }
+        public List<QuestionTagRelation> QuestionTagRelation { get; set; }
+    }
+
+    public class QuestionTagRelation
+    {
+        public int TagId { get; set; }
+        public int QuestionId { get; set; }
+
+        // relation references
+        public QuestionData Question { get; set; }
+        public TagData Tag { get; set; }
     }
 }
