@@ -117,14 +117,14 @@ namespace Buaa.AIBot.Services
 
         public Task<Dictionary<string, int>> GetTagListAsync()
         {
-            return tagRepostory.SelectAllTags();
+            return tagRepostory.SelectAllTagsAsync();
         }
 
         public async Task<int> AddQuestionAsync(int creater, string title, string remarks, IEnumerable<int> tags)
         {
             if (title.Length > Constants.QuestionTitleMaxLength)
             {
-                throw new QuestionTitleTooLongException(title.Length, Constants.QuestionTitleMaxLength);
+                throw new Exceptions.QuestionTitleTooLongException(title.Length, Constants.QuestionTitleMaxLength);
             }
             try
             {

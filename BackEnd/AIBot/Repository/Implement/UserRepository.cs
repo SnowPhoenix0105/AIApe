@@ -146,13 +146,6 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<int> InsertUserAsync(UserInfo user)
         {
-            var target = new UserData()
-            {
-                Email = user.Email,
-                Bcrypt = user.Bcrypt,
-                Name = user.Name,
-                Auth = user.Auth
-            };
             if (user.Bcrypt == null)
             {
                 throw new ArgumentNullException(nameof(user.Bcrypt));
@@ -165,12 +158,35 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new ArgumentNullException(nameof(user.Auth));
             }
+            if (user.Email.Length > Constants.UserEmailMaxLength)
+            {
+                throw new UserEmailToLongException(user.Email.Length, Constants.UserEmailMaxLength);
+            }
+            if (user.Name.Length > Constants.UserNameMaxLength)
+            {
+                throw new UserNameToLongException(user.Name.Length, Constants.UserNameMaxLength);
+            }
+            if (user.Bcrypt.Length != Constants.UserBcryptLength)
+            {
+                throw new UserBycryptLengthException(user.Bcrypt.Length, Constants.UserBcryptLength);
+            }
+            var target = new UserData()
+            {
+                Email = user.Email,
+                Bcrypt = user.Bcrypt,
+                Name = user.Name,
+                Auth = user.Auth
+            };
             await CheckInsert(user);
             bool success = false;
             Context.Users.Add(target);
             while (!success)
             {
                 success = await TrySaveChangesAgainAndAgainAsync();
+                if (success)
+                {
+                    break;
+                }
                 await CheckInsert(user);
             }
             return target.UserId;
@@ -188,23 +204,35 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 success = false;
                 target.Bcrypt = user.Bcrypt;
+                if (user.Bcrypt.Length != Constants.UserBcryptLength)
+                {
+                    throw new UserBycryptLengthException(user.Bcrypt.Length, Constants.UserBcryptLength);
+                }
             }
             if (user.Name != null)
             {
                 success = false;
                 target.Name = user.Name;
+                if (user.Name.Length > Constants.UserNameMaxLength)
+                {
+                    throw new UserNameToLongException(user.Name.Length, Constants.UserNameMaxLength);
+                }
             }
             if (user.Auth != AuthLevel.None)
             {
                 success = false;
                 target.Auth = user.Auth;
             }
-            while (success)
+            while (!success)
             {
                 if (user.Name != null && (
                     await Context.Users.FirstOrDefaultAsync(u => u.Name == user.Name)) != null)
                 {
                     throw new NameHasExistException(user.Name);
+                }
+                if ((await Context.Users.FindAsync(user.UserId)) == null)
+                {
+                    throw new UserNotExistException(user.UserId);
                 }
                 success = await TrySaveChangesAgainAndAgainAsync();
             }

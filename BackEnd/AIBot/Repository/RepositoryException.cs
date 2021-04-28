@@ -61,7 +61,37 @@ namespace Buaa.AIBot.Repository
 
     public class AnswerNotExistException : RepositoryException
     {
-        public AnswerNotExistException(int questionId, int answerId) 
-            : base($"Answer with qid={questionId} and aid={answerId} is not exist.") { }
+        public AnswerNotExistException(int answerId) 
+            : base($"Answer with aid={answerId} is not exist.") { }
+    }
+
+    public class UserNameToLongException : RepositoryException
+    {
+        public UserNameToLongException(int actual, int max)
+            : base($"User name has max length={max}, but {actual} get.") { }
+    }
+
+    public class UserEmailToLongException : RepositoryException
+    {
+        public UserEmailToLongException(int actual, int max)
+            : base($"User email has max length={max}, but {actual} get.") { }
+    }
+
+    public class UserBycryptLengthException : RepositoryException
+    {
+        public UserBycryptLengthException(int actual, int require)
+            : base($"User bcrypt expect length={require}, but {actual} get.") { }
+    }
+
+    public class QuestionTitleTooLongException : RepositoryException
+    {
+        public QuestionTitleTooLongException(int actual, int max)
+            : base($"Question title has max length={max}, but {actual} get.") { }
+    }
+
+    public class TagNameToLongException : RepositoryException
+    {
+        public TagNameToLongException(int actual, int max)
+            : base($"Tag name has max length={max}, but {actual} get.") { }
     }
 }

@@ -137,6 +137,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new ArgumentNullException(nameof(question.CreaterId));
             }
+            if (question.Title.Length > Constants.QuestionTitleMaxLength)
+            {
+                throw new QuestionTitleTooLongException(question.Title.Length, Constants.QuestionTitleMaxLength);
+            }
             var matcher = new TagMatcher(question.Tags);
             await CheckInsertAsync(question, matcher);
             var target = new QuestionData()
@@ -150,6 +154,10 @@ namespace Buaa.AIBot.Repository.Implement
             while (!success)
             {
                 success = await TrySaveChangesAgainAndAgainAsync();
+                if (success)
+                {
+                    break;
+                }
                 await CheckInsertAsync(question, matcher);
             }
             int qid = target.QuestionId;
@@ -165,7 +173,11 @@ namespace Buaa.AIBot.Repository.Implement
                 while (!success)
                 {
                     success = await TrySaveChangesAgainAndAgainAsync();
-                    await CheckInsertAsync(question, matcher);
+                    if (success)
+                    {
+                        break;
+                    }
+                    await CheckTags(matcher);
                 }
             }
             catch (Exception)
@@ -176,40 +188,94 @@ namespace Buaa.AIBot.Repository.Implement
             return qid;
         }
 
+        private async Task CheckUpdateAsync(QuestionData target, QuestionWithListTag question, TagMatcher matcher)
+        {
+            if ((await Context.Questions.FindAsync(question.QuestionId)) == null)
+            {
+                throw new QuestionNotExistException(question.QuestionId);
+            }
+            if (question.BestAnswerId != null)
+            {
+                if (target
+                    .Answers
+                    .Select(a => (int?)a.AnswerId)
+                    .SingleOrDefault(aid => aid == question.BestAnswerId) == null)
+                {
+                    throw new AnswerNotExistException((int)question.BestAnswerId);
+                }
+            }
+            if (question.Tags != null)
+            {
+                await CheckTags(matcher);
+            }
+        }
+
         public async Task UpdateQuestionAsync(QuestionWithListTag question)
         {
-            // TODO
             var target = await Context.Questions.FindAsync(question.QuestionId);
-
+            if (target == null)
+            {
+                throw new QuestionNotExistException(question.QuestionId);
+            }
+            if (question.Title != null)
+            {
+                if (question.Title.Length > Constants.QuestionTitleMaxLength)
+                {
+                    throw new QuestionTitleTooLongException(question.Title.Length, Constants.QuestionTitleMaxLength);
+                }
+                target.Title = question.Title;
+            }
+            if (question.Remarks != null)
+            {
+                target.Remarks = question.Remarks;
+            }
+            if (question.BestAnswerId != null)
+            {
+                target.BestAnswerId = question.BestAnswerId;
+            }
             var matcher = new TagMatcher(question.Tags);
-            await CheckTags(matcher);
+            await CheckUpdateAsync(target, question, matcher);
             Context.Questions.Add(target);
             bool success = false;
             while (!success)
             {
                 success = await TrySaveChangesAgainAndAgainAsync();
-                await CheckTags(matcher);
-            }
-            int qid = target.QuestionId;
-            Context.QuestionTagRelations.AddRange(
-                matcher.Requires.Select(t => new QuestionTagRelation()
+                if (success)
                 {
-                    QuestionId = qid,
-                    TagId = t
-                }));
-            success = false;
-            try
-            {
-                while (!success)
-                {
-                    success = await TrySaveChangesAgainAndAgainAsync();
-                    await CheckInsertAsync(question, matcher);
+                    break;
                 }
+                await CheckUpdateAsync(target, question, matcher);
             }
-            catch (Exception)
+            if (question.Tags != null)
             {
-                Context.Remove(target);
-                await SaveChangesAgainAndAgainAsync();
+                int qid = target.QuestionId;
+                Context.QuestionTagRelations.AddRange(
+                    matcher
+                    .Requires
+                    .SkipWhile(t => target.QuestionTagRelation.Select(qt => qt.TagId).Contains(t))
+                    .Select(t => new QuestionTagRelation()
+                    {
+                        QuestionId = qid,
+                        TagId = t
+                    }));
+                success = false;
+                try
+                {
+                    while (!success)
+                    {
+                        success = await TrySaveChangesAgainAndAgainAsync();
+                        if (success)
+                        {
+                            break;
+                        }
+                        await CheckTags(matcher);
+                    }
+                }
+                catch (Exception)
+                {
+                    Context.Remove(target);
+                    await SaveChangesAgainAndAgainAsync();
+                }
             }
         }
 
