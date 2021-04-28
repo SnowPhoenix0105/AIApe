@@ -21,9 +21,9 @@ namespace Buaa.AIBot.Services
         /// 
         /// </summary>
         /// <exception cref="AnswerNotExistException"></exception>
-        /// <param name="qid"></param>
+        /// <param name="aid"></param>
         /// <returns></returns>
-        Task<AnswerInformation> GetAnswerAsync(int qid);
+        Task<AnswerInformation> GetAnswerAsync(int aid);
 
         /// <summary>
         /// 
@@ -69,7 +69,7 @@ namespace Buaa.AIBot.Services
         /// <param name="name"></param>
         /// <param name="content"></param>
         /// <returns>tid</returns>
-        Task<int> AddTagAsync(string name, string content);
+        Task<int> AddTagAsync(string name, string desc);
 
         /// <summary>
         /// qid is required. For other params, null mean no change.

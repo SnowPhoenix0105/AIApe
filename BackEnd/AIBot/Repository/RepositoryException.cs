@@ -14,32 +14,49 @@ namespace Buaa.AIBot.Repository
 
     public class EmailHasExistException : RepositoryException
     {
-        public EmailHasExistException(string email) : base($"User with email={email} has already existed.") { }
+        public EmailHasExistException(string email) 
+            : base($"User with email={email} has already existed.") { }
     }
 
     public class NameHasExistException : RepositoryException
     {
-        public NameHasExistException(string name) : base($"User with name={name} has already existed.") { }
+        public NameHasExistException(string name) 
+            : base($"User with name={name} has already existed.") { }
     }
 
     public class TagNameHasExistException : RepositoryException
     {
-        public TagNameHasExistException(string name) : base($"Tag with name={name} has already existed.") { }
+        public TagNameHasExistException(string name) 
+            : base($"Tag with name={name} has already existed.") { }
     }
 
     public class UserNotExistException : RepositoryException
     {
-        public UserNotExistException(int userId) : base($"User with uid={userId} is not exist.") { }
+        public UserNotExistException(int userId) 
+            : base($"User with uid={userId} is not exist.") { }
     }
 
     public class TagNotExistException : RepositoryException
     {
-        public TagNotExistException(int tagId) : base($"Tag with tid={tagId} is not exist.") { }
+        public int TagId { get; }
+
+        public TagNotExistException(int tagId) 
+            : base($"Tag with tid={tagId} is not exist.")
+        {
+            TagId = tagId;
+        }
     }
 
     public class QuestionNotExistException : RepositoryException
     {
-        public QuestionNotExistException(int questionId) : base($"Question with qid={questionId} is not exist.") { }
+        public QuestionNotExistException(int questionId) 
+            : base($"Question with qid={questionId} is not exist.") { }
+    }
+
+    public class UserHasAnswerTheQuestionException : RepositoryException
+    {
+        public UserHasAnswerTheQuestionException(int userId, int questionId)
+            : base($"User with uid={userId} has answer the question with qid={questionId}") { }
     }
 
     public class AnswerNotExistException : RepositoryException

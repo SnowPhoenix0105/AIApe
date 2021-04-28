@@ -18,7 +18,7 @@ namespace Buaa.AIBot.Repository.Models
         public string Email { get; set; }
         public string Bcrypt { get; set; }
         public string Name { get; set; }
-        public AuthLevel Auth { get; set; }
+        public AuthLevel Auth { get; set; } = AuthLevel.None;
     }
 
     public class QuestionInfo
@@ -42,7 +42,7 @@ namespace Buaa.AIBot.Repository.Models
 
     public class QuestionWithListTag : QuestionInfo
     {
-        public List<int> Tags { get; set; }
+        public IEnumerable<int> Tags { get; set; }
     }
 
     public class AnswerInfo
@@ -53,6 +53,7 @@ namespace Buaa.AIBot.Repository.Models
         /// The creater of this answer. null means the creater has been removed.
         /// </summary>
         public int? CreaterId { get; set; }
+        public int QuestionId { get; set; }
         public string Content { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime ModifyTime { get; set; }

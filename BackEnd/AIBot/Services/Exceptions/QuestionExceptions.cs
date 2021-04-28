@@ -19,24 +19,40 @@ namespace Buaa.AIBot.Services.Exceptions
     {
         public UserNotExistException(int uid)
             : base($"No user has uid={uid}") { }
+        public UserNotExistException(int uid, Exception innerException)
+            : base($"No user has uid={uid}", innerException) { }
     }
 
     public class QuestionNotExistException : QuestionException
     {
         public QuestionNotExistException(int qid) 
             : base($"No question has qid={qid}.") { }
+
+        public QuestionNotExistException(int qid, Exception innerException)
+            : base($"No question has qid={qid}.", innerException) { }
     }
 
     public class AnswerNotExistException : QuestionException
     {
         public AnswerNotExistException(int aid)
             : base($"No answer has aid={aid}.") { }
+        public AnswerNotExistException(int aid, Exception innerException)
+            : base($"No answer has aid={aid}.", innerException) { }
     }
 
     public class TagNotExistException : QuestionException
     {
+        public int TagId { get; }
         public TagNotExistException(int tid)
-            : base($"No tag has tid={tid}.") { }
+            : base($"No tag has tid={tid}.")
+        {
+            TagId = tid;
+        }
+        public TagNotExistException(int tid, Exception innerException)
+            : base($"No tag has tid={tid}.", innerException)
+        {
+            TagId = tid;
+        }
     }
 
     public class QuestionTitleTooLongException : QuestionException
@@ -49,6 +65,8 @@ namespace Buaa.AIBot.Services.Exceptions
     {
         public UserHasAnswerTheQuestionException(int uid, int qid)
             : base($"User with uid={uid} has already answered question with qid={qid}.") { }
+        public UserHasAnswerTheQuestionException(int uid, int qid, Exception innerException)
+            : base($"User with uid={uid} has already answered question with qid={qid}.", innerException) { }
     }
 
     public class TagNameTooLongException : QuestionException
@@ -61,5 +79,7 @@ namespace Buaa.AIBot.Services.Exceptions
     {
         public TagNameExistException(string name)
             : base($"Tag name \"{name}\" has exist.") { }
+        public TagNameExistException(string name, Exception innerException)
+            : base($"Tag name \"{name}\" has exist.", innerException) { }
     }
 }
