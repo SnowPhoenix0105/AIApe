@@ -1,16 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
-using Buaa.AIBot;
 using Buaa.AIBot.Services;
 using Buaa.AIBot.Services.Models;
 using Buaa.AIBot.Services.Exceptions;
 using Buaa.AIBot.Controllers.Models;
+using Buaa.AIBot.Repository.Models;
+using Buaa.AIBot.Controllers.Exceptions;
 
 namespace Buaa.AIBot.Controllers
 {
@@ -156,59 +154,333 @@ namespace Buaa.AIBot.Controllers
 
         [Authorize(Policy = "UserAdmin")]
         [HttpPost("add_answer")]
-        public async Task<IActionResult> AddAnswerAsync()
+        public async Task<IActionResult> AddAnswerAsync(QuestionBody body)
         {
             int creater = userService.GetUidFromToken(Request);
-            int qid =    
+            int qid = body.Qid.GetValueOrDefault(-1);
+            string content = (body.Content == null) ? "" : body.Content;
+            try
+            {
+                int aid = await questionService.AddAnswerAsync(creater, qid, content);
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "new answer add successfully"
+                });
+            } catch (UserHasAnswerTheQuestionException) {
+                return Ok(new
+                {
+                    Status = "answerHasExist",
+                    Message = "user has answered this question"
+                });
+            } catch (UserNotExistException) {
+                return Ok(new
+                {
+                    Status = "userNotExist",
+                    Message = "adding question fail for user problem"
+                });
+            } // TODO: question/answer too long or too short
         }
 
         [Authorize(Policy = "Admin")]
         [HttpPost("add_tag")]
-        public async Task<IActionResult> AddTagAsync()
+        public async Task<IActionResult> AddTagAsync(QuestionBody body)
         {
-
+            string name = (body.Name == null)? "" : body.Name;
+            string desc = (body.Desc == null)? "" : body.Desc;
+            try
+            {
+                int tid = await questionService.AddTagAsync(name, desc);
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "new tag add successfully"
+                });
+            } catch (TagNameTooLongException) {
+                return Ok(new
+                {
+                    Status = "nameTooLong",
+                    Message = "name of tag is too long"
+                });
+            } catch (TagNameExistException) {
+                return Ok(new
+                {
+                    Status = "nameHasExists",
+                    Message = "tag with this name has already existed"
+                });
+            }
         }
 
         [Authorize(Policy = "UserAdmin")]
         [HttpPut("modify_question")]
-        public async Task<IActionResult> ModifyQuestion()
+        public async Task<IActionResult> ModifyQuestion(QuestionBody body)
         {
+            int qid = body.Qid.GetValueOrDefault(-1);
+            try
+            {
+                await checkQidAsync(qid);
+            } catch (QuestionNotExistException) {
+                return NotFound(new
+                {
+                    Status = "questionNotExist",
+                    Message = $"question with qid={qid} dose not exist"
+                });
+            } catch (LackofAuthorityException) {
+                return Unauthorized(new
+                {
+                    Status = "fail",
+                    Message = "your authority is not enough"
+                });
+            }
 
+            string question = (body.Question == null)? "" : body.Question;
+            string remarks = (body.Remarks == null)? "" : body.Remarks;
+            int? bestAnswer = body.BestAnswer;
+            IEnumerable<int> tags = (body.Tags == null)? new int[0] : body.Tags;
+
+            try
+            {
+                await questionService.ModifyQuestionAsync(qid, new QuestionModifyItems
+                {
+                    Title = question,
+                    Remarks = remarks,
+                    BestAnswer = bestAnswer,
+                    Tags = tags
+                });
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "question modification successfully"
+                });
+            } catch (QuestionNotExistException) {
+                return NotFound(new
+                {
+                    Status = "questionNotExist",
+                    Message = $"question with qid={qid} dose not exist"
+                });
+            } catch (QuestionTitleTooLongException) {
+                return Ok(new
+                {
+                    Status = "questionTitleTooLong",
+                    Message = "new title is too long"
+                });
+            } catch (TagNotExistException) {
+                return NotFound(new
+                {
+                    Status = "tagNotExist",
+                    Message = "tags include illegal tag(s)"
+                });
+            } catch (AnswerNotExistException) {
+                return NotFound(new
+                {
+                    Status = "answerNotExist",
+                    Message = "there is no specific best answer"
+                });
+            }
         }
 
         [Authorize(Policy = "UserAdmin")]
         [HttpPut("modify_answer")]
-        public async Task<IActionResult> ModifyAnswer()
+        public async Task<IActionResult> ModifyAnswer(QuestionBody body)
         {
-
+            int aid = body.Aid.GetValueOrDefault(-1);
+            try
+            {
+                await checkAidAsync(aid);
+            } catch (AnswerNotExistException) {
+                return NotFound(new
+                {
+                    Status = "answerNotExist",
+                    Message = $"answer with aid={aid} dose not exist"
+                });
+            } catch (LackofAuthorityException) {
+                return Unauthorized(new
+                {
+                    Status = "unauthorized",
+                    Message = "your authority is not enough"
+                });
+            }
+            
+            string content = (body.Content == null)? "" : body.Content;
+            try
+            {
+                await questionService.ModifyAnswerAsync(aid, content);
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "answer modification successfully"
+                });
+            } catch (AnswerNotExistException) {
+                return NotFound(new
+                {
+                    Status = "answerNotExist",
+                    Message = $"answer with aid={aid} dose not exist"
+                });
+            }
         }
 
         [Authorize(Policy = "Admin")]
         [HttpPut("modify_tag")]
-        public async Task<IActionResult> ModifyTag()
+        public async Task<IActionResult> ModifyTag(QuestionBody body)
         {
-
+            int tid = body.Tid.GetValueOrDefault(-1);
+            string name = (body.Name == null)? "" : body.Name;
+            string desc = (body.Desc == null)? "" : body.Desc;
+            try
+            {
+                await questionService.ModifyTagAsync(tid, name, desc);
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "tag modification success"
+                });
+            } catch (TagNotExistException) {
+                return NotFound(new
+                {
+                    Status = "tagNotExist",
+                    Messaga = $"tag with tid={tid} dose not exist"
+                });
+            } catch (TagNameTooLongException) {
+                return Ok(new
+                {
+                    Status = "nameTooLong",
+                    Message = "new name is too long"
+                });
+            } catch (TagNameExistException) {
+                return Ok(new
+                {
+                    Status = "nameHasExist",
+                    Message = "name has already been used"
+                });
+            }
         }
 
         [Authorize(Policy = "UserAdmin")]
         [HttpDelete("delete_question")]
-        public async Task<IActionResult> DeleteQuestion()
+        public async Task<IActionResult> DeleteQuestion(QuestionBody body)
         {
-
+            int qid = body.Qid.GetValueOrDefault(-1);
+            try
+            {
+                await checkQidAsync(qid);
+            } catch (QuestionNotExistException) {
+                return NotFound(new
+                {
+                    Status = "questionNotExist",
+                    Message = $"question with qid={qid} dose not exist"
+                });
+            } catch (LackofAuthorityException) {
+                return Unauthorized(new
+                {
+                    Status = "fail",
+                    Message = "your authority is not enough"
+                });
+            }
+            try
+            {
+                await questionService.DeleteQuestionAsync(qid);
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "question removed successfully"
+                });
+            } catch (QuestionNotExistException) {
+                return NotFound(new
+                {
+                    Status = "questionNotExist",
+                    Message = $"question with qid={qid} dose not exist"
+                });
+            }
         }
 
         [Authorize(Policy = "UserAdmin")]
         [HttpDelete("delete_answer")]
-        public async Task<IActionResult> DeleteAnswer()
+        public async Task<IActionResult> DeleteAnswer(QuestionBody body)
         {
-
+            int aid = body.Aid.GetValueOrDefault(-1);
+            try
+            {
+                await checkAidAsync(aid);
+            } catch (AnswerNotExistException) {
+                return NotFound(new
+                {
+                    Status = "answerNotExist",
+                    Message = $"answer with aid={aid} dose not exist"
+                });
+            } catch (LackofAuthorityException) {
+                return Unauthorized(new
+                {
+                    Status = "unauthorized",
+                    Message = "your authority is not enough"
+                });
+            }
+            try
+            {
+                await questionService.DeleteAnswerAsync(aid);
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "answer removed"
+                });
+            } catch (AnswerNotExistException) {
+                return NotFound(new
+                {
+                    Status = "answerNotExist",
+                    Message = $"answer with aid={aid} dose not exist"
+                });
+            }
         }
 
         [Authorize(Policy = "Admin")]
         [HttpDelete("delete_tag")]
-        public async Task<IActionResult> DeleteTag()
+        public async Task<IActionResult> DeleteTag(QuestionBody body)
         {
-            
+            int tid = body.Tid.GetValueOrDefault(-1);
+            try
+            {
+                await questionService.DeleteTagAsync(tid);
+                return Ok(new
+                {
+                    Status = "success",
+                    Message = "tag removed"
+                });
+            } catch (TagNotExistException) {
+                return NotFound(new
+                {
+                    Status = "tagNotExist",
+                    Message = "tag removed"
+                });
+            }
+        }
+
+        private async Task checkQidAsync(int qid)
+        {
+            QuestionInformation qInfo = await questionService.GetQuestionAsync(qid);
+            int creater = qInfo.Creater.GetValueOrDefault(-1);
+            int uid = userService.GetUidFromToken(Request);
+            if (creater != uid)
+            {
+                AuthLevel auth = userService.GetAuthLevelFromToken(Request);
+                if (auth != AuthLevel.Admin)
+                {
+                    throw new LackofAuthorityException(auth);
+                }
+            }
+        }
+
+        private async Task checkAidAsync(int aid)
+        {
+            AnswerInformation aInfo = await questionService.GetAnswerAsync(aid);
+            int creater = aInfo.Creater.GetValueOrDefault(-1);
+            int uid = userService.GetUidFromToken(Request);
+            if(creater != uid)
+            {
+                AuthLevel auth = userService.GetAuthLevelFromToken(Request);
+                if(auth != AuthLevel.Admin)
+                {
+                    throw new LackofAuthorityException(auth);
+                }
+            }
         }
     }
 }

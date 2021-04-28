@@ -14,8 +14,20 @@ namespace Buaa.AIBot.Controllers.Models
 
         public string Remarks { get; set; }
 
-        public int Qid { get; set; }
+        public int? Qid { get; set; }
 
-        public string Content { get; set; }   
+        public string Content { get; set; }
+
+        public string Name { get; set; }
+
+        public string Desc { get; set; }
+
+        public string Question { get; set; }
+
+        public int? BestAnswer { get; set; }
+
+        public int? Aid { get; set; }
+
+        public int? Tid { get; set; }
     }
 }

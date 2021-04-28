@@ -61,14 +61,14 @@ namespace Buaa.AIBot.Services
 
         private readonly IUserRepository userRepository;
 
-        private readonly Dictionary<AuthLevel, string> roleMap = new Dictionary<AuthLevel, string>
+        private static readonly Dictionary<AuthLevel, string> roleMap = new Dictionary<AuthLevel, string>
         {
             {AuthLevel.None, "Traveler"},
             {AuthLevel.User, "User"},
             {AuthLevel.Admin, "Administrator"}
         };
 
-        private readonly Dictionary<string, AuthLevel> stringToAuthLevel = new Dictionary<string, AuthLevel>
+        private static readonly Dictionary<string, AuthLevel> stringToAuthLevel = new Dictionary<string, AuthLevel>
         {
             {"Traveler", AuthLevel.None},
             {"User", AuthLevel.User},
