@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Buaa.AIBot.Utils.Logging;
 using Buaa.AIBot.Services;
+using Buaa.AIBot.Repository;
+using Buaa.AIBot.Repository.Models;
 using Serilog;
 
 
@@ -66,6 +68,8 @@ namespace Buaa.AIBot
                 .AddUserServices(Configuration)
 
                 .AddTransient<IQuestionService, QuestionService>()
+                
+                .AddRepository(Configuration.GetConnectionString("MySQL"))
                 ;
         }
 

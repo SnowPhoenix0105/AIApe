@@ -13,6 +13,20 @@ using System.Threading.Tasks;
 
 namespace Buaa.AIBot
 {
+    public static class Configuration
+    {
+        public static IHostBuilder ConfigureLogging(this IHostBuilder builder)
+        {
+            var settings = new LoggingSettings()
+            {
+                ConsoleLevel = Serilog.Events.LogEventLevel.Information,
+                EnableIpLog = false,
+            };
+            builder.ConfigureLoggingWithSerilog(settings);
+            return builder;
+        }
+    }
+
     public class Program
     {
         public static readonly string LOG_FILE_PATH = "";
@@ -29,8 +43,6 @@ namespace Buaa.AIBot
             {
                 PrintWelcomeInfo();
                 var builder = CreateHostBuilder(args);
-                // Configure logging
-                ConfigureLogging(builder);
 
                 Log.Information("Host build success!");
                 Log.Information("");
@@ -54,20 +66,12 @@ namespace Buaa.AIBot
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                // Configure logging
+                .ConfigureLogging()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-
-        public static void ConfigureLogging(IHostBuilder builder)
-        {
-            var settings = new LoggingSettings()
-            {
-                ConsoleLevel = Serilog.Events.LogEventLevel.Information,
-                EnableIpLog = false,
-            };
-            builder.ConfigureLoggingWithSerilog(settings);
-        }
 
         private static void PrintWelcomeInfo()
         {

@@ -8,7 +8,7 @@ namespace Buaa.AIBot.Repository
 {
     public interface ITagRepostory
     {
-        Task<Dictionary<string, int>> SelectAllTags();
+        Task<Dictionary<string, int>> SelectAllTagsAsync();
 
         /// <summary>
         /// Select a tag by id.
@@ -20,6 +20,8 @@ namespace Buaa.AIBot.Repository
         /// <summary>
         /// Insert a new tag. TagId will be generated automatically.
         /// </summary>
+        /// <exception cref="ArgumentNullException">Name or Desc is null.</exception>
+        /// <exception cref="TagNameToLongException">Name is longger than <see cref="Constants.TagNameMaxLength"/>.</exception>
         /// <exception cref="TagNameHasExistException">There is already a tag has the same Name. </exception>
         /// <param name="tag">new tag to store. </param>
         /// <returns>tid</returns>
@@ -28,6 +30,7 @@ namespace Buaa.AIBot.Repository
         /// <summary>
         /// Update the tag with tid=<paramref name="tag"/>.TagId.
         /// </summary>
+        /// <exception cref="TagNameToLongException">Name is longger than <see cref="Constants.TagNameMaxLength"/>.</exception>
         /// <exception cref="TagNameHasExistException">There is already a tag has the same Name. </exception>
         /// <param name="tag"></param>
         /// <returns></returns>
