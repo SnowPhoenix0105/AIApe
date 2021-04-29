@@ -39,10 +39,7 @@ export default {
         return {
             title: '',
             detail: '',
-            tags: {
-                "语法": 1,
-                "循环": 0
-            },
+            tags: {},
             creator: '',
             date: '',
             answers: [],
@@ -56,8 +53,8 @@ export default {
             this.$router.replace('/questionList');
         },
         getQuestionDetail() {
-            let id = 250;
             let _this = this;
+            let id = this.$store.state.questionID;
             console.log(this.$data.tags);
             _this.$axios.get("https://aiape.snowphoenix.design/api/test/questions/question?qid=" + id)
                 .then(function (response) {
@@ -66,6 +63,7 @@ export default {
                     _this.$data.detail = response.data.question.remarks;
                     _this.$data.creator += response.data.question.creater;
                     _this.$data.date = response.data.question.createTime;
+                    _this.$data.tags = response.data.question.tags;
                     let aidList = response.data.question.answers;
                     let best = response.data.best;
                     for (let aid of aidList) {
