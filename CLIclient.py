@@ -1,4 +1,3 @@
-import http.client
 import json
 import urllib.request
 
@@ -21,7 +20,7 @@ def post(target: str, body, headers: dict=None):
     with urllib.request.urlopen(req) as f:
         raw_json = f.read().decode("utf8")
 
-    print("[RAW]:\t", raw_json)
+    # print("[RAW]:\t", raw_json)
     return json.loads(raw_json)
 
 def signup():
@@ -51,7 +50,7 @@ def login():
         else:
             print(rsp["message"])
 
-def print_bot_message(rsp: http.client.HTTPResponse):
+def print_bot_message(rsp):
     messages = rsp["message"].split("\n")
     print(">>>\t", "\n\t".join(messages))
     prompt = rsp["prompt"]
@@ -70,8 +69,8 @@ def message_bot():
 
 def main():
     while True:
+        command = input("signup, login, start, or exit:\t")
         try:
-            command = input("signup, login, start, or exit:\t")
             if command == "signup":
                 signup()
             elif command == "login":
@@ -82,8 +81,10 @@ def main():
                 start_bot()
                 while True:
                     message_bot()
+            else:
+                print("unknow command:", command)
         except KeyboardInterrupt:
-            pass
+            print("")
         except NoAuthorization:
             print("login required!")
         
@@ -93,4 +94,4 @@ if __name__ == '__main__':
         main()
         print("exit with exit command")
     except KeyboardInterrupt:
-        print("exit with keyboard interrupt")
+        print("\nexit with keyboard interrupt")
