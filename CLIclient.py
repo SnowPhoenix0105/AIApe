@@ -80,7 +80,9 @@ def main():
                     while True:
                         message_bot()
                 except KeyboardInterrupt:
-                    pass
+                    print("")
+            else:
+                print("unknow command:", command)
         except NoAuthorization:
             print("login required!")
         
