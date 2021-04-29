@@ -62,6 +62,12 @@ namespace Buaa.AIBot.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> SignUpAsync(UserBody body)
         {
+            body = new UserBody
+            {
+                Name = (body.Name == null)? "" : body.Name,
+                Email = (body.Email == null)? "" : body.Email,
+                Password = (body.Password == null) ? "" : body.Password
+            };
             StatusMessageResponse response;
             if (!userService.CheckSignUpBody(body, out response))
             {
@@ -103,6 +109,11 @@ namespace Buaa.AIBot.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync(UserBody body)
         {
+            body = new UserBody
+            {
+                Email = (body.Email == null)? "" : body.Email,
+                Password = (body.Password == null) ? "" : body.Password
+            };
             string[] tokenAndAuth = await userService.AuthorizeAccountAsync(body);
             if (tokenAndAuth[0].Equals(string.Empty))
             {
@@ -132,7 +143,17 @@ namespace Buaa.AIBot.Controllers
         [HttpGet("public_info")]
         public async Task<IActionResult> GetPublicInfoAsync()
         {
-            int uid = int.Parse(HttpContext.Request.Query["uid"]);
+            int uid;
+            try
+            {
+                uid = int.Parse(HttpContext.Request.Query["uid"]);
+            } catch (ArgumentNullException) {
+                return NotFound(new 
+                {
+                    Status = "userNotExist",
+                    Name = "UNKNOWN"
+                });
+            }
             UserInfo userInfo = await userRepository.SelectUserByIdAsync(uid);
             if (userInfo == null)
             {
@@ -198,6 +219,10 @@ namespace Buaa.AIBot.Controllers
                 {
                     return Unauthorized(new 
                     {
+                        Status = "userNotExist",
+                        Uid = -1,
+                        Name = "",
+                        Email = "",
                         Auth = intAuth[presentAuth]
                     });
                 }
@@ -207,7 +232,11 @@ namespace Buaa.AIBot.Controllers
             {
                 return NotFound(new 
                 {
-                    Uid = uid
+                    Status = "userNotExist",
+                    Uid = uid,
+                    Name = "",
+                    Email = "",
+                    Auth = intAuth[AuthLevel.None]
                 });
             } else {
                 return Ok(new 
@@ -230,7 +259,7 @@ namespace Buaa.AIBot.Controllers
         {
             int presentUid = userService.GetUidFromToken(Request);
             AuthLevel presentAuth = AuthLevel.None;
-            int uid = body.Uid;
+            int uid = body.Uid.GetValueOrDefault(-1);
             if (uid <= 0)
             {
                 uid = presentUid;
@@ -242,6 +271,7 @@ namespace Buaa.AIBot.Controllers
                 {
                     return Unauthorized(new 
                     {
+                        Status = "fail",
                         Message = "lack of authority"
                     });
                 }
@@ -287,7 +317,7 @@ namespace Buaa.AIBot.Controllers
                 }
                 userInfo.Bcrypt = BNBCrypt.HashPassword(body.Password);
             }
-            if (body.Auth != 0)
+            if (body.Auth != null)
             {
                 if (presentAuth == AuthLevel.None)
                 {
@@ -297,6 +327,7 @@ namespace Buaa.AIBot.Controllers
                 {
                     return Unauthorized(new
                     {
+                        Status = "fail",
                         Message = "lack of authority"
                     });
                 }
@@ -312,7 +343,7 @@ namespace Buaa.AIBot.Controllers
                 {
                     body.Auth = 1;
                 }
-                userInfo.Auth = AuthLevelFromInt[body.Auth];
+                userInfo.Auth = AuthLevelFromInt[body.Auth.GetValueOrDefault(0)];
             }
             try
             {
@@ -348,7 +379,8 @@ namespace Buaa.AIBot.Controllers
                 return NotFound(new
                 {
                     Status = "userNotExist",
-                    Message = "user dose not exist"
+                    Message = "user dose not exist",
+                    Questions = new int[0]
                 });
             } else {
                 return Ok(new
@@ -376,7 +408,8 @@ namespace Buaa.AIBot.Controllers
                 return NotFound(new
                 {
                     Status = "userNotExist",
-                    Message = "user dose not exist"
+                    Message = "user dose not exist",
+                    Answers = new int[0]
                 });
             } else {
                 return Ok(new
@@ -403,13 +436,19 @@ namespace Buaa.AIBot.Controllers
                 {
                     return Unauthorized(new
                     {
-                        Message = "token has been expried"
+                        Status = "fail",
+                        Message = "token has been expried",
+                        Token = "",
+                        Timeout = 0
                     });
                 }
             } catch (ArgumentException) {
                 return Unauthorized(new
                 {
-                    Message = "invalid token"
+                    Status = "fail",
+                    Message = "invalid token",
+                    Token = "",
+                    Timeout = 0
                 });
             }
             try
@@ -425,7 +464,10 @@ namespace Buaa.AIBot.Controllers
             } catch (UserNotExistException) {
                 return Unauthorized(new
                 {
-                    Message = "user has been removed"
+                    Status = "fail",
+                    Message = "user has been removed",
+                    Token = "",
+                    Timeout = 0
                 });
             }
         }
