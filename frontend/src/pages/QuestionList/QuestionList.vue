@@ -3,7 +3,9 @@
         <el-button type="primary" v-on:click="goToPersonalCenter">个人中心</el-button>
         <el-table
             :data="questions"
-            style="width: 100%">
+            style="width: 100%"
+            :header-cell-style="{textAlign: 'center'}"
+            :cell-style="{ textAlign: 'center' }">
             <el-table-column
                 prop="id"
                 label="编号"
@@ -15,7 +17,7 @@
                     <el-popover trigger="hover" placement="top">
                         <p>编号: {{ scope.row.id }}</p>
                         <p>问题: {{ scope.row.title }}</p>
-                        <el-link @click="goToDetail()" slot="reference">{{ scope.row.title }}</el-link>
+                        <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
                     </el-popover>
                 </template>
             </el-table-column>
@@ -53,8 +55,9 @@ export default {
                 }
             })
         },
-        goToDetail() {
+        goToDetail(qid) {
             this.$router.replace('questionDetail');
+            this.$store.commit('setQuestionID', qid);
         },
         goToPersonalCenter() {
             this.$router.replace('PersonalCenter');
@@ -74,7 +77,7 @@ export default {
     flex: none !important;
     overflow: scroll;
     height: 100%;
-    margin-left: 20px;
+    margin-left: 1px;
 }
 
 </style>
