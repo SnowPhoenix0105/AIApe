@@ -1,5 +1,6 @@
 <template>
     <div class="outside">
+        <el-button type="primary" v-on:click="goToPersonalCenter">个人中心</el-button>
         <el-table
             :data="questions"
             style="width: 100%">
@@ -54,6 +55,9 @@ export default {
         },
         goToDetail() {
             this.$router.replace('questionDetail');
+        },
+        goToPersonalCenter() {
+            this.$router.replace('PersonalCenter');
         }
     }
 }
