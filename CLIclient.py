@@ -1,5 +1,6 @@
 import http.client
 import json
+import urllib.request
 
 jwt = ""
 
@@ -11,13 +12,16 @@ def post(target: str, body, headers: dict=None):
     if headers is None:
         headers = {}
     headers["Content-Type"] = "application/json"
-    conn = http.client.HTTPConnection("localhost:5000")
-    conn.request("POST", target, body=body, headers=headers)
-    rsp = conn.getresponse()
-    if rsp.status == 401:
-        raise NoAuthorization()
-    raw_json = rsp.read()
-    # print("[RAW]:\t", raw_json)
+
+    origin_host = "https://aiape.snowphoenix.design" 
+    url = origin_host + target
+
+    req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
+
+    with urllib.request.urlopen(req) as f:
+        raw_json = f.read().decode("utf8")
+
+    print("[RAW]:\t", raw_json)
     return json.loads(raw_json)
 
 def signup():
@@ -76,11 +80,10 @@ def main():
                 return
             elif command == "start":
                 start_bot()
-                try:
-                    while True:
-                        message_bot()
-                except KeyboardInterrupt:
-                    pass
+                while True:
+                    message_bot()
+        except KeyboardInterrupt:
+            pass
         except NoAuthorization:
             print("login required!")
         
