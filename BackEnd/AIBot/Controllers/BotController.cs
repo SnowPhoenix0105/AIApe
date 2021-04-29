@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
+using Buaa.AIBot.Bot.Framework;
 
 namespace Buaa.AIBot.Controllers
 {
@@ -17,5 +19,25 @@ namespace Buaa.AIBot.Controllers
     [ApiController]
     public class BotController : ControllerBase
     {
+        private readonly IBotRunner botRunner;
+
+        public BotController(IBotRunner botRunner)
+        {
+            this.botRunner = botRunner;
+        }
+
+        [Authorize(Policy = "UserAdmin")]
+        [HttpPost("start")]
+        public async Task<IActionResult> Start()
+        {
+            
+        }
+
+        [Authorize(Policy = "UserAdmin")]
+        [HttpPost("policy")]
+        public async Task<IActionResult> Message()
+        {
+
+        }
     }
 }
