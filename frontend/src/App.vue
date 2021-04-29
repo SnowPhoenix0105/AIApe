@@ -30,7 +30,7 @@ export default {
 /*}*/
 
 html, body, #app, .left, .right {
-    height: 99.99%;
+    height: 100%;
     width: 100%;
     padding: 0;
     margin: 0;
@@ -48,12 +48,12 @@ html, body, #app, .left, .right {
     position: absolute;
     left: 40%;
     top: 0;
-    width: 57%;
+    width: 60%;
 }
 
 
 ::-webkit-scrollbar {
-    width: 3px;
+    width: 5px;
 
 }
 

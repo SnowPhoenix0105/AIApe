@@ -5,12 +5,15 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        usernameFresh: false,
+        questionID: 0,
         username: '',
     },
     mutations: {
         setUsername(state, value) {
             state.username = value;
+        },
+        setQuestionID(state, id) {
+            state.questionID = id;
         }
     }
 })

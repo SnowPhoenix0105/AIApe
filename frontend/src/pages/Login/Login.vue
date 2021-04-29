@@ -54,6 +54,6 @@ export default {
 .el-link {
     position: absolute;
     margin-top: 20px;
-    left: 32.5%;
+    left: 33%;
 }
 </style>

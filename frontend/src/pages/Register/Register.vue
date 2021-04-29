@@ -1,13 +1,13 @@
 <template>
     <div class="whole">
-        <el-alert
-            title="注册成功!即将跳转至登录页面..."
-            type="success"
-            show-icon
-            center
-            :closable="false"
-            v-show="success">
-        </el-alert>
+<!--        <el-alert-->
+<!--            title="注册成功!即将跳转至登录页面..."-->
+<!--            type="success"-->
+<!--            show-icon-->
+<!--            center-->
+<!--            :closable="false"-->
+<!--            v-show="success">-->
+<!--        </el-alert>-->
         <el-form ref="form" :model="form" label-width="70px">
             <el-form-item label="昵称">
                 <el-input v-model="form.name" prefix-icon="el-icon-user" placeholder="请输入昵称"></el-input>
@@ -36,7 +36,7 @@ import ElementUI from 'element-ui'
 export default {
     data() {
         return {
-            success: false,
+            // success: false,
             form: {
                 name: '',
                 email: '',
@@ -47,7 +47,10 @@ export default {
     },
     methods: {
         onSubmit() {
-            this.success = true;
+            this.$message({
+                message: '注册成功!即将跳转至登录页面...',
+                type: 'success'
+            });
             setTimeout(() => {
                 this.$router.replace('/login');
             }, 2000);

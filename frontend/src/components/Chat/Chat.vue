@@ -6,7 +6,6 @@
                 <span>{{ msg.content }}</span>
             </div>
         </div>
-
         <div class="send">
             <el-input type="textarea" resize="none" :autosize="{ minRows: 7.5, maxRows: 7.5}"
                       v-model="message"></el-input>
@@ -20,7 +19,7 @@ export default {
     data() {
         return {
             message: '',
-            logs: []
+            logs: [{id: 2, content: '你好，我是AIApe!请先登录！'}]
         }
     },
     computed: {
@@ -80,7 +79,6 @@ div {
 }
 
 .el-textarea {
-    position: absolute;
     height: 100%;
     font-family: "Microsoft YaHei", serif;
     font-size: 18px;
