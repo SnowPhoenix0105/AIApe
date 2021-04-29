@@ -5,43 +5,99 @@ using System.Threading.Tasks;
 
 namespace Buaa.AIBot.Bot.Framework
 {
+    /// <summary>
+    /// POCO of Bot's input.
+    /// </summary>
     public class InputInfo
     {
+        /// <summary>
+        /// Message from user.
+        /// </summary>
         public string Message { get; set; } 
     }
 
+    /// <summary>
+    /// POCO of Bot's output.
+    /// </summary>
     public class OutputInfo
     {
+        /// <summary>
+        /// Message send to user.
+        /// </summary>
         public string Message { get; set; }
-        public IEnumerable<string> Prompts { get; set; }
+
+        /// <summary>
+        /// Recommand the user to answer by choosing one of these.
+        /// </summary>
+        public IEnumerable<string> Prompt { get; set; }
     }
 
+    /// <summary>
+    /// Runner of a bot.
+    /// </summary>
     public interface IBotRunner
     {
-        Task<OutputInfo> Run(int userId, InputInfo input);
+        /// <summary>
+        /// Start a new Session and get the welcome message.
+        /// </summary>
+        /// <param name="userId">The identifier of the session.</param>
+        /// <returns>Welcome message</returns>
         Task<OutputInfo> Start(int userId);
+
+        /// <summary>
+        /// Continue a new Session.
+        /// </summary>
+        /// <param name="userId">The identifier of the session.</param>
+        /// <param name="input">The messages from user.</param>
+        /// <returns>New messages to user.</returns>
+        Task<OutputInfo> Run(int userId, InputInfo input);
     }
 
+    /// <summary>
+    /// Imformations for Building a <see cref="BotRunner{IdType}"/>.
+    /// </summary>
+    /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
     public class BotRunnerOptions<IdType>
     {
-        public IStatusPool<IdType> StatusPool { get; set; }
+        public IStatusContainerPool<IdType> StatusPool { get; set; }
         public IStatusBehaviourPool<IdType> BehaviourPool { get; set; }
         public BotStatus<IdType> InitStatus { get; set; }
     }
 
+    /// <summary>
+    /// Implement of <see cref="IBotRunner"/>.
+    /// </summary>
+    /// <remarks><seealso cref="IBotRunner"/></remarks>
+    /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
     public class BotRunner<IdType> : IBotRunner
     {
-        BotRunnerOptions<IdType> options;
+        private BotRunnerOptions<IdType> options;
 
-        private IStatusPool<IdType> StatusPool => options.StatusPool;
+        private IStatusContainerPool<IdType> StatusPool => options.StatusPool;
         private IStatusBehaviourPool<IdType> BehaviourPool => options.BehaviourPool;
 
+        /// <summary>
+        /// Construct an Implement of <see cref="IBotRunner"/>.
+        /// </summary>
+        /// <param name="options"></param>
         public BotRunner(BotRunnerOptions<IdType> options)
         {
+            if (options.StatusPool == null)
+            {
+                throw new ArgumentNullException(nameof(options.StatusPool));
+            }
+            if (options.BehaviourPool == null)
+            {
+                throw new ArgumentNullException(nameof(options.BehaviourPool));
+            }
+            if (options.InitStatus == null)
+            {
+                throw new ArgumentNullException(nameof(options.InitStatus));
+            }
             this.options = options;
         }
 
-        public async Task<OutputInfo> Start(int userId)
+        private BotStatus<IdType> InitStatus()
         {
             var origin = options.InitStatus;
             var status = new BotStatus<IdType>()
@@ -52,9 +108,16 @@ namespace Buaa.AIBot.Bot.Framework
             {
                 status.Items.Add(pair.Key, pair.Value);
             }
+            return status;
+        }
+
+        public async Task<OutputInfo> Start(int userId)
+        {
+            var status = InitStatus();
             var sender = new Sender();
             var nextStatusBehaviour = BehaviourPool[status.Status];
             await nextStatusBehaviour.EnterAsync(status, sender);
+            await StatusPool.SaveStatusAsync(userId, status);
             return sender.DumpToOutputInfo();
         }
 
@@ -66,10 +129,19 @@ namespace Buaa.AIBot.Bot.Framework
             };
             var sender = new Sender();
             var status = await StatusPool.GetStatusAsync(userId);
-            var currentStatusBehaviour = BehaviourPool[status.Status];
-            status.Status = await currentStatusBehaviour.ExitAsync(status, sender, receiver);
+            if (status == null)
+            {
+                sender.AddMessage("对话超时，将重新开始...\n");
+                status = InitStatus();
+            }
+            else
+            {
+                var currentStatusBehaviour = BehaviourPool[status.Status];
+                status.Status = await currentStatusBehaviour.ExitAsync(status, sender, receiver);
+            }
             var nextStatusBehaviour = BehaviourPool[status.Status];
             await nextStatusBehaviour.EnterAsync(status, sender);
+            await StatusPool.SaveStatusAsync(userId, status);
             return sender.DumpToOutputInfo();
         }
 
@@ -100,7 +172,7 @@ namespace Buaa.AIBot.Bot.Framework
                 return new OutputInfo()
                 {
                     Message = string.Join("\n", Messages),
-                    Prompts = Prompts
+                    Prompt = Prompts
                 };
             }
         }

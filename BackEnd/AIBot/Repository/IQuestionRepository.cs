@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Buaa.AIBot.Repository.Models;
+using Buaa.AIBot.Repository.Exceptions;
 
 namespace Buaa.AIBot.Repository
 {

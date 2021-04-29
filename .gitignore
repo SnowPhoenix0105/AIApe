@@ -23,6 +23,7 @@
 [Rr]elease/
 [Rr]eleases/
 [Mm]igrations/
+Documents/BackEnd_API_Doxygen/Docs/
 
 *.exe
 *.lib
