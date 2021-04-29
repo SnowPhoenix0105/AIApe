@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Buaa.AIBot.Repository.Models;
+using Buaa.AIBot.Repository.Exceptions;
 
 namespace Buaa.AIBot.Repository
 {
@@ -71,6 +72,9 @@ namespace Buaa.AIBot.Repository
         /// No operation if any exception occurs.
         /// </remarks>
         /// <exception cref="ArgumentNullException">Email, Bcrypt, or Name is null.</exception>
+        /// <exception cref="UserEmailToLongException">Email lonnger than <see cref="Constants.UserEmailMaxLength"/>.</exception>
+        /// <exception cref="UserNameToLongException">Name longger than <see cref="Constants.UserNameMaxLength"/>.</exception>
+        /// <exception cref="UserBycryptLengthException">Bcrypt.length not equals to <see cref="Constants.UserBcryptLength"/>.</exception>
         /// <exception cref="EmailHasExistException">There is already a user using the same email with <paramref name="user"/>.Email</exception>
         /// <exception cref="NameHasExistException">There is already a user using the same name with <paramref name="user"/>.Name</exception>
         /// <param name="user">the new user to store</param>
@@ -86,6 +90,8 @@ namespace Buaa.AIBot.Repository
         /// Email will never be change although <paramref name="user"/>.Email is not null.
         /// No operation if any exception occurs.
         /// </remarks>
+        /// <exception cref="UserNameToLongException">Name longger than <see cref="Constants.UserNameMaxLength"/>.</exception>
+        /// <exception cref="UserBycryptLengthException">Bcrypt.length not equals to <see cref="Constants.UserBcryptLength"/>.</exception>
         /// <exception cref="UserNotExistException">There is no user with uesr.UserId == <paramref name="user"/>.UserId</exception>
         /// <exception cref="NameHasExistException">There is already a user using the same name with <paramref name="user"/>.Name</exception>
         /// <param name="user">the new info for the user</param>
