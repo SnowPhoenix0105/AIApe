@@ -8,7 +8,10 @@ using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+
 using Buaa.AIBot.Bot.Framework;
+using Buaa.AIBot.Services;
+using Buaa.AIBot.Controllers.Models;
 
 namespace Buaa.AIBot.Controllers
 {
@@ -20,24 +23,34 @@ namespace Buaa.AIBot.Controllers
     public class BotController : ControllerBase
     {
         private readonly IBotRunner botRunner;
+        private readonly IUserService userService;
 
-        public BotController(IBotRunner botRunner)
+        public BotController(IBotRunner botRunner, IUserService userService)
         {
             this.botRunner = botRunner;
+            this.userService = userService;
         }
 
         [Authorize(Policy = "UserAdmin")]
         [HttpPost("start")]
-        public async Task<IActionResult> Start()
+        public async Task<IActionResult> StartAsync(BotBody body)
         {
-            
+            int uid = userService.GetUidFromToken(Request);
+            OutputInfo info = await botRunner.Start((uid));
+            return Ok(info);
         }
 
         [Authorize(Policy = "UserAdmin")]
         [HttpPost("policy")]
-        public async Task<IActionResult> Message()
+        public async Task<IActionResult> MessageAsync(BotBody body)
         {
-
+            string message = (body.Message == null)? "" : body.Message;
+            int uid = userService.GetUidFromToken(Request);
+            OutputInfo info = await botRunner.Run(uid, new InputInfo
+            {
+                Message = message
+            });
+            return Ok(info);
         }
     }
 }
