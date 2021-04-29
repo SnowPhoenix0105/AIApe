@@ -47,7 +47,7 @@ namespace Buaa.AIBot.Services
             {
                 Title = question.Title,
                 Remarks = question.Remarks,
-                Creater = question.CreaterId,
+                Creator = question.CreaterId,
                 Best = question.BestAnswerId,
                 CreatTime = question.CreateTime,
                 ModifyTime = question.ModifyTime,
@@ -66,7 +66,7 @@ namespace Buaa.AIBot.Services
             return new AnswerInformation()
             {
                 Content = answer.Content,
-                Creater = answer.CreaterId,
+                Creator = answer.CreaterId,
                 CreateTime = answer.CreateTime,
                 ModifyTime = answer.ModifyTime
             };

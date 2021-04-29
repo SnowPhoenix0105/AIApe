@@ -456,9 +456,9 @@ namespace Buaa.AIBot.Controllers
         private async Task checkQidAsync(int qid)
         {
             QuestionInformation qInfo = await questionService.GetQuestionAsync(qid);
-            int creater = qInfo.Creater.GetValueOrDefault(-1);
+            int creator = qInfo.Creator.GetValueOrDefault(-1);
             int uid = userService.GetUidFromToken(Request);
-            if (creater != uid)
+            if (creator != uid)
             {
                 AuthLevel auth = userService.GetAuthLevelFromToken(Request);
                 if (auth != AuthLevel.Admin)
@@ -471,9 +471,9 @@ namespace Buaa.AIBot.Controllers
         private async Task checkAidAsync(int aid)
         {
             AnswerInformation aInfo = await questionService.GetAnswerAsync(aid);
-            int creater = aInfo.Creater.GetValueOrDefault(-1);
+            int creator = aInfo.Creator.GetValueOrDefault(-1);
             int uid = userService.GetUidFromToken(Request);
-            if(creater != uid)
+            if(creator != uid)
             {
                 AuthLevel auth = userService.GetAuthLevelFromToken(Request);
                 if(auth != AuthLevel.Admin)
