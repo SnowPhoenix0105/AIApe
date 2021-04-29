@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Buaa.AIBot.Repository
+namespace Buaa.AIBot.Repository.Exceptions
 {
     public class RepositoryException : Exception
     {

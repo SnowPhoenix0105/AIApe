@@ -9,7 +9,7 @@ namespace Buaa.AIBot.Services.Models
     {
         public string Title { get; set; }
         public string Remarks { get; set; }
-        public int? Creater { get; set; }
+        public int? Creator { get; set; }
         public int? Best { get; set; }
         public DateTime CreatTime { get; set; }
         public DateTime ModifyTime { get; set; }
@@ -20,7 +20,7 @@ namespace Buaa.AIBot.Services.Models
     public class AnswerInformation
     {
         public string Content { get; set; }
-        public int? Creater { get; set; }
+        public int? Creator { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime ModifyTime { get; set; }
     }

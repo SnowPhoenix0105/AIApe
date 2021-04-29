@@ -4,9 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Buaa.AIBot.Repository.Exceptions;
 
 namespace Buaa.AIBot.Repository.Implement
 {
+    /// <summary>
+    /// Implement of <see cref="IAnswerRepository"/>.
+    /// </summary>
+    /// <remarks><seealso cref="IAnswerRepository"/></remarks>
     public class AnswerRepository : RepositoryBase, IAnswerRepository
     {
         public AnswerRepository(DatabaseContext context) : base(context) { }
