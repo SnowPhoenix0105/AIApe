@@ -4,9 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Buaa.AIBot.Repository.Exceptions;
 
 namespace Buaa.AIBot.Repository.Implement
 {
+    /// <summary>
+    /// Implement of <see cref="ITagRepostory"/>
+    /// </summary>
+    /// <remarks><seealso cref="ITagRepostory"/></remarks>
     public class TagRepository : RepositoryBase, ITagRepostory
     {
         public TagRepository(DatabaseContext context) : base(context) { }

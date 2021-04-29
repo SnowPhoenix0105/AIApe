@@ -7,10 +7,31 @@ using System.Text.Json.Serialization;
 
 namespace Buaa.AIBot.Bot.Framework
 {
-
-    public interface IBotStatus<IdType>
+    /// <summary>
+    /// The container of bot's status.
+    /// </summary>
+    /// <remarks>
+    /// Using key-value pair to store the satus of bot.
+    /// Every value should be able to be dumped by <see cref="JsonSerializer"/>, and can be load from it.
+    /// </remarks>
+    /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
+    public interface IBotStatusContainer<IdType>
     {
+        /// <summary>
+        /// Store an boject.
+        /// </summary>
+        /// <remarks><paramref name="value"/> should be able to be dumped by <see cref="JsonSerializer"/>.</remarks>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         void Put<T>(string key, T value);
+
+        /// <summary>
+        /// Get an object.
+        /// </summary>
+        /// <typeparam name="T">The Type of the value.</typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
         T Get<T>(string key);
         /// <summary>
         /// Remove all other keys except given keys.
@@ -40,16 +61,46 @@ namespace Buaa.AIBot.Bot.Framework
         void Reserve(string key1, string key2, string key3, params string[] keys);
     }
 
-    public class BotStatus<IdType> : IBotStatus<IdType>
+    /// <summary>
+    /// The Status of a Bot.
+    /// </summary>
+    /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
+    public class BotStatus<IdType> : IBotStatusContainer<IdType>
     {
+        /// <summary>
+        /// The status of Bot.
+        /// </summary>
         public IdType Status { get; set; }
+
+        /// <summary>
+        /// Stored key-values of this bot.
+        /// </summary>
+        /// <remarks>
+        /// The values have already dumped to JSON, if you need clr object, using <see cref="BotStatus{IdType}.Get{T}(string)"/>
+        /// </remarks>
         public Dictionary<string, string> Items { get; set; } = new Dictionary<string, string>();
 
+
+        /// <summary>
+        /// Store an boject.
+        /// </summary>
+        /// <remarks><paramref name="value"/> should be able to be dumped by <see cref="JsonSerializer"/>.</remarks>
+        /// <seealso cref="IBotStatusContainer{IdType}.Get{T}(string)"/>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         public T Get<T>(string key)
         {
             return JsonSerializer.Deserialize<T>(Items[key]);
         }
 
+        /// <summary>
+        /// Get an object.
+        /// </summary>
+        /// <seealso cref="IBotStatusContainer{IdType}.Put{T}(string, T)"/>
+        /// <typeparam name="T">The Type of the value.</typeparam>
+        /// <param name="key"></param>
+        /// <returns></returns>
         public void Put<T>(string key, T value)
         {
             Items[key] = JsonSerializer.Serialize(value);

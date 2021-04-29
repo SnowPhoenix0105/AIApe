@@ -14,9 +14,12 @@ namespace Buaa.AIBot.Bot
         {
             var options = new BotRunnerOptions<EchoBot.StatusEnum>()
             {
-                StatusPool = new StatusPoolInMemory<EchoBot.StatusEnum>(),
+                StatusPool = new StatusContainerPoolInMemory<EchoBot.StatusEnum>(),
                 BehaviourPool = new StatusBehaviourPool<EchoBot.StatusEnum>(EchoBot.GetStatusBehaviours()),
                 InitStatus = new BotStatus<EchoBot.StatusEnum>()
+                {
+                    Status = EchoBot.StatusEnum.Welcome
+                }
             };
             var bot = new BotRunner<EchoBot.StatusEnum>(options);
             services.AddSingleton<IBotRunner>(bot);

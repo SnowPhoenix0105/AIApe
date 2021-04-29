@@ -41,7 +41,7 @@ namespace Buaa.AIBot.Controllers
         }
 
         [Authorize(Policy = "UserAdmin")]
-        [HttpPost("policy")]
+        [HttpPost("message")]
         public async Task<IActionResult> MessageAsync(BotBody body)
         {
             string message = (body.Message == null)? "" : body.Message;

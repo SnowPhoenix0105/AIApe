@@ -8,13 +8,25 @@ using System.Text.Json;
 
 namespace Buaa.AIBot.Bot.Framework
 {
-    public interface IStatusPool<IdType>
+    /// <summary>
+    /// A pool to store all <see cref="IBotStatusContainer{IdType}"/> for this bot.
+    /// </summary>
+    /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
+    public interface IStatusContainerPool<IdType>
     {
         Task<BotStatus<IdType>> GetStatusAsync(int sessionId);
         Task SaveStatusAsync(int sessionId, BotStatus<IdType> status);
     }
 
-    public class StatusPoolInMemory<IdType> : IStatusPool<IdType>
+    /// <summary>
+    /// Implement of <see cref="IStatusContainerPool{IdType}"/>, using memory store.
+    /// </summary>
+    /// <remarks>
+    /// Only one thread can enter this poll, with means that It is concurrent-safe.
+    /// It is async, so no Thread will be blocked while waiting.
+    /// </remarks>
+    /// <typeparam name="IdType"></typeparam>
+    public class StatusContainerPoolInMemory<IdType> : IStatusContainerPool<IdType>
     {
         private Dictionary<int, Node> memory = new Dictionary<int, Node>();
         private readonly TimeSpan liveTime = TimeSpan.FromMinutes(10);

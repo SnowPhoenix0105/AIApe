@@ -10,6 +10,7 @@ using Buaa.AIBot.Services;
 using Buaa.AIBot.Controllers.Models;
 using Buaa.AIBot.Repository.Models;
 using Buaa.AIBot.Repository;
+using Buaa.AIBot.Repository.Exceptions;
 
 using BNBCrypt = BCrypt.Net.BCrypt;
 
