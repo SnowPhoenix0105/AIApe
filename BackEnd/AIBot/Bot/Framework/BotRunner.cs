@@ -177,7 +177,7 @@ namespace Buaa.AIBot.Bot.Framework
 
             public string Protect(string origin)
             {
-                return origin.Replace("[", "\\[").Replace("]", "\\]");
+                return origin.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
             }
 
             public IBotSender AddMessage(string message, bool newLine = true)
