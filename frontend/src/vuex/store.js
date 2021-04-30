@@ -7,6 +7,9 @@ export default new Vuex.Store({
     state: {
         questionID: 0,
         username: '',
+        token: '',
+        auth: 0,
+        timeout: 0
     },
     mutations: {
         setUsername(state, value) {
@@ -14,6 +17,15 @@ export default new Vuex.Store({
         },
         setQuestionID(state, id) {
             state.questionID = id;
+        },
+        setToken(state, token) {
+            state.token = token;
+        },
+        setAuth(state, auth) {
+            state.auth = auth;
+        },
+        setTimeout(state, timeout) {
+            state.timeout = timeout;
         }
     }
 })

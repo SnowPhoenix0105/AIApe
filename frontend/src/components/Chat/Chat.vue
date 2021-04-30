@@ -38,7 +38,7 @@ export default {
             }
             this.$data.logs.push({id: 1, content: this.$data.message});
 
-            this.$axios.post('https://aiape.snowphoenix.design/api/ot/message', {
+            this.$axios.post(this.BASE_URL + '/api/ot/message', {
                 message: this.$data.message
             })
             .then(function (response) {

@@ -68,7 +68,7 @@ export default {
                     let best = response.data.best;
                     for (let aid of aidList) {
                         console.log(aid);
-                        _this.$axios.get("https://aiape.snowphoenix.design/api/questions/answer?aid=" + aid)
+                        _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(function (response) {
                                 if (best === aid) {
                                     _this.$data.answers.splice(0, 0, response.data.answer);

@@ -38,7 +38,7 @@ export default {
     methods: {
         getQuestions() {
             let _this = this;
-            _this.$axios.post('https://aiape.snowphoenix.design/api/test/questions/questionlist', {
+            _this.$axios.post(_this.BASE_URL + '/api/test/questions/questionlist', {
                 number: 70
             })
             .then(function (response) {

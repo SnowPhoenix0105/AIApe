@@ -19,3 +19,4 @@ new Vue({
     router
 })
 
+Vue.prototype.BASE_URL = 'https://aiape.snowphoenix.design';
