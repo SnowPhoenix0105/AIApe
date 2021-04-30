@@ -1,11 +1,13 @@
 <template>
   <div>
+
     <div class="log" ref="words">
       <!-- 根据vue对象中的数组，遍历出对应的标签。 -->
       <div v-for="msg in logs" class="content" :class="msg.id === 1? 'user':'bot'">
         <span>{{ msg.content }}</span>
       </div>
     </div>
+
     <div class="send">
       <el-input type="textarea" resize="none" :autosize="{ minRows: 7.5, maxRows: 7.5}" v-model="message"></el-input>
       <el-button type="primary" v-on:click="send">发送</el-button>
@@ -19,23 +21,12 @@ export default {
     return {
       message: '',
       logs: [
-        { id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},{ id: 2, content: '吃饭了吗？'},
-        { id: 1, content: '还没吃，你呢？'},
       ]
+    }
+  },
+  computed: {
+    username() {
+      return this.$store.state.username;
     }
   },
   methods: {
@@ -44,12 +35,17 @@ export default {
         alert('消息不能为空!');
         return;
       }
-      this.$data.logs.push({ id : 1, content: this.$data.message});
+      this.$data.logs.push({id: 1, content: this.$data.message});
       this.$data.message = '';
       this.$nextTick(() => {
         this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
       })
     },
+  },
+  watch: {
+    username: function (username) {
+      this.$data.logs.push({id: 2, content: username});
+    }
   }
 }
 </script>
@@ -89,29 +85,29 @@ export default {
   width: 100%;
 }
 
-.bot span{
-  display:inline-block;
-  background:#0181cc;
-  border-radius:10px;
-  color:#fff;
-  padding:5px 10px;
+.bot span {
+  display: inline-block;
+  background: #0181cc;
+  border-radius: 10px;
+  color: #fff;
+  padding: 5px 10px;
   position: absolute;
   left: 10px;
 }
 
-.user{
-  margin:10px;
-  text-align:right;
+.user {
+  margin: 10px;
+  text-align: right;
   height: 30px;
   width: 100%;
 }
 
-.user span{
-  display:inline-block;
-  background:#ef8201;
-  border-radius:10px;
-  color:#fff;
-  padding:5px 10px;
+.user span {
+  display: inline-block;
+  background: #ef8201;
+  border-radius: 10px;
+  color: #fff;
+  padding: 5px 10px;
   position: absolute;
   right: 10px;
 }

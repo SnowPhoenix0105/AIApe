@@ -28,8 +28,8 @@ export default {
   },
   methods: {
     onSubmit() {
-      console.log('submit!');
-
+      this.$store.commit('setUsername', 'huang');
+      this.$router.replace('/questionList');
     },
     goToRegister() {
       this.$router.replace('/register');
@@ -39,20 +39,20 @@ export default {
 </script>
 
 <style scoped>
-  .el-form {
-    position: absolute;
-    left: 35%;
-    top: 35%;
-  }
+.el-form {
+  position: absolute;
+  left: 35%;
+  top: 35%;
+}
 
-  .el-button {
-    position: absolute;
-    left: 35%;
-  }
+.el-button {
+  position: absolute;
+  left: 35%;
+}
 
-  .el-link {
-    position: absolute;
-    margin-top: 20px;
-    left: 37.5%;
-  }
+.el-link {
+  position: absolute;
+  margin-top: 20px;
+  left: 37.5%;
+}
 </style>
