@@ -1,97 +1,83 @@
 <template>
-  <div>
-<!--    <div class="header">-->
-<!--      <h1>问题列表</h1>-->
-<!--    </div>-->
-<!--    <div class="down">-->
-<!--      <ul class="log">-->
-<!--        <li v-for="item of this.tableData"><span>{{ item }}</span></li>-->
-<!--      </ul>-->
-<!--    </div>-->
-    <div class="header">
-      <h1>问题列表</h1>
+    <div class="outside">
+        <el-button type="primary" v-on:click="goToPersonalCenter">个人中心</el-button>
+        <el-table
+            :data="questions"
+            style="width: 100%"
+            :header-cell-style="{textAlign: 'center'}"
+            :cell-style="{ textAlign: 'center' }">
+            <el-table-column
+                prop="id"
+                label="编号"
+                width="180">
+            </el-table-column>
+            <el-table-column
+                label="问题">
+                <template slot-scope="scope">
+                    <el-popover trigger="hover" placement="top">
+                        <p>编号: {{ scope.row.id }}</p>
+                        <p>问题: {{ scope.row.title }}</p>
+                        <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
+                    </el-popover>
+                </template>
+            </el-table-column>
+        </el-table>
     </div>
-    <div class="down">
-      <ul class="log">
-        <li v-for="item of this.tableData"><span>{{ item }}</span></li>
-      </ul>
-    </div>
-
-  </div>
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
-  data() {
-    return {
-      tableData: [],
-      // idx: [],
-    }
-  },
-  mounted() {
-    var __this = this;
-    axios.post('https://aiape.snowphoenix.design/api/test/questions/questionlist',
-      {
-        number: 70
-      }
-    ).then(function (response) {
-      console.log("qid列表如下");
-      var qidLs = response.data;
-      console.log(qidLs);
-
-      for (var idx = 0; idx < qidLs.length; idx++) {
-        var qid = qidLs[idx];
-        axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + qid)
-          .then(function (response) {
-            __this.tableData.push(response.data.message);
-          })
-      }
-    })
-  },
-  name: "QuestionList.vue",
-  methods: {
-    showIdx() {
-      alert(this.idx);
-      for (var i = 0; i < this.idx.length; i++) {
-        var ii = this.idx[i];
-        concole.log(ii);
-        var __this = this;
-        // console.log(ii);
-        axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + ii)
-          .then(function (response) {
-            __this.tableData[__this.tableData.length] = ii + response.data.message;
-            console.log(ii + response.data.message);
-          })
-      }
+    data() {
+        return {
+            questions: []
+        }
     },
-    showData() {
-      alert(this.tableData);
+    mounted() {
+        this.getQuestions();
     },
-    addData() {
-      this.tableData.push("lalala")
+    methods: {
+        getQuestions() {
+            let _this = this;
+            _this.$axios.post('https://aiape.snowphoenix.design/api/test/questions/questionlist', {
+                number: 70
+            })
+            .then(function (response) {
+                let questionIdList = response.data;
+                questionIdList.sort();
+                for (let qid of questionIdList) {
+                    _this.$axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + qid)
+                    .then(function (response) {
+                    _this.$data.questions.push({
+                        'id': qid,
+                        'title': response.data.question.title
+                        });
+                    });
+                }
+            })
+        },
+        goToDetail(qid) {
+            this.$router.replace('questionDetail');
+            this.$store.commit('setQuestionID', qid);
+        },
+        goToPersonalCenter() {
+            this.$router.replace('PersonalCenter');
+        }
     }
-  }
 }
 </script>
 
 <style scoped>
-.log {
-  position: absolute;
-  height: 85%;
-  overflow: scroll;
-  width: 95%;
+.outside {
+    height: 100%;
+    overflow: hidden;
 }
 
-.down {
-  width:100%;
-  height:90%;
+.el-table {
+    -ms-flex: none !important;
+    flex: none !important;
+    overflow: scroll;
+    height: 100%;
+    margin-left: 1px;
 }
 
-.header {
-  width:100%;
-  height:10%;
-  background-color: lightgray;
-}
 </style>

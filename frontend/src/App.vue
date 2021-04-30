@@ -1,21 +1,21 @@
 <template>
-  <div>
-    <div class="left">
-      <Chat/>
+    <div>
+        <div class="left">
+            <Chat/>
+        </div>
+        <div class="right">
+            <router-view/>
+        </div>
     </div>
-    <div class="right">
-      <router-view/>
-    </div>
-  </div>
 </template>
 
 <script>
 import Chat from './components/Chat/Chat.vue'
 
 export default {
-  components: {
-    Chat
-  }
+    components: {
+        Chat
+    }
 }
 </script>
 
@@ -29,43 +29,42 @@ export default {
 /*  margin-top: 60px;*/
 /*}*/
 
-html, body, #app, div {
-  height: 99.99%;
-  width: 100%;
-  padding: 0;
-  margin: 0;
+html, body, #app, .left, .right {
+    height: 100%;
+    width: 100%;
+    padding: 0;
+    margin: 0;
 }
 
 .left {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 40%;
-  border-right: 1px solid lightgrey;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 40%;
+    border-right: 1px solid lightgrey;
 }
 
 .right {
-  position: absolute;
-  left: 40%;
-  top: 0;
-  width: 57%;
+    position: absolute;
+    left: 40%;
+    top: 0;
+    width: 60%;
 }
 
 
 ::-webkit-scrollbar {
-  width: 3px;
+    width: 5px;
 
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #eaecf1;
-  border-radius: 3px;
+    background-color: #eaecf1;
+    border-radius: 3px;
 }
 
-.el-table {
-  -ms-flex: none !important;
-  flex: none !important;
-  height: max-content;
+.el-popover {
+    height: 100px;
+    width: 100px;
 }
 
 </style>
