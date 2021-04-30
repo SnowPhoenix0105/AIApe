@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Buaa.AIBot.Bot.WorkingModule;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +14,10 @@ namespace Buaa.AIBot.Bot.Framework
     /// </remarks>
     public interface IBotSender
     {
-        void AddMessage(string message);
+        IBotSender AddMessage(string message, bool newLine = true);
+        IBotSender AddUrl(string url);
+        IBotSender AddQuestion(int qid);
+        IBotSender NewScope();
         IBotSender AddPrompt(string prompt);
     }
 
@@ -26,6 +30,32 @@ namespace Buaa.AIBot.Bot.Framework
     public interface IBotReceiver
     {
         string UserMessage { get; }
+    }
+
+    public interface IBotEnterContext
+    {
+        IBotSender Sender { get; }
+        IWorkingModule Worker { get; }
+    }
+
+    public class BotEnterContext : IBotEnterContext
+    {
+        public IBotSender Sender { get; set; }
+        public WorkingModule.IWorkingModule Worker { get; set; }
+    }
+
+    public interface IBotExitContext
+    {
+        IBotReceiver Receiver { get; }
+        IBotSender Sender { get; }
+        IWorkingModule Worker { get; }
+    }
+
+    public class BotExitContext : IBotExitContext
+    {
+        public IBotSender Sender { get; set; }
+        public IBotReceiver Receiver { get; set; }
+        public WorkingModule.IWorkingModule Worker { get; set; }
     }
 
     /// <summary>
@@ -52,7 +82,7 @@ namespace Buaa.AIBot.Bot.Framework
         /// <param name="status"></param>
         /// <param name="sender"></param>
         /// <returns></returns>
-        Task EnterAsync(IBotStatusContainer<IdType> status, IBotSender sender);
+        Task EnterAsync(IBotStatusContainer status, IBotEnterContext context);
 
         /// <summary>
         /// When receiving the response from user, this method is called.
@@ -65,6 +95,6 @@ namespace Buaa.AIBot.Bot.Framework
         /// <param name="sender"></param>
         /// <param name="receiver"></param>
         /// <returns>Next status id.</returns>
-        Task<IdType> ExitAsync(IBotStatusContainer<IdType> status, IBotSender sender, IBotReceiver receiver);
+        Task<IdType> ExitAsync(IBotStatusContainer status, IBotExitContext context);
     }
 }

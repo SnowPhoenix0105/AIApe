@@ -75,7 +75,10 @@ namespace Buaa.AIBot
 
             services
                 // Add Bot
-                .AddEchoBot();
+                //.AddEchoBot()
+                .AddAlphaBot()
+                
+                ;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

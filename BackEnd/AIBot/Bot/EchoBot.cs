@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Buaa.AIBot.Bot.Framework;
+using Buaa.AIBot.Bot.WorkingModule;
 
 namespace Buaa.AIBot.Bot
 {
@@ -27,13 +28,16 @@ namespace Buaa.AIBot.Bot
             return ret;
         }
 
-        private static StatusEnum Receive(IBotStatusContainer<StatusEnum> status, IBotSender sender, IBotReceiver receiver)
+        private static StatusEnum Receive(IBotStatusContainer status, IBotExitContext context)
         {
+            var sender = context.Sender;
+            var receiver = context.Receiver;
             string newMsg = receiver.UserMessage;
             if (newMsg == RestartPrompt)
             {
                 status.Put(MsgKey, new List<string>());
-                sender.AddMessage("重新开始！\n");
+                sender.AddMessage("重新开始！");
+                sender.NewScope();
                 return StatusEnum.Welcome;
             }
             else
@@ -49,18 +53,20 @@ namespace Buaa.AIBot.Bot
         {
             public StatusEnum Id => StatusEnum.Welcome;
 
-            public Task EnterAsync(IBotStatusContainer<StatusEnum> status, IBotSender sender)
+            public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
             {
-                sender.AddMessage("你好，我叫小猿。\n");
+                var sender = context.Sender;
+                sender.AddMessage("你好，我叫小猿。");
                 sender.AddMessage("我现还没有开发完成，我只会记住你说的话，然后将所有你说的话重复下来。");
+                sender.NewScope();
                 sender.AddMessage($"你可以随时输入“{RestartPrompt}”，来删除我的记录。");
                 status.Put(MsgKey, new List<string>());
                 return Task.CompletedTask;
             }
 
-            public Task<StatusEnum> ExitAsync(IBotStatusContainer<StatusEnum> status, IBotSender sender, IBotReceiver receiver)
+            public Task<StatusEnum> ExitAsync(IBotStatusContainer status, IBotExitContext context)
             {
-                return Task.FromResult(Receive(status, sender, receiver));
+                return Task.FromResult(Receive(status, context));
             }
         }
 
@@ -69,8 +75,9 @@ namespace Buaa.AIBot.Bot
 
             public StatusEnum Id => StatusEnum.Echo;
 
-            public Task EnterAsync(IBotStatusContainer<StatusEnum> status, IBotSender sender)
+            public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
             {
+                var sender = context.Sender;
                 List<string> received = status.Get<List<string>>(MsgKey);
                 if (received.Count == 0)
                 {
@@ -85,9 +92,9 @@ namespace Buaa.AIBot.Bot
                 return Task.FromResult(StatusEnum.Echo);
             }
 
-            public Task<StatusEnum> ExitAsync(IBotStatusContainer<StatusEnum> status, IBotSender sender, IBotReceiver receiver)
+            public Task<StatusEnum> ExitAsync(IBotStatusContainer status, IBotExitContext context)
             {
-                return Task.FromResult(Receive(status, sender, receiver));
+                return Task.FromResult(Receive(status, context));
             }
         }
     }

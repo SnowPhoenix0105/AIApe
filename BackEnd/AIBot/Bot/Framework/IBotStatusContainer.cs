@@ -14,9 +14,10 @@ namespace Buaa.AIBot.Bot.Framework
     /// Using key-value pair to store the satus of bot.
     /// Every value should be able to be dumped by <see cref="JsonSerializer"/>, and can be load from it.
     /// </remarks>
-    /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
-    public interface IBotStatusContainer<IdType>
+    public interface IBotStatusContainer
     {
+        int UserId { get; }
+
         /// <summary>
         /// Store an boject.
         /// </summary>
@@ -33,6 +34,34 @@ namespace Buaa.AIBot.Bot.Framework
         /// <param name="key"></param>
         /// <returns></returns>
         T Get<T>(string key);
+
+        /// <summary>
+        /// Try get an object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns>true if object exist.</returns>
+        bool TryGet<T>(string key, out T value);
+
+        /// <summary>
+        /// If contains the key, return the object, or return <paramref name="defaultValue"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        T GetOrDefault<T>(string key, T defaultValue);
+
+        /// <summary>
+        /// Remove an object by key.
+        /// </summary>
+        /// <param name="key"></param>
+        void Remove(string key);
+        /// <summary>
+        /// Remove all objects.
+        /// </summary>
+        void Clear();
         /// <summary>
         /// Remove all other keys except given keys.
         /// </summary>
@@ -65,8 +94,10 @@ namespace Buaa.AIBot.Bot.Framework
     /// The Status of a Bot.
     /// </summary>
     /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
-    public class BotStatus<IdType> : IBotStatusContainer<IdType>
+    public class BotStatus<IdType> : IBotStatusContainer
     {
+        public int UserId { get; set; }
+
         /// <summary>
         /// The status of Bot.
         /// </summary>
@@ -79,7 +110,6 @@ namespace Buaa.AIBot.Bot.Framework
         /// The values have already dumped to JSON, if you need clr object, using <see cref="BotStatus{IdType}.Get{T}(string)"/>
         /// </remarks>
         public Dictionary<string, string> Items { get; set; } = new Dictionary<string, string>();
-
 
         /// <summary>
         /// Store an boject.
@@ -95,6 +125,48 @@ namespace Buaa.AIBot.Bot.Framework
         }
 
         /// <summary>
+        /// Try get an object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns>true if object exist.</returns>
+        public bool TryGet<T>(string key, out T value)
+        {
+            try
+            {
+                if (Items.TryGetValue(key, out string json))
+                {
+                    value = JsonSerializer.Deserialize<T>(json);
+                    return true;
+                }
+            }
+            catch (Exception) { }
+            value = default(T);
+            return false;
+        }
+
+        /// <summary>
+        /// If contains the key, return the object, or return <paramref name="defaultValue"/>
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public T GetOrDefault<T>(string key, T defaultValue)
+        {
+            try
+            {
+                if (Items.TryGetValue(key, out string json))
+                {
+                    return JsonSerializer.Deserialize<T>(json);
+                }
+            }
+            catch (Exception) { }
+            return defaultValue;
+        }
+
+        /// <summary>
         /// Get an object.
         /// </summary>
         /// <seealso cref="IBotStatusContainer{IdType}.Put{T}(string, T)"/>
@@ -104,6 +176,23 @@ namespace Buaa.AIBot.Bot.Framework
         public void Put<T>(string key, T value)
         {
             Items[key] = JsonSerializer.Serialize(value);
+        }
+
+        /// <summary>
+        /// Remove an object by key.
+        /// </summary>
+        /// <param name="key"></param>
+        public void Remove(string key)
+        {
+            Items.Remove(key);
+        }
+
+        /// <summary>
+        /// Remove all objects.
+        /// </summary>
+        public void Clear()
+        {
+            Items.Clear();
         }
 
         /// <summary>

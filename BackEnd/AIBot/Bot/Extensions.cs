@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Buaa.AIBot.Bot.Framework;
+using Buaa.AIBot.Bot.WorkingModule;
+
 
 namespace Buaa.AIBot.Bot
 {
@@ -21,8 +23,29 @@ namespace Buaa.AIBot.Bot
                     Status = EchoBot.StatusEnum.Welcome
                 }
             };
-            var bot = new BotRunner<EchoBot.StatusEnum>(options);
-            services.AddSingleton<IBotRunner>(bot);
+            services
+                .AddWorkingModule()
+                .AddTransient<IBotRunner>(
+                services => new BotRunner<EchoBot.StatusEnum>(options, services.GetService<IWorkingModule>()));
+
+            return services;
+        }
+
+        public static IServiceCollection AddAlphaBot(this IServiceCollection services)
+        {
+            var options = new BotRunnerOptions<AlphaBot.StatusId>()
+            {
+                StatusPool = new StatusContainerPoolInMemory<AlphaBot.StatusId>(),
+                BehaviourPool = new StatusBehaviourPool<AlphaBot.StatusId>(AlphaBot.Configuration.GetStatusBehaviours()),
+                InitStatus = new BotStatus<AlphaBot.StatusId>()
+                {
+                    Status = AlphaBot.StatusId.Welcome
+                }
+            };
+            services
+                .AddWorkingModule()
+                .AddTransient<IBotRunner>(
+                services => new BotRunner<AlphaBot.StatusId>(options, services.GetService<IWorkingModule>()));
 
             return services;
         }
