@@ -30,10 +30,24 @@ export default {
     methods: {
         send() {
             if (this.$data.message === '') {
-                alert('消息不能为空!');
+                this.$message({
+                    message: '消息不能为空!',
+                    type: 'warning'
+                })
                 return;
             }
             this.$data.logs.push({id: 1, content: this.$data.message});
+
+            this.$axios.post('https://aiape.snowphoenix.design/api/ot/message', {
+                message: this.$data.message
+            })
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                window.alert('error!');
+                console.log(error);
+            })
             this.$data.message = '';
             this.$nextTick(() => {
                 this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
