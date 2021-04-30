@@ -17,7 +17,7 @@ namespace Buaa.AIBot.Services
 {
     public interface ICrawlerService
     {
-        Task<List<CrawlerResult>> Start(string question, string proxy=null);
+        Task<List<CrawlerResult>> SearchAsync(string question, string proxy=null);
     }
     
     public class BaiduCrawlerService : ICrawlerService
@@ -142,7 +142,7 @@ namespace Buaa.AIBot.Services
             return request;
         }
 
-        public async Task<List<CrawlerResult>> Start(string question, string proxy=null)
+        public async Task<List<CrawlerResult>> SearchAsync(string question, string proxy=null)
         {
             onStart(this, new OnStartEventArgs
             {
