@@ -7,12 +7,14 @@ using Buaa.AIBot;
 using Buaa.AIBot.Services.Exceptions;
 using Buaa.AIBot.Repository;
 using Buaa.AIBot.Repository.Models;
+using Buaa.AIBot.Repository.Exceptions;
 
 namespace Buaa.AIBot.Services
 {
     /// <summary>
-    /// Implemention of IQuestionService
+    /// Implemention of <see cref="IQuestionService"/>
     /// </summary>
+    /// <remarks><seealso cref="IQuestionService"/></remarks>
     public class QuestionService : IQuestionService
     {
         private readonly IQuestionRepository questionRepository;
@@ -47,7 +49,7 @@ namespace Buaa.AIBot.Services
             {
                 Title = question.Title,
                 Remarks = question.Remarks,
-                Creater = question.CreaterId,
+                Creator = question.CreaterId,
                 Best = question.BestAnswerId,
                 CreatTime = question.CreateTime,
                 ModifyTime = question.ModifyTime,
@@ -66,7 +68,7 @@ namespace Buaa.AIBot.Services
             return new AnswerInformation()
             {
                 Content = answer.Content,
-                Creater = answer.CreaterId,
+                Creator = answer.CreaterId,
                 CreateTime = answer.CreateTime,
                 ModifyTime = answer.ModifyTime
             };
@@ -117,14 +119,14 @@ namespace Buaa.AIBot.Services
 
         public Task<Dictionary<string, int>> GetTagListAsync()
         {
-            return tagRepostory.SelectAllTags();
+            return tagRepostory.SelectAllTagsAsync();
         }
 
         public async Task<int> AddQuestionAsync(int creater, string title, string remarks, IEnumerable<int> tags)
         {
             if (title.Length > Constants.QuestionTitleMaxLength)
             {
-                throw new QuestionTitleTooLongException(title.Length, Constants.QuestionTitleMaxLength);
+                throw new Exceptions.QuestionTitleTooLongException(title.Length, Constants.QuestionTitleMaxLength);
             }
             try
             {
@@ -137,11 +139,11 @@ namespace Buaa.AIBot.Services
                 });
                 return qid;
             }
-            catch (Repository.UserNotExistException e)
+            catch (Repository.Exceptions.UserNotExistException e)
             {
                 throw new Exceptions.UserNotExistException(creater, e);
             }
-            catch (Repository.TagNotExistException e)
+            catch (Repository.Exceptions.TagNotExistException e)
             {
                 throw new Exceptions.TagNotExistException(e.TagId, e);
             }
@@ -159,11 +161,11 @@ namespace Buaa.AIBot.Services
                 });
                 return aid;
             }
-            catch (Repository.QuestionNotExistException e)
+            catch (Repository.Exceptions.QuestionNotExistException e)
             {
                 throw new Exceptions.QuestionNotExistException(qid, e);
             }
-            catch (Repository.UserHasAnswerTheQuestionException e)
+            catch (Repository.Exceptions.UserHasAnswerTheQuestionException e)
             {
                 throw new Exceptions.UserHasAnswerTheQuestionException(uid: creater, qid: qid, e);
             }
@@ -199,7 +201,7 @@ namespace Buaa.AIBot.Services
                     Tags = modifyItems.Tags
                 });
             }
-            catch (Repository.TagNotExistException e)
+            catch (Repository.Exceptions.TagNotExistException e)
             {
                 throw new Exceptions.TagNotExistException(e.TagId, e);
             }
@@ -214,7 +216,7 @@ namespace Buaa.AIBot.Services
                     Content = content
                 });
             }
-            catch (Repository.AnswerNotExistException e)
+            catch (Repository.Exceptions.AnswerNotExistException e)
             {
                 throw new Exceptions.AnswerNotExistException(aid, e);
             }
@@ -230,7 +232,7 @@ namespace Buaa.AIBot.Services
                     Desc = desc
                 });
             }
-            catch (Repository.TagNameHasExistException e)
+            catch (Repository.Exceptions.TagNameHasExistException e)
             {
                 throw new Exceptions.TagNameExistException(name, e);
             }

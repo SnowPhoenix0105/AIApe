@@ -18,7 +18,7 @@ namespace Buaa.AIBot.Repository.Models
         public string Email { get; set; }
         public string Bcrypt { get; set; }
         public string Name { get; set; }
-        public AuthLevel Auth { get; set; }
+        public AuthLevel Auth { get; set; } = AuthLevel.None;
     }
 
     public class QuestionInfo
