@@ -16,14 +16,14 @@ namespace Buaa.AIBot.Bot.AlphaBot
                 // OnInstalling,
                     GetOSForInstalling,
                         GetIDEForInstalling,
-                            GovernmentLink,
+                            GovernmentLinkForInstalling,
                                 
                 
                 // OnUsing,
                     GetOSForUsing,
                         GetIDEForUsing,
                             GetCompilerForUsing,
-                                DocumentLink,
+                                DocumentLinkForUsing,
 
             Gramma,
                 OnStandardLibary,

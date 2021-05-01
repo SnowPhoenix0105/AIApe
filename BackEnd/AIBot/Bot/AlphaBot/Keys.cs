@@ -17,13 +17,25 @@ namespace Buaa.AIBot.Bot.AlphaBot
 
     public static class Value
     {
-        public static readonly string WindowsOS = "Windows";
-        public static readonly string LinuxOS = "Linux";
-        public static readonly string MaxOS = "macOS";
+        public static readonly string WindowsOS = WorkingModule.GovernmentInstallingInfo.WindowsOS;
+        public static readonly string LinuxOS = WorkingModule.GovernmentInstallingInfo.LinuxOS;
+        public static readonly string MacOS = WorkingModule.GovernmentInstallingInfo.MacOS;
+        public static readonly string DevCpp = WorkingModule.GovernmentInstallingInfo.DevCpp;
+        public static readonly string VisualCpp = WorkingModule.GovernmentInstallingInfo.VisualCpp;
+        public static readonly string VSCode = WorkingModule.GovernmentInstallingInfo.VSCode;
+        public static readonly string VS = WorkingModule.GovernmentInstallingInfo.VS;
 
-        public static readonly string DevCpp = "Dev C++";
-        public static readonly string VisualCpp = "Visual C++";
-        public static readonly string VSCode = "VS Code";
-        public static readonly string VS = "Visual Studio";
+        public static bool ToLowerContains(this string msg, params string[] alias)
+        {
+            string target = msg.ToLowerInvariant();
+            foreach (var alia in alias)
+            {
+                if (target.Contains(alia.ToLowerInvariant()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

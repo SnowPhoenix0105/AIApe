@@ -14,7 +14,7 @@ def post(target: str, body, headers: dict=None):
     if len(jwt) != 0:
         headers["Authorization"] = "Bearer " + jwt
 
-    origin_host = ["https://aiape.snowphoenix.design", "http://localhost:5000"][1]
+    origin_host = ["https://aiape.snowphoenix.design", "http://localhost:5000"][0]
     url = origin_host + target
 
     req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")

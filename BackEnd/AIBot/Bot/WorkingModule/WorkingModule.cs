@@ -13,6 +13,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             services
                 .AddTransient<IWorkingModule, WorkingModule>()
                 .AddTransient<QuestionBuilder>()
+                .AddSingleton<GovernmentInstallingInfo>()
                 ;
             return services;
         }
@@ -21,6 +22,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
     public interface IWorkingModule
     {
         QuestionBuilder GetQuestionBuilder();
+        GovernmentInstallingInfo GetGovernmentInstallingInfo();
     }
 
     public class WorkingModule : IWorkingModule
@@ -35,6 +37,11 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public QuestionBuilder GetQuestionBuilder()
         {
             return services.GetService<QuestionBuilder>();
+        }
+
+        public GovernmentInstallingInfo GetGovernmentInstallingInfo()
+        {
+            return services.GetService<GovernmentInstallingInfo>();
         }
     }
 }

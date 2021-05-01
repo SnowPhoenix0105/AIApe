@@ -16,53 +16,25 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             var sender = context.Sender;
             sender
                 .AddMessage("请问您的操作系统是什么呢？")
-                .AddPrompt(Value.WindowsOS).AddPrompt(Value.LinuxOS).AddPrompt(Value.MaxOS);
+                .AddPrompt(Value.WindowsOS).AddPrompt(Value.LinuxOS).AddPrompt(Value.MacOS);
             return Task.CompletedTask;
-        }
-
-        private bool IsWindows(string msg)
-        {
-            return msg.ToLowerInvariant().Contains(Value.WindowsOS.ToLowerInvariant())
-                || msg.ToLowerInvariant().Contains("win");
-        }
-
-        private bool IsMac(string msg)
-        {
-            return msg.ToLowerInvariant().Contains(Value.MaxOS.ToLowerInvariant())
-                || msg.ToLowerInvariant().Contains("mac")
-                || msg.ToLowerInvariant().Contains("apple");
-        }
-
-        private bool IsLinux(string msg)
-        {
-            var list = new List<string>
-            {
-                "Linux", "ubuntu", "Redhat", "Debain", "Fedora", "openSUSE", "Mandriva", "Mint",
-                "PCLinuxOS", "Cent OS", "CentOS", "Slackware", "Gentoo"
-            };
-            list.Add(Value.LinuxOS);
-            foreach (var linux in list)
-            {
-                if (msg.ToLowerInvariant().Contains(linux.ToLowerInvariant()))
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
         {
             string msg = context.Receiver.UserMessage;
-            if (IsWindows(msg))
+            if (msg.ToLowerContains(Value.WindowsOS, "win"))
             {
                 status.Put(Key.OS, Value.WindowsOS);
             }
-            else if (IsMac(msg))
+            else if (msg.ToLowerContains(Value.MacOS, "mac", "apple"))
             {
-                status.Put(Key.OS, Value.MaxOS);
+                status.Put(Key.OS, Value.MacOS);
             }
-            else if (IsLinux(msg))
+            else if (msg.ToLowerContains(
+                Value.LinuxOS, "Linux", 
+                "ubuntu", "Redhat", "Debain", "Fedora", "openSUSE", "Mandriva", "Mint",
+                "PCLinuxOS", "Cent OS", "CentOS", "Slackware", "Gentoo"))
             {
                 status.Put(Key.OS, Value.LinuxOS);
             }
@@ -82,13 +54,54 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
-            // TODO
-            throw new NotImplementedException();
+            var sender = context.Sender;
+            sender
+                .AddMessage("请问你想安装的IDE/编译器是什么呢？")
+                .AddMessage(Value.DevCpp).AddPrompt(Value.VisualCpp).AddPrompt(Value.VS).AddPrompt(Value.VSCode)
+                ;
+            return Task.CompletedTask;
         }
 
         public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
         {
-            // TODO
+            string msg = context.Receiver.UserMessage;
+            if (msg.ToLowerContains(Value.DevCpp, "dev"))
+            {
+                status.Put(Key.IDE, Value.DevCpp);
+            }
+            else if (msg.ToLowerContains(Value.VisualCpp, "visualc", "visual c", "VC++", "VC"))
+            {
+                status.Put(Key.IDE, Value.VisualCpp);
+            }
+            else if (msg.ToLowerContains(Value.VSCode, "code", "vs code", "vscode", "visualstudio code", "visualstudiocode", "visual studio code"))
+            {
+                status.Put(Key.IDE, Value.VSCode);
+            }
+            else if (msg.ToLowerContains(Value.VS, "vs", "visualstudio"))
+            {
+                status.Put(Key.IDE, Value.VS);
+            }
+            else
+            {
+                context.Sender.AddMessage($"抱歉，我不认识你说的IDE/编译器{Kaomojis.Sad}").NewScope();
+                return Task.FromResult(Id);
+            }
+            status.Put(Key.IDE_detail, msg);
+            return Task.FromResult(StatusId.GovernmentLinkForInstalling);
+        }
+    }
+
+    public class GovernmentLinkForInstallingStatus : IBotStatusBehaviour<StatusId>
+    {
+        public StatusId Id => StatusId.GovernmentLinkForInstalling;
+
+        public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
+        {
+            context.Worker
+        }
+
+        public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
+        {
             throw new NotImplementedException();
         }
     }
