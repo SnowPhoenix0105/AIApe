@@ -23,6 +23,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 return null;
             }
+            if (question.Answers == null)
+            {
+                return new int[0];
+            }
             var query = question
                 .Answers
                 .Select(a => a.AnswerId);
@@ -118,7 +122,11 @@ namespace Buaa.AIBot.Repository.Implement
                     ")\n" +
                 ");";
             string sql = create_set + insert_set + select;
-            var query = Context.Questions.FromSqlRaw(sql).AsEnumerable().Select(q => q.QuestionId);
+            var query = Context
+                .Questions
+                .FromSqlRaw(sql)
+                .AsEnumerable()
+                .Select(q => q.QuestionId);
 
             //var query = Context
             //    .QuestionTagRelations
