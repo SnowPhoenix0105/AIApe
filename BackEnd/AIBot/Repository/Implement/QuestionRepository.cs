@@ -96,12 +96,36 @@ namespace Buaa.AIBot.Repository.Implement
         public async Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags)
         {
             var matcher = new TagMatcher(tags);
-            var query = Context
-                .QuestionTagRelations
-                .GroupBy(qt => qt.QuestionId)
-                .Where(q => matcher.Match(q.Select(qt => qt.TagId)))
-                .Select(q => q.First().QuestionId);
-            return await query.ToListAsync();
+            var list = tags.ToList();
+            if (list.Count == 0)
+            {
+                return await Context.Questions.Select(q => q.QuestionId).ToListAsync();
+            }
+            string create_set = "drop table if exists tids;\ncreate temporary table tids (tid int not null, primary key(tid));\n";
+            string values = string.Join("),(", list);
+            string insert_set = $"insert into tids values ({values});\n";
+            string select =
+                "select *\n" +
+                "from questions\n" +
+                "where not exists\n" +
+                "(\n\t" +
+                    "select tid from tids\n\t" +
+                    "where not exists\n\t" +
+                    "(\n\t\t" +
+                        "select *\n\t\t" +
+                        "from questiontagrelations as qt\n\t\t" +
+                        "where qt.QuestionId=questions.QuestionId and qt.TagId=tids.tid\n\t" +
+                    ")\n" +
+                ");";
+            string sql = create_set + insert_set + select;
+            var query = Context.Questions.FromSqlRaw(sql).AsEnumerable().Select(q => q.QuestionId);
+
+            //var query = Context
+            //    .QuestionTagRelations
+            //    .GroupBy(qt => qt.QuestionId)
+            //    .Where(q => matcher.Match(q.Select(qt => qt.TagId)))
+            //    .Select(q => q.First().QuestionId);
+            return query.ToList();
         }
 
         public async Task<IEnumerable<KeyValuePair<string, int>>> SelectTagsForQuestionByIdAsync(int questionId)
