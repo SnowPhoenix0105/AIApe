@@ -13,13 +13,13 @@ namespace Buaa.AIBot.Bot.AlphaBot
 
             Environment,
 
-                OnInstalling,
+                // OnInstalling,
                     GetOSForInstalling,
                         GetIDEForInstalling,
                             GovernmentLink,
                                 
                 
-                OnUsing,
+                // OnUsing,
                     GetOSForUsing,
                         GetIDEForUsing,
                             GetCompilerForUsing,

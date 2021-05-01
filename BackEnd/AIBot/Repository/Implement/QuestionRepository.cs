@@ -110,15 +110,15 @@ namespace Buaa.AIBot.Repository.Implement
             string insert_set = $"insert into tids values ({values});\n";
             string select =
                 "select *\n" +
-                "from questions\n" +
+                "from Questions\n" +
                 "where not exists\n" +
                 "(\n\t" +
                     "select tid from tids\n\t" +
                     "where not exists\n\t" +
                     "(\n\t\t" +
                         "select *\n\t\t" +
-                        "from questiontagrelations as qt\n\t\t" +
-                        "where qt.QuestionId=questions.QuestionId and qt.TagId=tids.tid\n\t" +
+                        "from QuestionTagRelations as qt\n\t\t" +
+                        "where qt.QuestionId=Questions.QuestionId and qt.TagId=tids.tid\n\t" +
                     ")\n" +
                 ");";
             string sql = create_set + insert_set + select;

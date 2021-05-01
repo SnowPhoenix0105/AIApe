@@ -7,41 +7,89 @@ using Buaa.AIBot.Bot.Framework;
 
 namespace Buaa.AIBot.Bot.AlphaBot.Status
 {
-    public class OnInstallingStatus : IBotStatusBehaviour<StatusId>
+    public class GetOSForInstallingStatus : IBotStatusBehaviour<StatusId>
     {
-        public StatusId Id => StatusId.Environment;
-        private readonly string Installing = "安装";
-        private readonly string Using = "使用";
-
+        public StatusId Id => StatusId.GetOSForInstalling;
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
-            status.IncreaseCount(Id);
             sender
-                .AddMessage($"请问您的问题是安装问题，还是使用问题呢？{Kaomojis.Cute}")
-                ;
-
+                .AddMessage("请问您的操作系统是什么呢？")
+                .AddPrompt(Value.WindowsOS).AddPrompt(Value.LinuxOS).AddPrompt(Value.MaxOS);
             return Task.CompletedTask;
+        }
+
+        private bool IsWindows(string msg)
+        {
+            return msg.ToLowerInvariant().Contains(Value.WindowsOS.ToLowerInvariant())
+                || msg.ToLowerInvariant().Contains("win");
+        }
+
+        private bool IsMac(string msg)
+        {
+            return msg.ToLowerInvariant().Contains(Value.MaxOS.ToLowerInvariant())
+                || msg.ToLowerInvariant().Contains("mac")
+                || msg.ToLowerInvariant().Contains("apple");
+        }
+
+        private bool IsLinux(string msg)
+        {
+            var list = new List<string>
+            {
+                "Linux", "ubuntu", "Redhat", "Debain", "Fedora", "openSUSE", "Mandriva", "Mint",
+                "PCLinuxOS", "Cent OS", "CentOS", "Slackware", "Gentoo"
+            };
+            list.Add(Value.LinuxOS);
+            foreach (var linux in list)
+            {
+                if (msg.ToLowerInvariant().Contains(linux.ToLowerInvariant()))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
         {
-            var receiver = context.Receiver;
-            var sender = context.Sender;
-            string msg = receiver.UserMessage;
-            if (msg.Contains(Installing))
+            string msg = context.Receiver.UserMessage;
+            if (IsWindows(msg))
             {
-                status.ClearCount(Id);
-                return Task.FromResult(StatusId.OnInstalling);
+                status.Put(Key.OS, Value.WindowsOS);
             }
-            if (msg.Contains(Using))
+            else if (IsMac(msg))
             {
-                status.ClearCount(Id);
-                return Task.FromResult(StatusId.OnUsing);
+                status.Put(Key.OS, Value.MaxOS);
             }
-            sender.AddMessage($"你又说我听不懂的话了呜呜呜{Kaomojis.Sad}").NewScope();
-            return Task.FromResult(Id);
+            else if (IsLinux(msg))
+            {
+                status.Put(Key.OS, Value.LinuxOS);
+            }
+            else
+            {
+                context.Sender.AddMessage($"抱歉，我不认识你说的操作系统{Kaomojis.Sad}").NewScope();
+                return Task.FromResult(Id);
+            }
+            status.Put(Key.OS_detail, msg);
+            return Task.FromResult(StatusId.GetIDEForInstalling);
+        }
+    }
+
+    public class GetIDEForInstallingStatus : IBotStatusBehaviour<StatusId>
+    {
+        public StatusId Id => StatusId.GetIDEForInstalling;
+
+        public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
+        {
+            // TODO
+            throw new NotImplementedException();
+        }
+
+        public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
+        {
+            // TODO
+            throw new NotImplementedException();
         }
     }
 }

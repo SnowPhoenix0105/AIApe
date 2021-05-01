@@ -11,8 +11,10 @@ namespace Buaa.AIBot.Bot.WorkingModule
     {
         public static readonly string SimpleDescribe = "SimpleDescribe";
         public static readonly string DetailDescribe = "DetailDescribe";
-        public static readonly string OS = "OperatingSystem";
+        public static readonly string OS = "OS";
+        public static readonly string OS_detail = "OS_detail";
         public static readonly string IDE = "IDE";
+        public static readonly string IDE_detail = "IDE_detail";
 
         private IQuestionService questionService;
 
