@@ -13,6 +13,8 @@ namespace Buaa.AIBot.Bot.AlphaBot
         public static readonly string OS_detail = WorkingModule.QuestionBuilder.OS_detail;
         public static readonly string IDE = WorkingModule.QuestionBuilder.IDE;
         public static readonly string IDE_detail = WorkingModule.QuestionBuilder.IDE_detail;
+        public static readonly string Compiler = "Compiler";
+        public static readonly string Compiler_detail = "Compiler_detail";
     }
 
     public static class Value
@@ -25,7 +27,19 @@ namespace Buaa.AIBot.Bot.AlphaBot
         public static readonly string VSCode = WorkingModule.GovernmentInstallingInfo.VSCode;
         public static readonly string VS = WorkingModule.GovernmentInstallingInfo.VS;
 
-        public static bool ToLowerContains(this string msg, params string[] alias)
+        public static bool ContainsAny(this string msg, params string[] alias)
+        {
+            foreach (var alia in alias)
+            {
+                if (msg.Contains(alia))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool ToLowerContainsAny(this string msg, params string[] alias)
         {
             string target = msg.ToLowerInvariant();
             foreach (var alia in alias)

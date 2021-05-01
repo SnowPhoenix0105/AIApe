@@ -16,49 +16,55 @@ namespace Buaa.AIBot.Bot.AlphaBot
                 // OnInstalling,
                     GetOSForInstalling,
                         GetIDEForInstalling,
-                            GovernmentLinkForInstalling,
+                            ShowGovernmentLinkForInstalling,
                                 
                 
                 // OnUsing,
                     GetOSForUsing,
                         GetIDEForUsing,
                             GetCompilerForUsing,
-                                DocumentLinkForUsing,
+                                ShowDocumentLinkForUsing,
 
             Gramma,
-                OnStandardLibary,
+                // OnStandardLibary,
                     ShowLinksForStandardLibary,
 
-                OnStatement,
+                // OnStatement,
                     GetStatementTypeForStatement,
                         ShowLinksForStatement,
 
-                OnKeywords,
+                // OnKeywords,
                     GetKeywordForKeywords,
                         ShowLinksForKeywords,
 
             WithCode,
                 GetCode,
-                    GetWrongInput,
-                        GetWrongOutput,
+                    GetWrongCaseInput,
+                        GetWrongCaseExpectOutput,
                             
         GetSimpleDescribe,
             ShowSerchResult,
                 ShowDatabaseResult,
                     GetDetails,
-                        AddQuestion,
+                        RunAddQuestion,
     }
 
     public static class Configuration
     {
         public static Dictionary<StatusId, IBotStatusBehaviour<StatusId>> GetStatusBehaviours()
         {
-            var list = new List<IBotStatusBehaviour<StatusId>>() 
-            { 
+            var list = new List<IBotStatusBehaviour<StatusId>>()
+            {
                 new WelcomeStatus(),
+                    // On Installing
+                        new EnvironmentStatus(),
+                            new GetOSForInstallingStatus(),
+                                new GetIDEForInstallingStatus(),
+                                    new ShowGovernmentLinkForInstallingStatus(),
+
                 new GetSimpleDescribeStatus(),
-                new GetDetailsStatus(),
-                new AddQuestionStatus()
+                    new GetDetailsStatus(),
+                        new AddQuestionStatus()
             };
             var ret = new Dictionary<StatusId, IBotStatusBehaviour<StatusId>>();
             foreach (var status in list)

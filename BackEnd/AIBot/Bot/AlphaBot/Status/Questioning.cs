@@ -75,13 +75,13 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             }
             status.Put(Key.DetailDescribe, msg);
             // TODO
-            return Task.FromResult(StatusId.AddQuestion);
+            return Task.FromResult(StatusId.RunAddQuestion);
         }
     }
 
     public class AddQuestionStatus : IBotStatusBehaviour<StatusId>
     {
-        public StatusId Id => StatusId.AddQuestion;
+        public StatusId Id => StatusId.RunAddQuestion;
 
         public async Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {

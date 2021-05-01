@@ -50,9 +50,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.Contains(Env))
             {
                 status.ClearCount(Id);
-                // TODO
-                return Task.FromResult(StatusId.GetSimpleDescribe);
-                // return Task.FromResult(StatusId.Environment);
+                return Task.FromResult(StatusId.Environment);
             }
             if (msg.Contains(Gramma))
             {
@@ -76,7 +74,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                     .NewScope();
                 return Task.FromResult(Id);
             }
-            sender.AddMessage($"我暂时无法回答你的问题{Kaomojis.Sad}").NewScope();
+            sender.AddMessage($"我暂时无法回答这方面的问题{Kaomojis.Sad}").NewScope();
             return Task.FromResult(Id);
         }
     }

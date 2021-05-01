@@ -23,15 +23,15 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
         {
             string msg = context.Receiver.UserMessage;
-            if (msg.ToLowerContains(Value.WindowsOS, "win"))
+            if (msg.ToLowerContainsAny(Value.WindowsOS, "win"))
             {
                 status.Put(Key.OS, Value.WindowsOS);
             }
-            else if (msg.ToLowerContains(Value.MacOS, "mac", "apple"))
+            else if (msg.ToLowerContainsAny(Value.MacOS, "mac", "apple"))
             {
                 status.Put(Key.OS, Value.MacOS);
             }
-            else if (msg.ToLowerContains(
+            else if (msg.ToLowerContainsAny(
                 Value.LinuxOS, "Linux", 
                 "ubuntu", "Redhat", "Debain", "Fedora", "openSUSE", "Mandriva", "Mint",
                 "PCLinuxOS", "Cent OS", "CentOS", "Slackware", "Gentoo"))
@@ -57,7 +57,10 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             var sender = context.Sender;
             sender
                 .AddMessage("请问你想安装的IDE/编译器是什么呢？")
-                .AddMessage(Value.DevCpp).AddPrompt(Value.VisualCpp).AddPrompt(Value.VS).AddPrompt(Value.VSCode)
+                .AddPrompt(Value.DevCpp)
+                .AddPrompt(Value.VisualCpp)
+                .AddPrompt(Value.VS)
+                .AddPrompt(Value.VSCode)
                 ;
             return Task.CompletedTask;
         }
@@ -65,44 +68,76 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
         {
             string msg = context.Receiver.UserMessage;
-            if (msg.ToLowerContains(Value.DevCpp, "dev"))
+            if (msg.ToLowerContainsAny(Value.DevCpp, "dev"))
             {
                 status.Put(Key.IDE, Value.DevCpp);
+                status.Put(Key.IDE_detail, msg);
             }
-            else if (msg.ToLowerContains(Value.VisualCpp, "visualc", "visual c", "VC++", "VC"))
+            else if (msg.ToLowerContainsAny(Value.VisualCpp, "visualc", "visual c", "VC++", "VC"))
             {
                 status.Put(Key.IDE, Value.VisualCpp);
+                status.Put(Key.IDE_detail, msg);
             }
-            else if (msg.ToLowerContains(Value.VSCode, "code", "vs code", "vscode", "visualstudio code", "visualstudiocode", "visual studio code"))
+            else if (msg.ToLowerContainsAny(Value.VSCode, "code", "vs code", "vscode", "visualstudio code", "visualstudiocode", "visual studio code"))
             {
                 status.Put(Key.IDE, Value.VSCode);
+                status.Put(Key.IDE_detail, msg);
             }
-            else if (msg.ToLowerContains(Value.VS, "vs", "visualstudio"))
+            else if (msg.ToLowerContainsAny(Value.VS, "vs", "visualstudio"))
             {
                 status.Put(Key.IDE, Value.VS);
+                status.Put(Key.IDE_detail, msg);
             }
+            // TODO add gcc and clang
             else
             {
                 context.Sender.AddMessage($"抱歉，我不认识你说的IDE/编译器{Kaomojis.Sad}").NewScope();
                 return Task.FromResult(Id);
             }
-            status.Put(Key.IDE_detail, msg);
-            return Task.FromResult(StatusId.GovernmentLinkForInstalling);
+            return Task.FromResult(StatusId.ShowGovernmentLinkForInstalling);
         }
     }
 
-    public class GovernmentLinkForInstallingStatus : IBotStatusBehaviour<StatusId>
+    public class ShowGovernmentLinkForInstallingStatus : IBotStatusBehaviour<StatusId>
     {
-        public StatusId Id => StatusId.GovernmentLinkForInstalling;
+        private static readonly string Finish = "解决了";
+        private static readonly string NeedQuestion = "没解决";
+        public StatusId Id => StatusId.ShowGovernmentLinkForInstalling;
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
-            context.Worker
+            context.Sender.AddMessage("我为你找到了这些信息：").NewScope();
+            string os = status.Get<string>(Key.OS);
+            string target;
+            if (!status.TryGet(Key.IDE, out target))
+            {
+                target = status.Get<string>(Key.Compiler);
+            }
+            context.Worker.GetGovernmentInstallingInfo().GeneratMessages(os, target, context.Sender);
+            context.Sender
+                .NewScope()
+                .AddMessage("请问是否解决了你的问题呢？")
+                .AddPrompt(Finish).AddPrompt(NeedQuestion);
+            return Task.CompletedTask;
         }
 
         public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
         {
-            throw new NotImplementedException();
+            var sender = context.Sender;
+            string msg = context.Receiver.UserMessage;
+            if (msg.ToLowerContainsAny(Finish, "谢谢", "OK",  "finish", "已解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
+            {
+                sender
+                    .AddMessage($"很荣幸能够帮到你{Kaomojis.Happy}")
+                    ;
+                return Task.FromResult(StatusId.Welcome);
+            }
+            if (msg.ToLowerContainsAny(NeedQuestion, "没", "未", "NO", "不", "n"))
+            {
+                return Task.FromResult(StatusId.GetSimpleDescribe);
+            }
+            sender.AddMessage($"抱歉我不明白你在说什么{Kaomojis.Sad}");
+            return Task.FromResult(Id);
         }
     }
 }

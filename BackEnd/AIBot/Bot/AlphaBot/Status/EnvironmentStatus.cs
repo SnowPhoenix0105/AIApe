@@ -20,6 +20,8 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             status.IncreaseCount(Id);
             sender
                 .AddMessage($"请问您的问题是安装问题，还是使用问题呢？{Kaomojis.Cute}")
+                .AddPrompt(Installing)
+                .AddPrompt(Using)
                 ;
 
             return Task.CompletedTask;
@@ -30,15 +32,17 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             var receiver = context.Receiver;
             var sender = context.Sender;
             string msg = receiver.UserMessage;
-            if (msg.Contains(Installing))
+            if (msg.ToLowerContainsAny(Installing, "install", "配置"))
             {
                 status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetOSForInstalling);
             }
-            if (msg.Contains(Using))
+            if (msg.ToLowerContainsAny(Using, "编译", "报错", "运行"))
             {
                 status.ClearCount(Id);
-                return Task.FromResult(StatusId.GetOSForUsing);
+                return Task.FromResult(StatusId.GetSimpleDescribe);
+                // TODO
+                // return Task.FromResult(StatusId.GetOSForUsing);
             }
             sender.AddMessage($"你又说我听不懂的话了呜呜呜{Kaomojis.Sad}").NewScope();
             return Task.FromResult(Id);
