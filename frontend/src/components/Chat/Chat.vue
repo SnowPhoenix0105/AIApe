@@ -29,6 +29,10 @@ export default {
     },
     methods: {
         send() {
+            if (this.$store.state.username === '') {
+                this.logs.push({id: 2, content: '你好,请先登录！看右边→'});
+                return;
+            }
             if (this.$data.message === '') {
                 this.$message({
                     message: '消息不能为空!',
@@ -41,23 +45,39 @@ export default {
             this.$axios.post(this.BASE_URL + '/api/ot/message', {
                 message: this.$data.message
             })
-            .then(function (response) {
-                console.log(response);
-            })
-            .catch(function (error) {
-                window.alert('error!');
-                console.log(error);
-            })
+                .then(function (response) {
+                    console.log(response);
+                })
+                .catch(function (error) {
+                    window.alert('error!');
+                    console.log(error);
+                })
             this.$data.message = '';
             this.$nextTick(() => {
                 this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
             })
         },
+        getTagList() {
+            let _this = this;
+            _this.$axios.get(_this.BASE_URL + '/api/questions/taglist')
+                .then(function (response) {
+                    let tagList = response.data;
+                    tagList = {
+                        '循环': 1,
+                        '语法': 2,
+                        '环境': 3
+                    }
+                    _this.$store.commit('setTagList', tagList);
+                })
+        }
     },
     watch: {
         username: function (username) {
-            this.$data.logs.push({id: 2, content: username});
+            this.$data.logs.push({id: 2, content: '你好,' + username + '！'});
         }
+    },
+    mounted() {
+        this.getTagList();
     }
 }
 </script>

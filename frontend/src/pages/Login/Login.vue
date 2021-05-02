@@ -34,7 +34,6 @@ export default {
                 password: _this.$data.form.password
             })
             .then(function (response) {
-                console.log(response);
                 if (response.data.status === "fail") {
                     _this.$message({
                         message: '邮箱或密码错误!',
@@ -50,9 +49,19 @@ export default {
                     _this.$store.commit('setAuth', response.data.auth);
                     _this.$store.commit('setTimeout', response.data.timeout);
                     _this.$router.replace('/questionList');
-                    _this.$axios.get(_this.BASE_URL + '/api/user/full_info')
+                    _this.$axios.post(_this.BASE_URL + '/api/bot/start', {}, {
+                        headers: {
+                            'Authorization' : 'Bearer ' + _this.$store.state.token,
+                            'type' : 'application/json;charset=utf-8'
+                        }
+                    })
+                    _this.$axios.get(_this.BASE_URL + '/api/user/internal_info', {
+                        headers: {
+                            'Authorization' : 'Bearer ' + _this.$store.state.token,
+                            'type' : 'application/json;charset=utf-8'
+                        }
+                    })
                     .then(function (response) {
-                        console.log(response);
                         _this.$store.commit('setUsername', response.data.name);
                     })
                     .catch(function (error) {

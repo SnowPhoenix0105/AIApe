@@ -9,7 +9,8 @@ export default new Vuex.Store({
         username: '',
         token: '',
         auth: 0,
-        timeout: 0
+        timeout: 0,
+        tagList: {}
     },
     mutations: {
         setUsername(state, value) {
@@ -26,6 +27,9 @@ export default new Vuex.Store({
         },
         setTimeout(state, timeout) {
             state.timeout = timeout;
+        },
+        setTagList(state, tagList) {
+            state.tagList = tagList;
         }
     }
 })

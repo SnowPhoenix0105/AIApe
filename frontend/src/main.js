@@ -10,6 +10,7 @@ import axios from 'axios';
 import VueAxios from 'vue-axios';
 
 Vue.prototype.$axios = axios;
+Vue.prototype.BASE_URL = 'https://aiape.snowphoenix.design';
 Vue.use(ElementUI);
 Vue.prototype.$store = store;
 
@@ -19,4 +20,4 @@ new Vue({
     router
 })
 
-Vue.prototype.BASE_URL = 'https://aiape.snowphoenix.design';
+
