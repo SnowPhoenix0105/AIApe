@@ -432,7 +432,7 @@ namespace Buaa.AIBot.Controllers
             DateTime expiration;
             try
             {
-                expiration = userService.GetExpirationFromToken(Request);
+                expiration = userService.GetExpirationFromToken(body);
                 if (expiration.CompareTo(DateTime.Now) < 0)
                 {
                     return Unauthorized(new

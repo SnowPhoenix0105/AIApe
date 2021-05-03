@@ -51,7 +51,7 @@ namespace Buaa.AIBot.Services
 
         AuthLevel GetAuthLevelFromToken(HttpRequest request);
 
-        DateTime GetExpirationFromToken(HttpRequest request);
+        DateTime GetExpirationFromToken(UserBody userBody);
 
         Task<string> FleshTokenAsync(HttpRequest request);
     }
@@ -258,10 +258,10 @@ namespace Buaa.AIBot.Services
             return stringToAuthLevel[authLevel.ToString()];
         }
         
-        public DateTime GetExpirationFromToken(HttpRequest request)
+        public DateTime GetExpirationFromToken(UserBody userBody)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(request.Headers["Authorization"].ToString().Substring(7));
+            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(userBody.Token);
             Object expiration;
             jwtToken.Payload.TryGetValue(ClaimTypes.Expiration, out expiration);
             return DateTime.Parse(expiration.ToString());
