@@ -41,7 +41,6 @@ export default {
             questions: [],
             selectedTag: [],
             tagState: {},
-            effect: 'dark',
             showTag: true
         }
     },
@@ -64,12 +63,11 @@ export default {
                         _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
                             .then(function (response) {
                                 questions.push({
-                                    'id': qid,
-                                    'title': response.data.question.title,
-                                    'content': response.data.question.remarks
+                                    id: qid,
+                                    title: response.data.question.title,
+                                    content: response.data.question.remarks
                                 });
                                 _this.$data.questions = questions;
-                                console.log(response.data);
                             });
                     }
                 })

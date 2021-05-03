@@ -45,20 +45,23 @@ export default {
                         message: '登录成功!',
                         type: 'success'
                     });
-                    _this.$store.commit('setToken', response.data.token);
+                    _this.$store.commit('refreshToken', {
+                        token: response.data.token,
+                        time: new Date(),
+                        timeout: response.data.timeout
+                    });
                     _this.$store.commit('setAuth', response.data.auth);
-                    _this.$store.commit('setTimeout', response.data.timeout);
                     _this.$router.replace('/questionList');
                     _this.$axios.post(_this.BASE_URL + '/api/bot/start', {}, {
                         headers: {
-                            'Authorization' : 'Bearer ' + _this.$store.state.token,
-                            'type' : 'application/json;charset=utf-8'
+                            Authorization : 'Bearer ' + response.data.token,
+                            type : 'application/json;charset=utf-8'
                         }
                     })
                     _this.$axios.get(_this.BASE_URL + '/api/user/internal_info', {
                         headers: {
-                            'Authorization' : 'Bearer ' + _this.$store.state.token,
-                            'type' : 'application/json;charset=utf-8'
+                            Authorization : 'Bearer ' + response.data.token,
+                            type : 'application/json;charset=utf-8'
                         }
                     })
                     .then(function (response) {

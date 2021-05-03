@@ -10,7 +10,8 @@ export default new Vuex.Store({
         token: '',
         auth: 0,
         timeout: 0,
-        tagList: {}
+        tagList: {},
+        lastTokenTime: new Date()
     },
     mutations: {
         setUsername(state, value) {
@@ -19,17 +20,17 @@ export default new Vuex.Store({
         setQuestionID(state, id) {
             state.questionID = id;
         },
-        setToken(state, token) {
-            state.token = token;
+        refreshToken(state, payload) {
+            state.token = payload.token;
+            state.lastTokenTime = payload.time;
+            state.timeout = payload.timeout;
         },
         setAuth(state, auth) {
             state.auth = auth;
         },
-        setTimeout(state, timeout) {
-            state.timeout = timeout;
-        },
         setTagList(state, tagList) {
             state.tagList = tagList;
         }
+
     }
 })

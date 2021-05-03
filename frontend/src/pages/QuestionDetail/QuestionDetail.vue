@@ -55,10 +55,8 @@ export default {
         getQuestionDetail() {
             let _this = this;
             let id = this.$store.state.questionID;
-            console.log(this.$data.tags);
             _this.$axios.get("https://aiape.snowphoenix.design/api/test/questions/question?qid=" + id)
                 .then(function (response) {
-                    console.log(response);
                     _this.$data.title = response.data.question.title;
                     _this.$data.detail = response.data.question.remarks;
                     _this.$data.creator += response.data.question.creater;
@@ -67,7 +65,6 @@ export default {
                     let aidList = response.data.question.answers;
                     let best = response.data.best;
                     for (let aid of aidList) {
-                        console.log(aid);
                         _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(function (response) {
                                 if (best === aid) {

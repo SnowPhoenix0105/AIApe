@@ -51,7 +51,6 @@ html, body, #app, .left, .right {
     width: 60%;
 }
 
-
 ::-webkit-scrollbar {
     width: 5px;
 
