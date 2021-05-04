@@ -53,7 +53,7 @@ namespace Buaa.AIBot.Services
 
         DateTime GetExpirationFromToken(UserBody userBody);
 
-        Task<string> FleshTokenAsync(HttpRequest request);
+        Task<string> FreshTokenAsync(UserBody userBody);
     }
 
     public class UserService : IUserService
@@ -267,10 +267,10 @@ namespace Buaa.AIBot.Services
             return DateTime.Parse(expiration.ToString());
         }
 
-        public async Task<string> FleshTokenAsync(HttpRequest request)
+        public async Task<string> FreshTokenAsync(UserBody userBody)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(request.Headers["Authorization"].ToString().Substring(7));
+            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(userBody.Token);
             Object uid;
             Object email;
             jwtToken.Payload.TryGetValue(ClaimTypes.Sid, out uid);

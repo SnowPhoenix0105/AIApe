@@ -454,7 +454,7 @@ namespace Buaa.AIBot.Controllers
             }
             try
             {
-                string newToken = await userService.FleshTokenAsync(Request);
+                string newToken = await userService.FreshTokenAsync(body);
                 return Ok(new
                 {
                     Status = "success",
