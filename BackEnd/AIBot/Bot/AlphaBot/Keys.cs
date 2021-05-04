@@ -9,23 +9,35 @@ namespace Buaa.AIBot.Bot.AlphaBot
     {
         public static readonly string SimpleDescribe = WorkingModule.QuestionBuilder.SimpleDescribe;
         public static readonly string DetailDescribe = WorkingModule.QuestionBuilder.DetailDescribe;
+
         public static readonly string OS = WorkingModule.QuestionBuilder.OS;
         public static readonly string OS_detail = WorkingModule.QuestionBuilder.OS_detail;
+
         public static readonly string IDE = WorkingModule.QuestionBuilder.IDE;
         public static readonly string IDE_detail = WorkingModule.QuestionBuilder.IDE_detail;
+
         public static readonly string Compiler = "Compiler";
         public static readonly string Compiler_detail = "Compiler_detail";
+
+        public static readonly string SourceCode = "SourceCode";
+        public static readonly string WrongCaseInput = "WrongCaseInput";
+        public static readonly string WrongCaseOutput = "WrongCaseOutput";
     }
 
     public static class Value
     {
-        public static readonly string WindowsOS = WorkingModule.GovernmentInstallingInfo.WindowsOS;
-        public static readonly string LinuxOS = WorkingModule.GovernmentInstallingInfo.LinuxOS;
-        public static readonly string MacOS = WorkingModule.GovernmentInstallingInfo.MacOS;
-        public static readonly string DevCpp = WorkingModule.GovernmentInstallingInfo.DevCpp;
-        public static readonly string VisualCpp = WorkingModule.GovernmentInstallingInfo.VisualCpp;
-        public static readonly string VSCode = WorkingModule.GovernmentInstallingInfo.VSCode;
-        public static readonly string VS = WorkingModule.GovernmentInstallingInfo.VS;
+        public static readonly string WindowsOS = WorkingModule.ConstantStrings.OS.WindowsOS;
+        public static readonly string LinuxOS = WorkingModule.ConstantStrings.OS.LinuxOS;
+        public static readonly string MacOS = WorkingModule.ConstantStrings.OS.MacOS;
+
+        public static readonly string DevCpp = WorkingModule.ConstantStrings.IDE.DevCpp;
+        public static readonly string VisualCpp = WorkingModule.ConstantStrings.IDE.VisualCpp;
+        public static readonly string VSCode = WorkingModule.ConstantStrings.IDE.VSCode;
+        public static readonly string VS = WorkingModule.ConstantStrings.IDE.VS;
+
+        public static readonly string Gcc = WorkingModule.ConstantStrings.Compiler.Gcc;
+        public static readonly string Clang = WorkingModule.ConstantStrings.Compiler.Clang;
+        public static readonly string Msvc = WorkingModule.ConstantStrings.Compiler.Msvc;
 
         public static bool ContainsAny(this string msg, params string[] alias)
         {

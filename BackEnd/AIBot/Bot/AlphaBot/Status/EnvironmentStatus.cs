@@ -40,9 +40,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.ToLowerContainsAny(Using, "编译", "报错", "运行"))
             {
                 status.ClearCount(Id);
-                return Task.FromResult(StatusId.GetSimpleDescribe);
-                // TODO
-                // return Task.FromResult(StatusId.GetOSForUsing);
+                return Task.FromResult(StatusId.GetOSForUsing);
             }
             sender.AddMessage($"你又说我听不懂的话了呜呜呜{Kaomojis.Sad}").NewScope();
             return Task.FromResult(Id);

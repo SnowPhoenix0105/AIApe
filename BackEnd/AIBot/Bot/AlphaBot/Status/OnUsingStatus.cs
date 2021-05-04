@@ -7,9 +7,10 @@ using Buaa.AIBot.Bot.Framework;
 
 namespace Buaa.AIBot.Bot.AlphaBot.Status
 {
-    public class GetOSForInstallingStatus : IBotStatusBehaviour<StatusId>
+
+    public class GetOSForUsingStatus : IBotStatusBehaviour<StatusId>
     {
-        public StatusId Id => StatusId.GetOSForInstalling;
+        public StatusId Id => StatusId.GetOSForUsing;
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
@@ -32,7 +33,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 status.Put(Key.OS, Value.MacOS);
             }
             else if (msg.ToLowerContainsAny(
-                Value.LinuxOS, "Linux", 
+                Value.LinuxOS, "Linux",
                 "ubuntu", "Redhat", "Debain", "Fedora", "openSUSE", "Mandriva", "Mint",
                 "PCLinuxOS", "Cent OS", "CentOS", "Slackware", "Gentoo"))
             {
@@ -44,23 +45,25 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 return Task.FromResult(Id);
             }
             status.Put(Key.OS_detail, msg);
-            return Task.FromResult(StatusId.GetIDEForInstalling);
+            return Task.FromResult(StatusId.GetIDEForUsing);
         }
     }
 
-    public class GetIDEForInstallingStatus : IBotStatusBehaviour<StatusId>
+    public class GetIDEForUsingStatus : IBotStatusBehaviour<StatusId>
     {
-        public StatusId Id => StatusId.GetIDEForInstalling;
+        public StatusId Id => StatusId.GetIDEForUsing;
+        private static readonly string NoIDE = "未使用IDE";
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
             sender
-                .AddMessage("请问您想安装的IDE/编译器是什么呢？")
+                .AddMessage("请问您使用的IDE是什么呢？")
                 .AddPrompt(Value.DevCpp)
                 .AddPrompt(Value.VisualCpp)
                 .AddPrompt(Value.VS)
                 .AddPrompt(Value.VSCode)
+                .AddPrompt(NoIDE)
                 ;
             return Task.CompletedTask;
         }
@@ -88,32 +91,90 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 status.Put(Key.IDE, Value.VS);
                 status.Put(Key.IDE_detail, msg);
             }
-            // TODO add gcc and clang
+            else if (msg.ToLowerContainsAny(NoIDE, "不", "无", "未", "NO", "null"))
+            {
+                status.Remove(Key.IDE);
+                status.Remove(Key.IDE_detail);
+            }
             else
             {
-                context.Sender.AddMessage($"抱歉，我不认识你说的IDE/编译器{Kaomojis.Sad}").NewScope();
+                context.Sender.AddMessage($"抱歉，我不认识你说的IDE{Kaomojis.Sad}").NewScope();
                 return Task.FromResult(Id);
             }
-            return Task.FromResult(StatusId.ShowGovernmentLinkForInstalling);
+            return Task.FromResult(StatusId.GetCompilerForUsing);
         }
     }
 
-    public class ShowGovernmentLinkForInstallingStatus : IBotStatusBehaviour<StatusId>
+    public class GetCompilerForUsingStatus : IBotStatusBehaviour<StatusId>
+    {
+        public StatusId Id => StatusId.GetCompilerForUsing;
+        private static readonly string UnknownCompiler = "不知道";
+
+        public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
+        {
+            var sender = context.Sender;
+            sender
+                .AddMessage("请问您使用的编译器是什么呢？")
+                .AddPrompt(Value.Gcc)
+                .AddPrompt(Value.Clang)
+                .AddPrompt(Value.Msvc)
+                .AddPrompt(UnknownCompiler);
+            return Task.CompletedTask;
+        }
+
+        public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
+        {
+            string msg = context.Receiver.UserMessage;
+            if (msg.ToLowerContainsAny(Value.Gcc, "GNU"))
+            {
+                status.Put(Key.Compiler, Value.Gcc);
+                status.Put(Key.Compiler_detail, msg);
+            }
+            else if (msg.ToLowerContainsAny(Value.Clang, "llvm"))
+            {
+                status.Put(Key.Compiler, Value.Clang);
+                status.Put(Key.Compiler_detail, msg);
+            }
+            else if (msg.ToLowerContainsAny(Value.Msvc, "VC"))
+            {
+                status.Put(Key.Compiler, Value.Msvc);
+                status.Put(Key.Compiler_detail, msg);
+            }
+            else if (msg.ToLowerContainsAny(UnknownCompiler, "不", "否", "无", "unknow", "NO"))
+            {
+                status.Remove(Key.Compiler);
+                status.Remove(Key.Compiler_detail);
+            }
+            else
+            {
+                context.Sender.AddMessage($"抱歉，我不认识你说的编译器{Kaomojis.Sad}").NewScope();
+                return Task.FromResult(Id);
+            }
+            return Task.FromResult(StatusId.ShowDocumentLinkForUsing);
+        }
+    }
+
+    public class ShowDocumentLinkForUsingStatus : IBotStatusBehaviour<StatusId>
     {
         private static readonly string Finish = "解决了";
         private static readonly string NeedQuestion = "没解决";
-        public StatusId Id => StatusId.ShowGovernmentLinkForInstalling;
+        public StatusId Id => StatusId.ShowDocumentLinkForUsing;
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             context.Sender.AddMessage("我为你找到了这些信息：").NewScope();
             string os = status.Get<string>(Key.OS);
-            string target;
-            if (!status.TryGet(Key.IDE, out target))
+            string ide;
+            if (!status.TryGet(Key.IDE, out ide))
             {
-                target = status.Get<string>(Key.Compiler);
+                ide = null;
             }
-            context.Worker.GetGovernmentInstallingInfo().SendInstallingMessages(os, target, context.Sender);
+            string compiler;
+            if (!status.TryGet(Key.Compiler, out compiler))
+            {
+                compiler = null;
+            }
+            context.Worker.GetDocumentCollection().SendIDEDocumentMessages(os, ide, compiler, context.Sender);
             context.Sender
                 .NewScope()
                 .AddMessage("请问是否解决了你的问题呢？")
@@ -129,7 +190,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             {
                 return Task.FromResult(StatusId.GetSimpleDescribe);
             }
-            if (msg.ToLowerContainsAny(Finish, "谢谢", "OK",  "finish", "解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
+            if (msg.ToLowerContainsAny(Finish, "谢谢", "OK", "finish", "已解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
             {
                 sender
                     .AddMessage($"很荣幸能够帮到你{Kaomojis.Happy}")

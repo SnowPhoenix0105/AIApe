@@ -6,13 +6,13 @@ using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Buaa.AIBot.Bot.Framework;
 using Buaa.AIBot.Bot.WorkingModule;
-
+using Microsoft.Extensions.Configuration;
 
 namespace Buaa.AIBot.Bot
 {
     public static class Extensions
     {
-        public static IServiceCollection AddEchoBot(this IServiceCollection services)
+        public static IServiceCollection AddEchoBot(this IServiceCollection services, IConfiguration config)
         {
             var options = new BotRunnerOptions<EchoBot.StatusEnum>()
             {
@@ -24,14 +24,14 @@ namespace Buaa.AIBot.Bot
                 }
             };
             services
-                .AddWorkingModule()
+                .AddWorkingModule(config)
                 .AddTransient<IBotRunner>(
                 services => new BotRunner<EchoBot.StatusEnum>(options, services.GetService<IWorkingModule>()));
 
             return services;
         }
 
-        public static IServiceCollection AddAlphaBot(this IServiceCollection services)
+        public static IServiceCollection AddAlphaBot(this IServiceCollection services, IConfiguration config)
         {
             var options = new BotRunnerOptions<AlphaBot.StatusId>()
             {
@@ -43,7 +43,7 @@ namespace Buaa.AIBot.Bot
                 }
             };
             services
-                .AddWorkingModule()
+                .AddWorkingModule(config)
                 .AddTransient<IBotRunner>(
                 services => new BotRunner<AlphaBot.StatusId>(options, services.GetService<IWorkingModule>()));
 

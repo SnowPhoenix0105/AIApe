@@ -75,8 +75,8 @@ namespace Buaa.AIBot
 
             services
                 // Add Bot
-                //.AddEchoBot()
-                .AddAlphaBot()
+                //.AddEchoBot(Configuration)
+                .AddAlphaBot(Configuration)
                 
                 ;
         }

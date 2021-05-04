@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +10,17 @@ namespace Buaa.AIBot.Bot.WorkingModule
 {
     public static class Configuration
     {
-        public static IServiceCollection AddWorkingModule(this IServiceCollection services)
+        public static IServiceCollection AddWorkingModule(this IServiceCollection services, IConfiguration config)
         {
+            string gccWorkDir = config.GetSection("Path").GetValue<string>("GccWorkDir");
             services
                 .AddTransient<IWorkingModule, WorkingModule>()
                 .AddTransient<QuestionBuilder>()
                 .AddSingleton<GovernmentInstallingInfo>()
+                .AddSingleton<IdeAndCompilerDocumentCollection>()
+                .AddSingleton(provider => 
+                    new GccHandlerFactory(gccWorkDir, provider.GetRequiredService<ILogger<GccHandlerFactory>>()))
+                .AddSingleton<SourceCodeAnalyzer>()
                 ;
             return services;
         }
@@ -23,6 +30,9 @@ namespace Buaa.AIBot.Bot.WorkingModule
     {
         QuestionBuilder GetQuestionBuilder();
         GovernmentInstallingInfo GetGovernmentInstallingInfo();
+        IdeAndCompilerDocumentCollection GetDocumentCollection();
+        GccHandlerFactory GetGccHandlerFactory();
+        SourceCodeAnalyzer GetSourceCodeAnalyzer();
     }
 
     public class WorkingModule : IWorkingModule
@@ -42,6 +52,21 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public GovernmentInstallingInfo GetGovernmentInstallingInfo()
         {
             return services.GetService<GovernmentInstallingInfo>();
+        }
+
+        public IdeAndCompilerDocumentCollection GetDocumentCollection()
+        {
+            return services.GetService<IdeAndCompilerDocumentCollection>();
+        }
+
+        public GccHandlerFactory GetGccHandlerFactory()
+        {
+            return services.GetService<GccHandlerFactory>();
+        }
+
+        public SourceCodeAnalyzer GetSourceCodeAnalyzer()
+        {
+            return services.GetService<SourceCodeAnalyzer>();
         }
     }
 }

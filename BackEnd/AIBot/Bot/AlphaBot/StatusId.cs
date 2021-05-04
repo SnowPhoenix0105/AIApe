@@ -37,10 +37,12 @@ namespace Buaa.AIBot.Bot.AlphaBot
                     GetKeywordForKeywords,
                         ShowLinksForKeywords,
 
-            WithCode,
+            // WithCode,
                 GetCode,
-                    GetWrongCaseInput,
-                        GetWrongCaseExpectOutput,
+                    AskIfHaveWrongCase,
+                        GetWrongCaseInput,
+                            GetWrongCaseExpectOutput,
+                                TrySolveWithCode,
                             
         GetSimpleDescribe,
             ShowSerchResult,
@@ -56,11 +58,22 @@ namespace Buaa.AIBot.Bot.AlphaBot
             var list = new List<IBotStatusBehaviour<StatusId>>()
             {
                 new WelcomeStatus(),
-                    // On Installing
-                        new EnvironmentStatus(),
+                    new EnvironmentStatus(),
+                        // On Installing
                             new GetOSForInstallingStatus(),
                                 new GetIDEForInstallingStatus(),
                                     new ShowGovernmentLinkForInstallingStatus(),
+                        // On Using
+                            new GetOSForUsingStatus(),
+                                new GetIDEForUsingStatus(),
+                                    new GetCompilerForUsingStatus(),
+                                        new ShowDocumentLinkForUsingStatus(),
+
+                    new GetCodeStatus(),
+                        new AskIfHaveWrongCaseStatus(),
+                            new GetWrongCaseInputStatus(),
+                                new GetWrongCaseExpectOutputStatus(),
+                                    new TrySolveWithCodeStatus(),
 
                 new GetSimpleDescribeStatus(),
                     new GetDetailsStatus(),

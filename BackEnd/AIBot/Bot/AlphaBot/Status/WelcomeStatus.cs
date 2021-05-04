@@ -62,9 +62,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.Contains(Code))
             {
                 status.ClearCount(Id);
-                // TODO
-                return Task.FromResult(StatusId.GetSimpleDescribe);
-                // return Task.FromResult(StatusId.Qu);
+                return Task.FromResult(StatusId.GetCode);
             }
             if (msg.Contains(Question))
             {

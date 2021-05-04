@@ -8,16 +8,16 @@ namespace Buaa.AIBot.Bot.WorkingModule
 {
     public class GovernmentInstallingInfo
     {
-        public static readonly string WindowsOS = "Windows";
-        public static readonly string LinuxOS = "Linux";
-        public static readonly string MacOS = "macOS";
+        public static readonly string WindowsOS = ConstantStrings.OS.WindowsOS ;
+        public static readonly string LinuxOS   = ConstantStrings.OS.LinuxOS;
+        public static readonly string MacOS = ConstantStrings.OS.MacOS;
 
-        public static readonly string DevCpp = "Dev C++";
-        public static readonly string VisualCpp = "Visual C++";
-        public static readonly string VSCode = "VS Code";
-        public static readonly string VS = "Visual Studio";
+        public static readonly string DevCpp = ConstantStrings.IDE.DevCpp;
+        public static readonly string VisualCpp = ConstantStrings.IDE.VisualCpp;
+        public static readonly string VSCode = ConstantStrings.IDE.VSCode;
+        public static readonly string VS = ConstantStrings.IDE.VS;
 
-        public void GeneratMessages(string os, string target, IBotSender sender)
+        public void SendInstallingMessages(string os, string target, IBotSender sender)
         {
             if (target == DevCpp)
             {
