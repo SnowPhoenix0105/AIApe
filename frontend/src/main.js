@@ -24,7 +24,7 @@ new Vue({
 axios.interceptors.response.use(response => {
     // 未登录 还没有token
     if (store.state.token === '' || response.data.message === 'token fresh success' ||
-        new Date().getTime() - store.state.lastTokenTime < 2000) {
+        new Date().getTime() - store.state.lastTokenTime < 36000) {
         return response;
     }
 
@@ -56,6 +56,7 @@ axios.interceptors.response.use(response => {
             .catch(function (error) {
                 console.log(store.state.timeout);
                 console.log(error);
+                return response;
             })
     }
 })

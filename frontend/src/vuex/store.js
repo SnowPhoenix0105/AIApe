@@ -11,7 +11,8 @@ export default new Vuex.Store({
         auth: 0,
         timeout: 0,
         tagList: {},
-        lastTokenTime: new Date()
+        lastTokenTime: new Date(),
+        logs: [{id: 2, content: '你好，我是AIApe!请先登录！'}]
     },
     mutations: {
         setUsername(state, value) {
@@ -30,7 +31,18 @@ export default new Vuex.Store({
         },
         setTagList(state, tagList) {
             state.tagList = tagList;
+        },
+        addAImessage(state, message) {
+            state.logs.push({
+                id: 2,
+                content: message
+            })
+        },
+        addUserMessage(state, message) {
+            state.logs.push({
+                id: 1,
+                content: message
+            })
         }
-
     }
 })
