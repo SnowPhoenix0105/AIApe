@@ -6,14 +6,59 @@ import router from './router'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import store from "./vuex/store";
+import axios from 'axios';
+import VueAxios from 'vue-axios';
 
+Vue.prototype.$axios = axios;
+const BASE_URL = 'https://aiape.snowphoenix.design';
+Vue.prototype.BASE_URL = BASE_URL;
 Vue.use(ElementUI);
 Vue.prototype.$store = store;
 
-/* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  render: h => h(App),
-  router
+    el: '#app',
+    render: h => h(App),
+    router
 })
+
+axios.interceptors.response.use(response => {
+    // 未登录 还没有token
+    if (store.state.token === '' || response.data.message === 'token fresh success' ||
+        new Date().getTime() - store.state.lastTokenTime < 36000) {
+        return response;
+    }
+
+    let current = new Date();
+    let existTime = (current.getTime() - store.state.lastTokenTime.getTime()) / 1000;
+
+    if (existTime > store.state.timeout) {
+        alert('登录超时!');
+        router.replace('/login');
+    }
+    else {
+        console.log(store.state.token);
+        axios.post( BASE_URL + '/api/user/fresh', {
+            token: store.state.token
+        })
+            .then(function (response) {
+                console.log('refreshing token!');
+                console.log(store.state.token);
+                if (response.data.state === 'success') {
+                    store.commit('refreshToken', {
+                        token: response.data.token,
+                        time: new Date(),
+                        timeout: response.data.timeout
+                    })
+                }
+                console.log(store.state.token);
+                return response;
+            })
+            .catch(function (error) {
+                console.log(store.state.timeout);
+                console.log(error);
+                return response;
+            })
+    }
+})
+
 
