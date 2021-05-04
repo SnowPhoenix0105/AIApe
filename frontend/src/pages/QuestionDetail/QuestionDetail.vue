@@ -6,7 +6,7 @@
             <div class="header">
                 <h1 align="center">{{ title }}</h1>
                 <p>{{ detail }}</p>
-                <p class="creator" align="right">{{ creator }}</p>
+                <p class="creator" align="right">{{ creatorName }}</p>
                 <p class="date" align="right">{{ date }}</p>
                 <el-tag v-for="(tid, tag_name, index) in tags" :key="tid">{{ tag_name }}</el-tag>
                 <el-button class="answer" :icon="icon" circle @click="answerAreaMove"></el-button>
@@ -17,7 +17,7 @@
                 <div v-show="showAnswerArea">
                     <el-input type="textarea" resize="none" :autosize="{ minRows: 6, maxRows: 6}"
                               v-model="myAnswer"></el-input>
-                    <el-button class="submit" type="primary">提交回答</el-button>
+                    <el-button class="submit" type="primary" @click="submitAnswer">提交回答</el-button>
                 </div>
             </el-collapse-transition>
         </el-main>
@@ -25,7 +25,7 @@
             <div>
                 <div v-for="answer in answers" class="userAnswer">
                     <p class="answerContent">{{ answer.content }}</p>
-                    <p class="creator" align="right">{{ answer.creater }}</p>
+                    <p class="creator" align="right">{{ answer.creatorName}}</p>
                     <p class="date" align="right">{{ answer.createTime }}</p>
                 </div>
             </div>
@@ -41,6 +41,7 @@ export default {
             detail: '',
             tags: {},
             creator: '',
+            creatorName: '',
             date: '',
             answers: [],
             myAnswer: '',
@@ -55,40 +56,37 @@ export default {
         getQuestionDetail() {
             let _this = this;
             let id = this.$store.state.questionID;
-            console.log(this.$data.tags);
             _this.$axios.get("https://aiape.snowphoenix.design/api/test/questions/question?qid=" + id)
-                .then(function (response) {
-                    console.log(response);
+                .then(async function (response) {
                     _this.$data.title = response.data.question.title;
                     _this.$data.detail = response.data.question.remarks;
-                    _this.$data.creator += response.data.question.creater;
+                    _this.$data.creator = response.data.question.creater;
+                    // _this.$data.creatorName = await _this.getUserName(_this.$data.creator);
+                    _this.$data.creatorName = 'test';
                     _this.$data.date = response.data.question.createTime;
                     _this.$data.tags = response.data.question.tags;
                     let aidList = response.data.question.answers;
                     let best = response.data.best;
                     for (let aid of aidList) {
-                        console.log(aid);
-                        _this.$axios.get("https://aiape.snowphoenix.design/api/questions/answer?aid=" + aid)
-                            .then(function (response) {
+                        _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
+                            .then(async function (response) {
+                                let answer = response.data.answer;
+                                let name = await _this.getUserName(response.data.answer.creator);
+                                answer['creatorName'] = name;
                                 if (best === aid) {
-                                    _this.$data.answers.splice(0, 0, response.data.answer);
+                                    _this.$data.answers.splice(0, 0, answer);
                                 } else {
-                                    _this.$data.answers.push(response.data.answer);
+                                    _this.$data.answers.push(answer);
                                 }
                             })
                             .catch(function (error) {
                                 console.log(error);
-                                _this.$data.answers.push({
-                                    content: "C语言xxxxxwdnm",
-                                    creater: "huang",
-                                    createTime: "xxxxxxxxxxxx"
-                                })
                             })
-
                     }
 
                 })
                 .catch(function (error) {
+                    alert('error!');
                     console.log(error);
                 });
         },
@@ -100,6 +98,37 @@ export default {
                 this.$data.showAnswerArea = false;
                 this.$data.icon = 'el-icon-edit';
             }
+        },
+        submitAnswer() {
+            let answer = this.myAnswer;
+            let _this = this;
+            this.$axios.post(_this.BASE_URL + '/api/questions/add_answer', {
+                qid: _this.$store.state.questionID,
+                content: answer
+            }, {
+                headers: {
+                    Authorization : 'Bearer ' + _this.$store.state.token,
+                    type : 'application/json;charset=utf-8'
+                }
+            })
+            .then(function (response) {
+                _this.myAnswer = '';
+                if (response.data.status === 'success') {
+                    _this.$store.commit('addAImessage', '感谢你的回答!');
+                }
+                else {
+                    _this.$store.commit('addAImessage', '你已经回答过这个问题啦!');
+                }
+            })
+        },
+        async getUserName(uid) {
+            let _this = this;
+            let name = '';
+            await this.$axios.get(this.BASE_URL + '/api/user/public_info?uid=' + uid)
+            .then(function (response) {
+                name = response.data.name;
+            })
+            return name;
         }
     },
     mounted() {

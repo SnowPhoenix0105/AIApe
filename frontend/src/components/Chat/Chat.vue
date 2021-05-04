@@ -2,7 +2,7 @@
     <div>
         <div class="log" ref="words">
             <!-- 根据vue对象中的数组，遍历出对应的标签。 -->
-            <div v-for="msg in logs" class="content" :class="msg.id === 1? 'user':'bot'">
+            <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
                 <span>{{ msg.content }}</span>
             </div>
         </div>
@@ -19,16 +19,23 @@ export default {
     data() {
         return {
             message: '',
-            logs: [{id: 2, content: '你好，我是AIApe!请先登录！'}]
+
         }
     },
     computed: {
         username() {
             return this.$store.state.username;
+        },
+        logs() {
+            return this.$store.state.logs;
         }
     },
     methods: {
         send() {
+            if (this.$store.state.username === '') {
+                this.$store.commit('addAImessage', '你好,请先登录！看右边→');
+                return;
+            }
             if (this.$data.message === '') {
                 this.$message({
                     message: '消息不能为空!',
@@ -36,28 +43,43 @@ export default {
                 })
                 return;
             }
-            this.$data.logs.push({id: 1, content: this.$data.message});
+            this.$store.commit('addUserMessage', this.$data.message);
 
-            this.$axios.post('https://aiape.snowphoenix.design/api/ot/message', {
+            this.$axios.post(this.BASE_URL + '/api/ot/message', {
                 message: this.$data.message
             })
-            .then(function (response) {
-                console.log(response);
-            })
-            .catch(function (error) {
-                window.alert('error!');
-                console.log(error);
-            })
+                .then(function (response) {
+                })
+                .catch(function (error) {
+                })
             this.$data.message = '';
-            this.$nextTick(() => {
-                this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
-            })
         },
+        getTagList() {
+            let _this = this;
+            _this.$axios.get(_this.BASE_URL + '/api/questions/taglist')
+                .then(function (response) {
+                    let tagList = response.data;
+                    tagList = {
+                        '循环': 1,
+                        '语法': 2,
+                        '环境': 3
+                    }
+                    _this.$store.commit('setTagList', tagList);
+                })
+        }
     },
     watch: {
         username: function (username) {
-            this.$data.logs.push({id: 2, content: username});
+            this.$store.commit('addAImessage', '你好,' + username + '！');
+        },
+        logs: function () {
+            this.$nextTick(() => {
+                this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
+            })
         }
+    },
+    mounted() {
+        this.getTagList();
     }
 }
 </script>
