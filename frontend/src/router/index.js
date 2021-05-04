@@ -5,6 +5,7 @@ import Login from '../pages/Login/Login.vue'
 import QuestionList from "../pages/QuestionList/QuestionList";
 import QuestionDetail from "../pages/QuestionDetail/QuestionDetail";
 import PersonalCenter from "../pages/PersonalCenter/PersonalCenter";
+import Administration from "../pages/Administration/Administration";
 
 Vue.use(Router)
 
@@ -33,6 +34,10 @@ export default new Router({
         {
             path: '/personalCenter',
             component: PersonalCenter
+        },
+        {
+            path: '/administration',
+            component: Administration
         }
     ]
 })

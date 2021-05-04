@@ -8,6 +8,8 @@ import 'element-ui/lib/theme-chalk/index.css';
 import store from "./vuex/store";
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+import global_ from './components/tool/Global'
+Vue.prototype.GLOBAL = global_
 
 Vue.prototype.$axios = axios;
 Vue.use(ElementUI);
@@ -20,3 +22,4 @@ new Vue({
 })
 
 Vue.prototype.BASE_URL = 'https://aiape.snowphoenix.design';
+// Vue.prototype.TOKEN = 'lalala';

@@ -5,15 +5,40 @@
         <el-header style="height: auto">
             <h1 align="center">基本信息</h1>
             <div class="header">
+                <p>我的id：{{ uid }}</p>
                 <p>我的昵称：{{ nickName }}</p>
                 <p>我的邮箱：{{ email }}</p>
             </div>
         </el-header>
         <el-main>
-            <el-tabs v-model="activeName" @tab-click="handleClick">
+            <el-tabs v-model="activeName">
                 <el-tab-pane label="我提出的问题" name="first">
-                    <el-table :data="askedQuestions" style="width: 100%">
-                        <el-table-column prop="date" label="日期" style="width: 100%">
+                    <!--                    <el-table :data="askedQuestions" style="width: 100%">-->
+                    <!--                        <el-table-column prop="date" label="日期" style="width: 100%">-->
+                    <!--                        </el-table-column>-->
+                    <!--                    </el-table>-->
+                    <el-table
+                        :data="questions"
+                        style="width: 100%"
+                        :header-cell-style="{textAlign: 'center'}"
+                        :cell-style="{ textAlign: 'center' }">
+                        <el-table-column
+                            prop="id"
+                            label="编号"
+                            width="180">
+                        </el-table-column>
+                        <el-table-column
+                            label="问题">
+                            <template slot-scope="scope">
+                                <el-popover trigger="hover" placement="top">
+                                    <p>编号: {{ scope.row.id }}</p>
+                                    <p>问题: {{ scope.row.title }}</p>
+                                    <el-link @click="goToDetail(scope.row.id)" slot="reference">{{
+                                            scope.row.title
+                                        }}
+                                    </el-link>
+                                </el-popover>
+                            </template>
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>
@@ -32,8 +57,9 @@
 export default {
     data() {
         return {
+            uid: "测试id",
             nickName: "测试昵称",
-            email: "1234567@qq.com",
+            email: "测试邮箱",
 
             activeName: "first",
 
@@ -54,16 +80,72 @@ export default {
                 date: '答问题3',
             }, {
                 date: '答问题4',
-            }]
+            }],
+            questions: [],
         }
     },
     methods: {
         goBack() {
             this.$router.replace('/questionList');
         },
+        getQuestions() {
+            let _this = this;
+            _this.$axios.post(_this.BASE_URL + '/api/test/questions/questionlist', {
+                number: 5
+            })
+                .then(function (response) {
+                    let questionIdList = response.data;
+                    questionIdList.sort();
+                    for (let qid of questionIdList) {
+                        _this.$axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + qid)
+                            .then(function (response) {
+                                _this.$data.questions.push({
+                                    'id': qid,
+                                    'title': response.data.question.title
+                                });
+                            });
+                    }
+                })
+        },
+        goToDetail(qid) {
+            this.$router.replace('questionDetail');
+            this.$store.commit('setQuestionID', qid);
+        },
     },
     mounted() {
-        // this.getQuestionDetail();
+        this.getQuestions();
+        let _this = this;
+        var token = this.GLOBAL.token;
+        // console.log(token);
+        console.log('获取到的token是' + token);
+        this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
+            headers: {
+                Authorization: 'Bearer ' + token,
+            },
+        })
+            .then(function (response) {
+                console.log('成功获得内部信息');
+                console.log(response);
+                _this.nickName = response.data.name;
+                _this.email = response.data.email;
+                _this.uid = response.data.uid;
+
+                _this.$axios.get(_this.BASE_URL + '/api/user/answers', {
+                    headers: {
+                        Authorization: 'Bearer ' + token,
+                    },
+                })
+                    .then(function (response) {
+                        console.log('成功获得问题列表');
+                        console.log(response);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
     }
 }
 </script>
