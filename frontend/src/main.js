@@ -12,6 +12,8 @@ import global_ from './components/tool/Global'
 Vue.prototype.GLOBAL = global_
 
 Vue.prototype.$axios = axios;
+const BASE_URL = 'https://aiape.snowphoenix.design';
+Vue.prototype.BASE_URL = BASE_URL;
 Vue.use(ElementUI);
 Vue.prototype.$store = store;
 
@@ -21,5 +23,40 @@ new Vue({
     router
 })
 
+
 Vue.prototype.BASE_URL = 'https://aiape.snowphoenix.design';
-// Vue.prototype.TOKEN = 'lalala';
+
+axios.interceptors.response.use(response => {
+    // 几种不需要刷新token的情况
+    if (store.state.token === '' || response.data.message === 'token fresh' ||
+        new Date().getTime() - store.state.lastTokenTime < store.state.timeout / 2) {
+        return response;
+    }
+
+    let current = new Date();
+    let existTime = (current.getTime() - store.state.lastTokenTime.getTime()) / 1000;
+
+    if (existTime > store.state.timeout) {
+        alert('登录超时!');
+        router.replace('/login');
+    }
+    else {
+        axios.post( BASE_URL + '/api/user/fresh', {
+            token: store.state.token
+        })
+            .then(function (ret) {
+                if (ret.data.state === 'success') {
+                    store.commit('refreshToken', {
+                        token: ret.data.token,
+                        time: new Date(),
+                        timeout: ret.data.timeout
+                    })
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
+        return response;
+    }
+})
+
