@@ -211,15 +211,23 @@ namespace Buaa.AIBot.Bot.Framework
                 return this;
             }
 
-            public IBotSender AddQuestion(int qid)
+            public IBotSender AddQuestion(int qid, bool newLine = true)
             {
                 MessageBuilder.Append($"[question {qid}]");
+                if (newLine)
+                {
+                    MessageBuilder.Append('\n');
+                }
                 return this;
             }
 
-            public IBotSender AddUrl(string url)
+            public IBotSender AddUrl(string url, bool newLine = true)
             {
                 MessageBuilder.Append($"[url {Protect(url)}]");
+                if (newLine)
+                {
+                    MessageBuilder.Append('\n');
+                }
                 return this;
             }
 

@@ -15,8 +15,8 @@ namespace Buaa.AIBot.Bot.Framework
     public interface IBotSender
     {
         IBotSender AddMessage(string message, bool newLine = true);
-        IBotSender AddUrl(string url);
-        IBotSender AddQuestion(int qid);
+        IBotSender AddUrl(string url, bool newLine = true);
+        IBotSender AddQuestion(int qid, bool newLine = true);
         IBotSender NewScope();
         IBotSender AddPrompt(string prompt);
     }

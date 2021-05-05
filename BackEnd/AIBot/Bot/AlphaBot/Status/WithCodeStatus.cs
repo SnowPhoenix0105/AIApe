@@ -163,7 +163,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.ToLowerContainsAny(Solved, "谢谢", "OK", "finish", "已解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
             {
                 sender
-                    .AddMessage($"很荣幸能够帮到你{Kaomojis.Happy}")
+                    .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
                     ;
                 return Task.FromResult(StatusId.Welcome);
             }
@@ -179,7 +179,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             {
                 return Task.FromResult(StatusId.GetSimpleDescribe);
             }
-            sender.AddMessage($"抱歉我不明白你在说什么{Kaomojis.Sad}").NewScope();
+            sender.AddMessage($"抱歉我不明白您在说什么{Kaomojis.Sad}").NewScope();
             return Task.FromResult(Id);
         }
     }

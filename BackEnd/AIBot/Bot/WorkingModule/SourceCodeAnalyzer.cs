@@ -17,7 +17,10 @@ namespace Buaa.AIBot.Bot.WorkingModule
         {
             bool found = false;
             found |= CheckoutChineseComma(status, sender);
-
+            if (!found)
+            {
+                sender.AddMessage("抱歉未能帮您找到可能的错误");
+            }
             return Task.CompletedTask;
         }
 

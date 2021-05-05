@@ -75,6 +75,19 @@ namespace Buaa.AIBot.Bot.AlphaBot
                                 new GetWrongCaseExpectOutputStatus(),
                                     new TrySolveWithCodeStatus(),
 
+                    new GrammaStatus(),
+                        // OnStandardLibary,
+                            new ShowLinksForStandardLibaryStatus(),
+
+                        // OnStatement,
+                            new GetStatementTypeForStatementStatus(),
+                                new ShowLinksForStatementStatus(),
+
+                        // OnKeywords,
+                            new GetKeywordForKeywordsStatus(),
+                                new ShowLinksForKeywordsStatus(),
+
+
                 new GetSimpleDescribeStatus(),
                     new GetDetailsStatus(),
                         new AddQuestionStatus()

@@ -21,6 +21,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
                 .AddSingleton(provider => 
                     new GccHandlerFactory(gccWorkDir, provider.GetRequiredService<ILogger<GccHandlerFactory>>()))
                 .AddSingleton<SourceCodeAnalyzer>()
+                .AddSingleton<DocumentCollection>()
                 ;
             return services;
         }
@@ -30,9 +31,10 @@ namespace Buaa.AIBot.Bot.WorkingModule
     {
         QuestionBuilder GetQuestionBuilder();
         GovernmentInstallingInfo GetGovernmentInstallingInfo();
-        IdeAndCompilerDocumentCollection GetDocumentCollection();
+        IdeAndCompilerDocumentCollection GetIdeAndCompilerDocumentCollection();
         GccHandlerFactory GetGccHandlerFactory();
         SourceCodeAnalyzer GetSourceCodeAnalyzer();
+        DocumentCollection GetDocumentCollection();
     }
 
     public class WorkingModule : IWorkingModule
@@ -54,7 +56,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             return services.GetService<GovernmentInstallingInfo>();
         }
 
-        public IdeAndCompilerDocumentCollection GetDocumentCollection()
+        public IdeAndCompilerDocumentCollection GetIdeAndCompilerDocumentCollection()
         {
             return services.GetService<IdeAndCompilerDocumentCollection>();
         }
@@ -67,6 +69,11 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public SourceCodeAnalyzer GetSourceCodeAnalyzer()
         {
             return services.GetService<SourceCodeAnalyzer>();
+        }
+
+        public DocumentCollection GetDocumentCollection()
+        {
+            return services.GetService<DocumentCollection>();
         }
     }
 }

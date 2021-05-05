@@ -15,7 +15,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
-            sender.AddMessage($"可以简单描述一下你的问题嘛（{Constants.QuestionTitleMaxLength}字以内）{Kaomojis.Cute}");
+            sender.AddMessage($"可以简单描述一下您的问题嘛（{Constants.QuestionTitleMaxLength}字以内）{Kaomojis.Cute}");
             return Task.CompletedTask;
         }
 
@@ -28,7 +28,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             {
                 sender
                     .AddMessage($"问题太长啦{Kaomojis.Sad}")
-                    .AddMessage($"详细描述我过一会儿再问你")
+                    .AddMessage($"详细描述我过一会儿再问您")
                     .AddMessage($"不能多于{Constants.QuestionTitleMaxLength}个字哟")
                     .NewScope();
                 return Task.FromResult(Id);
@@ -56,7 +56,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
-            sender.AddMessage($"详细描述一下你的问题吧（字数不限）{Kaomojis.Cute}");
+            sender.AddMessage($"详细描述一下您的问题吧（字数不限）{Kaomojis.Cute}");
             return Task.CompletedTask;
         }
 
@@ -68,7 +68,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.Length < minLength)
             {
                 sender
-                    .AddMessage($"你的“详细描述”太短啦{Kaomojis.Sad}")
+                    .AddMessage($"您的“详细描述”太短啦{Kaomojis.Sad}")
                     .AddMessage($"至少也得有{minLength}个字吧？")
                     .NewScope();
                 return Task.FromResult(Id);
@@ -89,9 +89,9 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             var builder = context.Worker.GetQuestionBuilder();
             var qid = await builder.BuildAsync(status);
             sender
-                .AddMessage($"小猿已经帮你创建了提问咯{Kaomojis.Happy}")
+                .AddMessage($"小猿已经帮您创建了提问咯{Kaomojis.Happy}")
                 .AddMessage("请耐心等待人工回答~")
-                .AddMessage("你可以在", false).AddQuestion(qid).AddMessage($"查看这个问题哟{Kaomojis.Cute}")
+                .AddMessage("您可以在", false).AddQuestion(qid).AddMessage($"查看这个问题哟{Kaomojis.Cute}")
                 .AddPrompt("好哒")
                 ;
         }

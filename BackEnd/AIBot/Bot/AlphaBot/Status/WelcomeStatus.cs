@@ -24,7 +24,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 status.Clear();
                 status.IncreaseCount(Id);
                 sender
-                    .AddMessage("你好，我叫小猿，是一个C语言智能问答机器人，" +
+                    .AddMessage("您好，我叫小猿，是一个C语言智能问答机器人，" +
                         $"虽然现在还不是很智能，但是我会努力变得更加智能哒{Kaomojis.Cute}")
                     .AddMessage($"为了弥补我的不足{Kaomojis.Sad}，解决不了的问题会转人工哟。");
             }
@@ -55,9 +55,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.Contains(Gramma))
             {
                 status.ClearCount(Id);
-                // TODO
-                return Task.FromResult(StatusId.GetSimpleDescribe);
-                // return Task.FromResult(StatusId.Gramma);
+                return Task.FromResult(StatusId.Gramma);
             }
             if (msg.Contains(Code))
             {

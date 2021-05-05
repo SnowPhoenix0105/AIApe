@@ -22,6 +22,9 @@ namespace Buaa.AIBot.Bot.AlphaBot
         public static readonly string SourceCode = "SourceCode";
         public static readonly string WrongCaseInput = "WrongCaseInput";
         public static readonly string WrongCaseOutput = "WrongCaseOutput";
+
+        public static readonly string StatementType = WorkingModule.DocumentCollection.Key_StatementType;
+        public static readonly string Keyword = WorkingModule.DocumentCollection.Key_Keyword;
     }
 
     public static class Value

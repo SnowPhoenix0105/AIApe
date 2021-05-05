@@ -40,7 +40,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             }
             else
             {
-                context.Sender.AddMessage($"抱歉，我不认识你说的操作系统{Kaomojis.Sad}").NewScope();
+                context.Sender.AddMessage($"抱歉，我不认识您说的操作系统{Kaomojis.Sad}").NewScope();
                 return Task.FromResult(Id);
             }
             status.Put(Key.OS_detail, msg);
@@ -91,7 +91,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             // TODO add gcc and clang
             else
             {
-                context.Sender.AddMessage($"抱歉，我不认识你说的IDE/编译器{Kaomojis.Sad}").NewScope();
+                context.Sender.AddMessage($"抱歉，我不认识您说的IDE/编译器{Kaomojis.Sad}").NewScope();
                 return Task.FromResult(Id);
             }
             return Task.FromResult(StatusId.ShowGovernmentLinkForInstalling);
@@ -106,7 +106,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
-            context.Sender.AddMessage("我为你找到了这些信息：").NewScope();
+            context.Sender.AddMessage("我为您找到了这些信息：").NewScope();
             string os = status.Get<string>(Key.OS);
             string target;
             if (!status.TryGet(Key.IDE, out target))
@@ -116,7 +116,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             context.Worker.GetGovernmentInstallingInfo().SendInstallingMessages(os, target, context.Sender);
             context.Sender
                 .NewScope()
-                .AddMessage("请问是否解决了你的问题呢？")
+                .AddMessage("请问是否解决了您的问题呢？")
                 .AddPrompt(Finish).AddPrompt(NeedQuestion);
             return Task.CompletedTask;
         }
@@ -132,11 +132,11 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.ToLowerContainsAny(Finish, "谢谢", "OK",  "finish", "解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
             {
                 sender
-                    .AddMessage($"很荣幸能够帮到你{Kaomojis.Happy}")
+                    .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
                     ;
                 return Task.FromResult(StatusId.Welcome);
             }
-            sender.AddMessage($"抱歉我不明白你在说什么{Kaomojis.Sad}").NewScope();
+            sender.AddMessage($"抱歉我不明白您在说什么{Kaomojis.Sad}").NewScope();
             return Task.FromResult(Id);
         }
     }

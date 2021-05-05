@@ -42,7 +42,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetOSForUsing);
             }
-            sender.AddMessage($"你又说我听不懂的话了呜呜呜{Kaomojis.Sad}").NewScope();
+            sender.AddMessage($"您又说我听不懂的话了呜呜呜{Kaomojis.Sad}").NewScope();
             return Task.FromResult(Id);
         }
     }

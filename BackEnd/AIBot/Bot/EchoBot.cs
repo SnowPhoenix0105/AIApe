@@ -56,10 +56,10 @@ namespace Buaa.AIBot.Bot
             public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
             {
                 var sender = context.Sender;
-                sender.AddMessage("你好，我叫小猿。");
-                sender.AddMessage("我现还没有开发完成，我只会记住你说的话，然后将所有你说的话重复下来。");
+                sender.AddMessage("您好，我叫小猿。");
+                sender.AddMessage("我现还没有开发完成，我只会记住您说的话，然后将所有您说的话重复下来。");
                 sender.NewScope();
-                sender.AddMessage($"你可以随时输入“{RestartPrompt}”，来删除我的记录。");
+                sender.AddMessage($"您可以随时输入“{RestartPrompt}”，来删除我的记录。");
                 status.Put(MsgKey, new List<string>());
                 return Task.CompletedTask;
             }
@@ -81,12 +81,12 @@ namespace Buaa.AIBot.Bot
                 List<string> received = status.Get<List<string>>(MsgKey);
                 if (received.Count == 0)
                 {
-                    sender.AddMessage("你现在还没有发任何消息");
+                    sender.AddMessage("您现在还没有发任何消息");
                 }
                 else
                 {
                     string msg = string.Join("]\n[", received);
-                    sender.AddMessage($"你现在发过了{received.Count}条消息，它们是：\n[{msg}]");
+                    sender.AddMessage($"您现在发过了{received.Count}条消息，它们是：\n[{msg}]");
                 }
                 sender.AddPrompt(RestartPrompt);
                 return Task.FromResult(StatusEnum.Echo);
