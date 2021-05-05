@@ -58,8 +58,8 @@ export default {
                 .then(function (response) {
                     let questionIdList = response.data;
                     questionIdList.sort();
+                    let questions = [];
                     for (let qid of questionIdList) {
-                        let questions = [];
                         _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
                             .then(function (response) {
                                 questions.push({
@@ -68,8 +68,10 @@ export default {
                                     content: response.data.question.remarks
                                 });
                                 _this.$data.questions = questions;
+                                questions.sort((a, b) => a.id - b.id);
                             });
                     }
+
                 })
             .catch(function (error) {
                 _this.questions = [];
