@@ -54,6 +54,8 @@
 </template>
 
 <script>
+import store from "../../vuex/store";
+
 export default {
     data() {
         return {
@@ -82,6 +84,7 @@ export default {
                 date: '答问题4',
             }],
             questions: [],
+            answers: [],
         }
     },
     methods: {
@@ -107,6 +110,12 @@ export default {
                     }
                 })
         },
+        // getAnswers() {
+        //     let _this = this;
+        //     _this.$axios.post(_this.BASE_URL + '/api/user/answers', {
+        //         number: 5
+        //     })
+        // },
         goToDetail(qid) {
             this.$router.replace('questionDetail');
             this.$store.commit('setQuestionID', qid);
@@ -115,7 +124,8 @@ export default {
     mounted() {
         this.getQuestions();
         let _this = this;
-        var token = this.GLOBAL.token;
+        // var token = this.GLOBAL.token;
+        var token = store.state.token;
         // console.log(token);
         console.log('获取到的token是' + token);
         this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
@@ -136,7 +146,7 @@ export default {
                     },
                 })
                     .then(function (response) {
-                        console.log('成功获得问题列表');
+                        console.log('成功获得回答列表');
                         console.log(response);
                     })
                     .catch(function (error) {

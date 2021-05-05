@@ -85,7 +85,7 @@ export default {
                         message: '登录成功!',
                         type: 'success'
                     });
-                    _this.GLOBAL.token = response.data.token;
+                    // _this.GLOBAL.token = response.data.token;
                     _this.$store.commit('refreshToken', {
                         token: response.data.token,
                         time: new Date(),

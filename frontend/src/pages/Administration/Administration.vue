@@ -15,7 +15,7 @@
                     <el-input v-model="userForm.email"></el-input>
                 </el-form-item>
                 <el-form-item label="权限等级">
-                    <el-input v-model="userForm.email" placeholder="1 表示用户， 2 表示管理员"></el-input>
+                    <el-input v-model="userForm.auth" placeholder="1 表示用户， 2 表示管理员"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="">查询</el-button>

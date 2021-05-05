@@ -44,6 +44,7 @@
             <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
             <el-link :underline="false" disabled style="cursor: default">|</el-link>
             <el-link :underline="false">注销</el-link>
+            <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
         </el-header>
         <el-main class="tag-selector" v-if="showTag">
             <el-tag v-for="(tid, tag_name) in this.$store.state.tagList" :key="tid"
