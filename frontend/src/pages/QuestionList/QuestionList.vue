@@ -1,44 +1,4 @@
 <template>
-<!--    <<<<<<< HEAD-->
-<!--    <div class="outside">-->
-<!--        <div>-->
-<!--            &lt;!&ndash;            <el-button type="primary" v-on:click="goToPersonalCenter">个人中心</el-button>&ndash;&gt;-->
-<!--            <el-dropdown @command="handleCommand">-->
-<!--                <span class="el-dropdown-link">-->
-<!--                    菜单<i class="el-icon-arrow-down el-icon&#45;&#45;right"></i>-->
-<!--                </span>-->
-<!--                <template #dropdown>-->
-<!--                    <el-dropdown-menu>-->
-<!--                        <el-dropdown-item command="personalCenter">个人中心</el-dropdown-item>-->
-<!--                        <el-dropdown-item command="administration">管理员后台</el-dropdown-item>-->
-<!--                    </el-dropdown-menu>-->
-<!--                </template>-->
-<!--            </el-dropdown>-->
-
-<!--        </div>-->
-<!--        <el-table-->
-<!--            :data="questions"-->
-<!--            style="width: 100%"-->
-<!--            :header-cell-style="{textAlign: 'center'}"-->
-<!--            :cell-style="{ textAlign: 'center' }">-->
-<!--            <el-table-column-->
-<!--                prop="id"-->
-<!--                label="编号"-->
-<!--                width="180">-->
-<!--            </el-table-column>-->
-<!--            <el-table-column-->
-<!--                label="问题">-->
-<!--                <template slot-scope="scope">-->
-<!--                    <el-popover trigger="hover" placement="top">-->
-<!--                        <p>编号: {{ scope.row.id }}</p>-->
-<!--                        <p>问题: {{ scope.row.title }}</p>-->
-<!--                        <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>-->
-<!--                    </el-popover>-->
-<!--                </template>-->
-<!--            </el-table-column>-->
-<!--        </el-table>-->
-<!--    </div>-->
-<!--    =======-->
     <el-container>
         <el-header>
             <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
@@ -74,7 +34,6 @@
             </el-table>
         </el-main>
     </el-container>
-<!--    >>>>>>> 19e2b81d9fd5820fd0bdb44fb8454a18f265ea3a-->
 </template>
 
 <script>
