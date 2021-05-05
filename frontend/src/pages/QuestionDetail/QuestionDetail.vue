@@ -71,8 +71,7 @@ export default {
                         _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(async function (response) {
                                 let answer = response.data.answer;
-                                let name = await _this.getUserName(response.data.answer.creator);
-                                answer['creatorName'] = name;
+                                answer['creatorName'] = await _this.getUserName(response.data.answer.creator);
                                 if (best === aid) {
                                     _this.$data.answers.splice(0, 0, answer);
                                 } else {
@@ -83,10 +82,8 @@ export default {
                                 console.log(error);
                             })
                     }
-
                 })
                 .catch(function (error) {
-                    alert('error!');
                     console.log(error);
                 });
         },
