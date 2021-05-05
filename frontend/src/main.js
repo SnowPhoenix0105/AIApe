@@ -22,9 +22,9 @@ new Vue({
 })
 
 axios.interceptors.response.use(response => {
-    // 未登录 还没有token
-    if (store.state.token === '' || response.data.message === 'token fresh success' ||
-        new Date().getTime() - store.state.lastTokenTime < 36000) {
+    // 几种不需要刷新token的情况
+    if (store.state.token === '' || response.data.message === 'token fresh' ||
+        new Date().getTime() - store.state.lastTokenTime < store.state.timeout / 2) {
         return response;
     }
 
@@ -36,28 +36,22 @@ axios.interceptors.response.use(response => {
         router.replace('/login');
     }
     else {
-        console.log(store.state.token);
         axios.post( BASE_URL + '/api/user/fresh', {
             token: store.state.token
         })
-            .then(function (response) {
-                console.log('refreshing token!');
-                console.log(store.state.token);
-                if (response.data.state === 'success') {
+            .then(function (ret) {
+                if (ret.data.state === 'success') {
                     store.commit('refreshToken', {
-                        token: response.data.token,
+                        token: ret.data.token,
                         time: new Date(),
-                        timeout: response.data.timeout
+                        timeout: ret.data.timeout
                     })
                 }
-                console.log(store.state.token);
-                return response;
             })
             .catch(function (error) {
-                console.log(store.state.timeout);
                 console.log(error);
-                return response;
             })
+        return response;
     }
 })
 
