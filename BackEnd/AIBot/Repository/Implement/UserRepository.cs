@@ -80,73 +80,84 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<IEnumerable<int>> SelectAnswersIdByIdAsync(int userId)
         {
+            var query = await Context
+                .Answers
+                .Where(a => a.UserId == userId)
+                .Select(a => a.AnswerId)
+                .ToListAsync()
+                ;
+            if (query.Count != 0)
+            {
+                return query;
+            }
             var user = await Context.Users.FindAsync(userId);
             if (user == null)
             {
                 return null;
             }
-            if (user.Answers == null)
-            {
-                return new int[0];
-            }
-            var query = user
-                .Answers
-                .Select(answer => answer.AnswerId);
-            return query.ToList();
+            return query;
         }
 
         public async Task<IEnumerable<int>> SelectAnswersIdByIdByModifyTimeAsync(int userId)
         {
+            var query = await Context
+                .Answers
+                .Where(a => a.UserId == userId)
+                .OrderByDescending(a => a.ModifyTime)
+                .Select(a => a.AnswerId)
+                .ToListAsync()
+                ;
+            if (query.Count != 0)
+            {
+                return query;
+            }
             var user = await Context.Users.FindAsync(userId);
             if (user == null)
             {
                 return null;
             }
-            if (user.Answers == null)
-            {
-                return new int[0];
-            }
-            var query = user
-                .Answers
-                .OrderByDescending(a => a.ModifyTime)
-                .Select(a => a.AnswerId);
-            return query.ToList();
+            return query;
         }
 
         public async Task<IEnumerable<int>> SelectQuestionsIdByIdAsync(int userId)
         {
+            var query = await Context
+                .Questions
+                .Where(q => q.UserId == userId)
+                .Select(q => q.QuestionId)
+                .ToListAsync()
+                ;
+            if (query.Count != 0)
+            {
+                return query;
+            }
             var user = await Context.Users.FindAsync(userId);
             if (user == null)
             {
                 return null;
             }
-            if (user.Questions == null)
-            {
-                return new int[0];
-            }
-            var query = user
-                .Questions
-                .Select(q => q.QuestionId);
-            return query.ToList();
-            // return await Task.Run(() => query.ToList());
+            return query;
         }
 
         public async Task<IEnumerable<int>> SelectQuestionsIdByIdOrderByModifyTimeAsync(int userId)
         {
+            var query = await Context
+                .Questions
+                .Where(q => q.UserId == userId)
+                .OrderByDescending(a => a.ModifyTime)
+                .Select(q => q.QuestionId)
+                .ToListAsync()
+                ;
+            if (query.Count != 0)
+            {
+                return query;
+            }
             var user = await Context.Users.FindAsync(userId);
             if (user == null)
             {
                 return null;
             }
-            if (user.Questions == null)
-            {
-                return new int[0];
-            }
-            var query = user
-                .Questions
-                .OrderByDescending(a => a.ModifyTime)
-                .Select(q => q.QuestionId);
-            return query.ToList();
+            return query;
         }
 
         private async Task CheckInsert(UserInfo user)
