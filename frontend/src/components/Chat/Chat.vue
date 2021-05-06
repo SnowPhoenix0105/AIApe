@@ -1,12 +1,14 @@
 <template>
     <div>
         <div class="log" ref="words">
+
             <!-- 根据vue对象中的数组，遍历出对应的标签。 -->
             <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
                 <span v-html="msg.content">
                     {{ msg.content }}
                 </span>
             </div>
+
         </div>
         <div class="send">
             <el-input type="textarea" resize="none" :autosize="{ minRows: 7.5, maxRows: 7.5}"
@@ -61,6 +63,7 @@ export default {
             })
                 .then(function (response) {
                     for (let message of response.data.messages) {
+                        message = _this.transform(message);
                         _this.$store.commit('addAImessage', message);
                     }
                     _this.$store.commit('setPrompt', response.data.prompt);
@@ -88,7 +91,14 @@ export default {
             left = msg.indexOf('[');
             right = msg.indexOf(']');
             while (left !== -1) {
-                let url = msg.substring(left + 1, right);
+                let space = msg.substring(left, right).indexOf(' ');
+                let url;
+                if (space !== -1) {
+                    url = msg.substring(left + space + 1, right);
+                }
+                else {
+                    url = msg.substring(left + 1, right);
+                }
                 msg = msg.substring(0, left) + '<a target="_blank" style="color: white" href="' + url + '">' + url + '</a>'+ msg.substring(right + 1);
                 left = msg.indexOf('[');
                 right = msg.indexOf(']');
