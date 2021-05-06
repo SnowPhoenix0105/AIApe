@@ -10,17 +10,18 @@ using System;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Buaa.AIBot.Repository.Models;
 
-using Buaa.AIBot.Services.Models;
 
-namespace Buaa.AIBot.Services
+namespace Buaa.AIBot.Repository
 {
-    public interface ICrawlerService
+
+    public interface ICrawlerOuterRepository
     {
-        Task<List<CrawlerResult>> SearchAsync(string question, string proxy=null);
+        Task<List<SearchResult>> SearchAsync(string question, string proxy=null);
     }
     
-    public class BaiduCrawlerService : ICrawlerService
+    public class BaiduCrawlerRepository : ICrawlerOuterRepository
     {
         private readonly static string searchHead = "http://www.baidu.com/s?ie=utf-8&wd=";
 
@@ -55,9 +56,9 @@ namespace Buaa.AIBot.Services
 
         private event EventHandler<OnErrorEventArgs> onError;
 
-        private List<CrawlerResult> results;
+        private List<SearchResult> results;
         
-        private readonly ILogger<BaiduCrawlerService> logger;
+        private readonly ILogger<BaiduCrawlerRepository> logger;
 
         private string pageSource;
         private static CookieContainer CookiesContainer { get; set; }
@@ -75,14 +76,14 @@ namespace Buaa.AIBot.Services
         private readonly static int maxWebCount = 3;
 
         private static readonly Regex reAnswer = new Regex(@"<h3\s*class\s*=\s*(.|\n)*?>\s*<a(.|\n)*?href\s*=\s*""(?<url>.*?)""(.|\n)*?>(?<content>(.|\n)*?)</a>\s*</h3>");
-        public BaiduCrawlerService(ILogger<BaiduCrawlerService> logger)
+        public BaiduCrawlerRepository(ILogger<BaiduCrawlerRepository> logger)
         {
             if (CookiesContainer == null)
             {
                 CookiesContainer = new CookieContainer();
             }
 
-            results = new List<CrawlerResult>();
+            results = new List<SearchResult>();
             onStart = (s, e) => 
             {
                 // Console.WriteLine("START");
@@ -102,7 +103,7 @@ namespace Buaa.AIBot.Services
                         string clearTitle = ClearString(match.Groups["content"].ToString());
                         if (clearTitle.Contains(web))
                         {
-                            results.Add(new CrawlerResult
+                            results.Add(new SearchResult
                             {
                                 Url = match.Groups["url"].ToString(),
                                 Title = clearTitle
@@ -142,7 +143,7 @@ namespace Buaa.AIBot.Services
             return request;
         }
 
-        public async Task<List<CrawlerResult>> SearchAsync(string question, string proxy=null)
+        public async Task<List<SearchResult>> SearchAsync(string question, string proxy=null)
         {
             onStart(this, new OnStartEventArgs
             {
@@ -226,15 +227,6 @@ namespace Buaa.AIBot.Services
         {
             Regex reElement = new Regex(@"\<[^\>]*?\>");
             return reElement.Replace(origin, "");
-        }
-    }
-
-    public static class Extensions
-    {
-        public static IServiceCollection AddCrawlerService(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddTransient<ICrawlerService, BaiduCrawlerService>();
-            return services;
         }
     }
 }

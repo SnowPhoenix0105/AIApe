@@ -23,6 +23,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 return null;
             }
+            if (question.Answers == null)
+            {
+                return new int[0];
+            }
             var query = question
                 .Answers
                 .Select(a => a.AnswerId);
@@ -96,12 +100,40 @@ namespace Buaa.AIBot.Repository.Implement
         public async Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags)
         {
             var matcher = new TagMatcher(tags);
+            var list = tags.ToList();
+            if (list.Count == 0)
+            {
+                return await Context.Questions.Select(q => q.QuestionId).ToListAsync();
+            }
+            string create_set = "drop table if exists tids;\ncreate temporary table tids (tid int not null, primary key(tid));\n";
+            string values = string.Join("),(", list);
+            string insert_set = $"insert into tids values ({values});\n";
+            string select =
+                "select *\n" +
+                "from Questions\n" +
+                "where not exists\n" +
+                "(\n\t" +
+                    "select tid from tids\n\t" +
+                    "where not exists\n\t" +
+                    "(\n\t\t" +
+                        "select *\n\t\t" +
+                        "from QuestionTagRelations as qt\n\t\t" +
+                        "where qt.QuestionId=Questions.QuestionId and qt.TagId=tids.tid\n\t" +
+                    ")\n" +
+                ");";
+            string sql = create_set + insert_set + select;
             var query = Context
-                .QuestionTagRelations
-                .GroupBy(qt => qt.QuestionId)
-                .Where(q => matcher.Match(q.Select(qt => qt.TagId)))
-                .Select(q => q.First().QuestionId);
-            return await query.ToListAsync();
+                .Questions
+                .FromSqlRaw(sql)
+                .AsEnumerable()
+                .Select(q => q.QuestionId);
+
+            //var query = Context
+            //    .QuestionTagRelations
+            //    .GroupBy(qt => qt.QuestionId)
+            //    .Where(q => matcher.Match(q.Select(qt => qt.TagId)))
+            //    .Select(q => q.First().QuestionId);
+            return query.ToList();
         }
 
         public async Task<IEnumerable<KeyValuePair<string, int>>> SelectTagsForQuestionByIdAsync(int questionId)

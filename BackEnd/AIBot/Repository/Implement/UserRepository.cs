@@ -85,6 +85,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 return null;
             }
+            if (user.Answers == null)
+            {
+                return new int[0];
+            }
             var query = user
                 .Answers
                 .Select(answer => answer.AnswerId);
@@ -97,6 +101,10 @@ namespace Buaa.AIBot.Repository.Implement
             if (user == null)
             {
                 return null;
+            }
+            if (user.Answers == null)
+            {
+                return new int[0];
             }
             var query = user
                 .Answers
@@ -112,6 +120,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 return null;
             }
+            if (user.Questions == null)
+            {
+                return new int[0];
+            }
             var query = user
                 .Questions
                 .Select(q => q.QuestionId);
@@ -125,6 +137,10 @@ namespace Buaa.AIBot.Repository.Implement
             if (user == null)
             {
                 return null;
+            }
+            if (user.Questions == null)
+            {
+                return new int[0];
             }
             var query = user
                 .Questions
