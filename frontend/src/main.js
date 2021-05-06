@@ -8,6 +8,8 @@ import 'element-ui/lib/theme-chalk/index.css';
 import store from "./vuex/store";
 import axios from 'axios';
 import VueAxios from 'vue-axios';
+// import global_ from './components/tool/Global'
+// Vue.prototype.GLOBAL = global_
 
 Vue.prototype.$axios = axios;
 const BASE_URL = 'https://aiape.snowphoenix.design';
@@ -20,6 +22,9 @@ new Vue({
     render: h => h(App),
     router
 })
+
+
+Vue.prototype.BASE_URL = 'https://aiape.snowphoenix.design';
 
 axios.interceptors.response.use(response => {
     // 几种不需要刷新token的情况
@@ -54,5 +59,4 @@ axios.interceptors.response.use(response => {
         return response;
     }
 })
-
 

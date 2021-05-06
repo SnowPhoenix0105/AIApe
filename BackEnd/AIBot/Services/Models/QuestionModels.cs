@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Services.Models
 {
@@ -11,7 +14,9 @@ namespace Buaa.AIBot.Services.Models
         public string Remarks { get; set; }
         public int? Creator { get; set; }
         public int? Best { get; set; }
+        [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime CreatTime { get; set; }
+        [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime ModifyTime { get; set; }
         public Dictionary<string, int> Tags { get; set; }
         public IEnumerable<int> Answers { get; set; }
@@ -21,7 +26,9 @@ namespace Buaa.AIBot.Services.Models
     {
         public string Content { get; set; }
         public int? Creator { get; set; }
+        [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime CreateTime { get; set; }
+        [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime ModifyTime { get; set; }
     }
 
