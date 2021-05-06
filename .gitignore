@@ -24,6 +24,7 @@
 [Rr]eleases/
 [Mm]igrations/
 Documents/BackEnd_API_Doxygen/Docs/
+BackEnd/AIBot/GccWorkDir/
 
 *.exe
 *.lib

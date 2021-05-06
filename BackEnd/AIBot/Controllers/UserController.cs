@@ -184,20 +184,20 @@ namespace Buaa.AIBot.Controllers
             UserInfo userInfo = await userRepository.SelectUserByIdAsync(uid);
             if (userInfo == null)
             {
-                return Ok(new 
-                {
-                    Status = "success",
-                    Uid = userInfo.UserId,
-                    Name = userInfo.Name,
-                    Email = userInfo.Email
-                });
-            } else {
                 return NotFound(new 
                 {
                     Status = "userNotExist",
                     Uid = -1,
                     name = "UNKNOWN",
                     Email = "N@N"
+                });
+            } else {
+                return Ok(new 
+                {
+                    Status = "success",
+                    Uid = userInfo.UserId,
+                    Name = userInfo.Name,
+                    Email = userInfo.Email
                 });
             }
         }
@@ -432,7 +432,7 @@ namespace Buaa.AIBot.Controllers
             DateTime expiration;
             try
             {
-                expiration = userService.GetExpirationFromToken(Request);
+                expiration = userService.GetExpirationFromToken(body);
                 if (expiration.CompareTo(DateTime.Now) < 0)
                 {
                     return Unauthorized(new
@@ -454,7 +454,7 @@ namespace Buaa.AIBot.Controllers
             }
             try
             {
-                string newToken = await userService.FleshTokenAsync(Request);
+                string newToken = await userService.FreshTokenAsync(body);
                 return Ok(new
                 {
                     Status = "success",

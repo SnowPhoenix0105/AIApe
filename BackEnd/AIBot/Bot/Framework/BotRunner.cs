@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Buaa.AIBot.Bot.WorkingModule;
 
 namespace Buaa.AIBot.Bot.Framework
 {
@@ -24,7 +26,7 @@ namespace Buaa.AIBot.Bot.Framework
         /// <summary>
         /// Message send to user.
         /// </summary>
-        public string Message { get; set; }
+        public IEnumerable<string> Messages { get; set; }
 
         /// <summary>
         /// Recommand the user to answer by choosing one of these.
@@ -72,6 +74,7 @@ namespace Buaa.AIBot.Bot.Framework
     public class BotRunner<IdType> : IBotRunner
     {
         private BotRunnerOptions<IdType> options;
+        private IWorkingModule workingModule;
 
         private IStatusContainerPool<IdType> StatusPool => options.StatusPool;
         private IStatusBehaviourPool<IdType> BehaviourPool => options.BehaviourPool;
@@ -80,7 +83,7 @@ namespace Buaa.AIBot.Bot.Framework
         /// Construct an Implement of <see cref="IBotRunner"/>.
         /// </summary>
         /// <param name="options"></param>
-        public BotRunner(BotRunnerOptions<IdType> options)
+        public BotRunner(BotRunnerOptions<IdType> options, IWorkingModule workingModule)
         {
             if (options.StatusPool == null)
             {
@@ -95,13 +98,15 @@ namespace Buaa.AIBot.Bot.Framework
                 throw new ArgumentNullException(nameof(options.InitStatus));
             }
             this.options = options;
+            this.workingModule = workingModule;
         }
 
-        private BotStatus<IdType> InitStatus()
+        private BotStatus<IdType> InitStatus(int userId)
         {
             var origin = options.InitStatus;
             var status = new BotStatus<IdType>()
             {
+                UserId = userId,
                 Status = origin.Status
             };
             foreach (var pair in origin.Items)
@@ -113,10 +118,14 @@ namespace Buaa.AIBot.Bot.Framework
 
         public async Task<OutputInfo> Start(int userId)
         {
-            var status = InitStatus();
+            var status = InitStatus(userId);
             var sender = new Sender();
             var nextStatusBehaviour = BehaviourPool[status.Status];
-            await nextStatusBehaviour.EnterAsync(status, sender);
+            await nextStatusBehaviour.EnterAsync(status, new BotEnterContext()
+            {
+                Sender = sender,
+                Worker = workingModule
+            });
             await StatusPool.SaveStatusAsync(userId, status);
             return sender.DumpToOutputInfo();
         }
@@ -132,15 +141,24 @@ namespace Buaa.AIBot.Bot.Framework
             if (status == null)
             {
                 sender.AddMessage("对话超时，将重新开始...\n");
-                status = InitStatus();
+                status = InitStatus(userId);
             }
             else
             {
                 var currentStatusBehaviour = BehaviourPool[status.Status];
-                status.Status = await currentStatusBehaviour.ExitAsync(status, sender, receiver);
+                status.Status = await currentStatusBehaviour.ExitAsync(status, new BotExitContext()
+                {
+                    Sender = sender,
+                    Receiver = receiver,
+                    Worker = workingModule
+                });
             }
             var nextStatusBehaviour = BehaviourPool[status.Status];
-            await nextStatusBehaviour.EnterAsync(status, sender);
+            await nextStatusBehaviour.EnterAsync(status, new BotEnterContext() 
+            { 
+                Sender = sender, 
+                Worker = workingModule 
+            });
             await StatusPool.SaveStatusAsync(userId, status);
             return sender.DumpToOutputInfo();
         }
@@ -155,10 +173,36 @@ namespace Buaa.AIBot.Bot.Framework
         {
             public List<string> Messages { get; } = new List<string>();
             public List<string> Prompts { get; } = new List<string>();
+            private StringBuilder MessageBuilder { get; } = new StringBuilder();
 
-            public void AddMessage(string message)
+            public string Protect(string origin)
             {
-                Messages.Add(message);
+                return origin.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
+            }
+
+            public IBotSender AddMessage(string message, bool newLine = true)
+            {
+                MessageBuilder.Append(Protect(message));
+                if (newLine)
+                {
+                    MessageBuilder.Append('\n');
+                }
+                return this;
+            }
+
+            public IBotSender NewScope()
+            {
+                FreshMessageBuilder();
+                return this;
+            }
+
+            public void FreshMessageBuilder()
+            {
+                if (MessageBuilder.Length > 0)
+                {
+                    Messages.Add(MessageBuilder.ToString());
+                    MessageBuilder.Clear();
+                }
             }
 
             public IBotSender AddPrompt(string prompt)
@@ -167,11 +211,32 @@ namespace Buaa.AIBot.Bot.Framework
                 return this;
             }
 
+            public IBotSender AddQuestion(int qid, bool newLine = true)
+            {
+                MessageBuilder.Append($"[question {qid}]");
+                if (newLine)
+                {
+                    MessageBuilder.Append('\n');
+                }
+                return this;
+            }
+
+            public IBotSender AddUrl(string url, bool newLine = true)
+            {
+                MessageBuilder.Append($"[url {Protect(url)}]");
+                if (newLine)
+                {
+                    MessageBuilder.Append('\n');
+                }
+                return this;
+            }
+
             public OutputInfo DumpToOutputInfo()
             {
+                FreshMessageBuilder();
                 return new OutputInfo()
                 {
-                    Message = string.Join("\n", Messages),
+                    Messages = Messages,
                     Prompt = Prompts
                 };
             }
