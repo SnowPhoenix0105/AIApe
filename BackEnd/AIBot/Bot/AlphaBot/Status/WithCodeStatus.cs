@@ -142,11 +142,15 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public async Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
-            sender
-                .AddMessage("小猿正在尝试帮您找出问题...")
-                .NewScope()
-                ;
-            await context.Worker.GetSourceCodeAnalyzer().AnalyzeAsync(status, sender);
+            if (status.GetCount(Id) == 0)
+            {
+                sender
+                    .AddMessage("小猿正在尝试帮您找出问题...")
+                    .NewScope()
+                    ;
+                await context.Worker.GetSourceCodeAnalyzer().AnalyzeAsync(status, sender);
+                status.IncreaseCount(Id);
+            }
 
             sender
                 .AddMessage("请问您解决问题了吗？")
@@ -165,6 +169,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 sender
                     .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
                     ;
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.Welcome);
             }
             if (msg.Contains(NotSolveWithModify))
@@ -173,10 +178,12 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                     .AddMessage("请告诉我您修改后的源代码")
                     .NewScope()
                     ;
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetCode);
             }
             if (msg.Contains(NotSolveWithoutModify))
             {
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetSimpleDescribe);
             }
             sender.AddMessage($"抱歉我不明白您在说什么{Kaomojis.Sad}").NewScope();

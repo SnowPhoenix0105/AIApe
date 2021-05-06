@@ -60,6 +60,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.Contains(Code))
             {
                 status.ClearCount(Id);
+                status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.Code);
                 return Task.FromResult(StatusId.GetCode);
             }
             if (msg.Contains(Question))

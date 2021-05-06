@@ -43,10 +43,51 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             }
             status.Put(Key.SimpleDescribe, msg);
             // TODO
-            return Task.FromResult(StatusId.GetDetails);
+            return Task.FromResult(StatusId.ShowSearchResult);
         }
     }
 
+    public class ShowSearchResultStatus : IBotStatusBehaviour<StatusId>
+    {
+        public StatusId Id => StatusId.ShowSearchResult;
+        private static readonly string Finish = "解决了";
+        private static readonly string NeedQuestion = "没解决";
+
+        public async Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
+        {
+            var sender = context.Sender;
+            if (status.GetCount(Id) == 0)
+            {
+                status.IncreaseCount(Id);
+                await context.Worker.GetOuterRepoSearcher().SendSearchResultAsync(status, sender);
+            }
+            context.Sender
+                .NewScope()
+                .AddMessage("请问是否解决了您的问题呢？")
+                .AddPrompt(Finish).AddPrompt(NeedQuestion);
+        }
+
+        public Task<StatusId> ExitAsync(IBotStatusContainer status, IBotExitContext context)
+        {
+            var sender = context.Sender;
+            string msg = context.Receiver.UserMessage;
+            if (msg.ToLowerContainsAny(NeedQuestion, "没", "未", "NO", "不") || msg.ToLowerInvariant() == "n")
+            {
+                status.ClearCount(Id);
+                return Task.FromResult(StatusId.GetDetails);
+            }
+            if (msg.ToLowerContainsAny(Finish, "谢谢", "OK", "finish", "已解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
+            {
+                status.ClearCount(Id);
+                sender
+                    .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
+                    ;
+                return Task.FromResult(StatusId.Welcome);
+            }
+            sender.AddMessage($"抱歉我不明白您在说什么{Kaomojis.Sad}").NewScope();
+            return Task.FromResult(Id);
+        }
+    }
 
     public class GetDetailsStatus : IBotStatusBehaviour<StatusId>
     {
@@ -74,7 +115,6 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 return Task.FromResult(Id);
             }
             status.Put(Key.DetailDescribe, msg);
-            // TODO
             return Task.FromResult(StatusId.RunAddQuestion);
         }
     }

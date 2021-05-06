@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Collections;
 
 namespace Buaa.AIBot.Bot.Framework
 {
@@ -17,6 +18,8 @@ namespace Buaa.AIBot.Bot.Framework
     public interface IBotStatusContainer
     {
         int UserId { get; }
+
+        IEnumerable<KeyValuePair<string, string>> AsEnumable();
 
         /// <summary>
         /// Store an boject.
@@ -97,6 +100,12 @@ namespace Buaa.AIBot.Bot.Framework
     public class BotStatus<IdType> : IBotStatusContainer
     {
         public int UserId { get; set; }
+
+        public string this[string key]
+        {
+            get => Items[key];
+            set => Items[key] = value;
+        }
 
         /// <summary>
         /// The status of Bot.
@@ -260,6 +269,11 @@ namespace Buaa.AIBot.Bot.Framework
                 tmp[k] = Items[k];
             }
             Items = tmp;
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> AsEnumable()
+        {
+            return Items;
         }
     }
 }

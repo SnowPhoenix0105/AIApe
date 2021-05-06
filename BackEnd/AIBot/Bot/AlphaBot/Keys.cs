@@ -16,8 +16,8 @@ namespace Buaa.AIBot.Bot.AlphaBot
         public static readonly string IDE = WorkingModule.QuestionBuilder.IDE;
         public static readonly string IDE_detail = WorkingModule.QuestionBuilder.IDE_detail;
 
-        public static readonly string Compiler = "Compiler";
-        public static readonly string Compiler_detail = "Compiler_detail";
+        public static readonly string Compiler = WorkingModule.QuestionBuilder.Compiler;
+        public static readonly string Compiler_detail = WorkingModule.QuestionBuilder.Compiler_detail;
 
         public static readonly string SourceCode = "SourceCode";
         public static readonly string WrongCaseInput = "WrongCaseInput";

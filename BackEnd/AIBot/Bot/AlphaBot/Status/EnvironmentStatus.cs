@@ -35,11 +35,13 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             if (msg.ToLowerContainsAny(Installing, "install", "配置"))
             {
                 status.ClearCount(Id);
+                status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.EnvInstalling);
                 return Task.FromResult(StatusId.GetOSForInstalling);
             }
             if (msg.ToLowerContainsAny(Using, "编译", "报错", "运行"))
             {
                 status.ClearCount(Id);
+                status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.EnvUsing);
                 return Task.FromResult(StatusId.GetOSForUsing);
             }
             sender.AddMessage($"您又说我听不懂的话了呜呜呜{Kaomojis.Sad}").NewScope();

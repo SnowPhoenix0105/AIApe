@@ -45,7 +45,7 @@ namespace Buaa.AIBot.Bot.AlphaBot
                                 TrySolveWithCode,
                             
         GetSimpleDescribe,
-            ShowSerchResult,
+            ShowSearchResult,
                 ShowDatabaseResult,
                     GetDetails,
                         RunAddQuestion,
@@ -69,12 +69,6 @@ namespace Buaa.AIBot.Bot.AlphaBot
                                     new GetCompilerForUsingStatus(),
                                         new ShowDocumentLinkForUsingStatus(),
 
-                    new GetCodeStatus(),
-                        new AskIfHaveWrongCaseStatus(),
-                            new GetWrongCaseInputStatus(),
-                                new GetWrongCaseExpectOutputStatus(),
-                                    new TrySolveWithCodeStatus(),
-
                     new GrammaStatus(),
                         // OnStandardLibary,
                             new ShowLinksForStandardLibaryStatus(),
@@ -87,10 +81,17 @@ namespace Buaa.AIBot.Bot.AlphaBot
                             new GetKeywordForKeywordsStatus(),
                                 new ShowLinksForKeywordsStatus(),
 
+                    new GetCodeStatus(),
+                        new AskIfHaveWrongCaseStatus(),
+                            new GetWrongCaseInputStatus(),
+                                new GetWrongCaseExpectOutputStatus(),
+                                    new TrySolveWithCodeStatus(),
+
 
                 new GetSimpleDescribeStatus(),
-                    new GetDetailsStatus(),
-                        new AddQuestionStatus()
+                    new ShowSearchResultStatus(),
+                        new GetDetailsStatus(),
+                            new AddQuestionStatus()
             };
             var ret = new Dictionary<StatusId, IBotStatusBehaviour<StatusId>>();
             foreach (var status in list)

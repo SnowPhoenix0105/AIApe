@@ -22,6 +22,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
                     new GccHandlerFactory(gccWorkDir, provider.GetRequiredService<ILogger<GccHandlerFactory>>()))
                 .AddSingleton<SourceCodeAnalyzer>()
                 .AddSingleton<DocumentCollection>()
+                .AddTransient<OuterRepoSearcher>()
                 ;
             return services;
         }
@@ -35,6 +36,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
         GccHandlerFactory GetGccHandlerFactory();
         SourceCodeAnalyzer GetSourceCodeAnalyzer();
         DocumentCollection GetDocumentCollection();
+        OuterRepoSearcher GetOuterRepoSearcher();
     }
 
     public class WorkingModule : IWorkingModule
@@ -74,6 +76,11 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public DocumentCollection GetDocumentCollection()
         {
             return services.GetService<DocumentCollection>();
+        }
+
+        public OuterRepoSearcher GetOuterRepoSearcher()
+        {
+            return services.GetService<OuterRepoSearcher>();
         }
     }
 }

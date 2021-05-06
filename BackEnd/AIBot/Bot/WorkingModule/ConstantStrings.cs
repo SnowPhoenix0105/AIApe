@@ -7,9 +7,11 @@ namespace Buaa.AIBot.Bot.WorkingModule
 {
     public static class ConstantStrings
     {
+        public static readonly string SimpleDescribe = "SimpleDescribe";
+        public static readonly string DetailDescribe = "DetailDescribe";
+
         public static class OS
         {
-
             public static readonly string WindowsOS = "Windows";
             public static readonly string LinuxOS = "Linux";
             public static readonly string MacOS = "macOS";

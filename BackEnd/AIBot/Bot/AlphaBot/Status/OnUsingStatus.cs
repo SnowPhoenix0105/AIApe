@@ -162,19 +162,23 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
 
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
-            context.Sender.AddMessage("我为您找到了这些信息：").NewScope();
-            string os = status.Get<string>(Key.OS);
-            string ide;
-            if (!status.TryGet(Key.IDE, out ide))
+            if (status.GetCount(Id) == 0)
             {
-                ide = null;
+                context.Sender.AddMessage("我为您找到了这些信息：").NewScope();
+                string os = status.Get<string>(Key.OS);
+                string ide;
+                if (!status.TryGet(Key.IDE, out ide))
+                {
+                    ide = null;
+                }
+                string compiler;
+                if (!status.TryGet(Key.Compiler, out compiler))
+                {
+                    compiler = null;
+                }
+                context.Worker.GetIdeAndCompilerDocumentCollection().SendIDEDocumentMessages(os, ide, compiler, context.Sender);
+                status.IncreaseCount(Id);
             }
-            string compiler;
-            if (!status.TryGet(Key.Compiler, out compiler))
-            {
-                compiler = null;
-            }
-            context.Worker.GetIdeAndCompilerDocumentCollection().SendIDEDocumentMessages(os, ide, compiler, context.Sender);
             context.Sender
                 .NewScope()
                 .AddMessage("请问是否解决了您的问题呢？")
@@ -188,10 +192,12 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             string msg = context.Receiver.UserMessage;
             if (msg.ToLowerContainsAny(NeedQuestion, "没", "未", "NO", "不") || msg.ToLowerInvariant() == "n")
             {
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetSimpleDescribe);
             }
             if (msg.ToLowerContainsAny(Finish, "谢谢", "OK", "finish", "已解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
             {
+                status.ClearCount(Id);
                 sender
                     .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
                     ;

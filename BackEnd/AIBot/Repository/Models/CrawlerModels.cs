@@ -1,7 +1,14 @@
 using System;
 
-namespace Buaa.AIBot.Services.Models
+namespace Buaa.AIBot.Repository.Models
 {
+    public class SearchResult
+    {
+        public string Title { get; set; }
+
+        public string Url { get; set; }
+    }
+
     public class OnStartEventArgs
     {
         public string Question { get; set; }

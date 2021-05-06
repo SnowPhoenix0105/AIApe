@@ -32,14 +32,17 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             string msg = context.Receiver.UserMessage;
             if (msg.ToLowerContainsAny(StdLib, "std", ".h"))
             {
+                status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.StdLib);
                 return Task.FromResult(StatusId.ShowLinksForStandardLibary);
             }
             if (msg.ToLowerContainsAny(Statement, "循环", "分支", "函数", "形参", "实参", "statement"))
             {
+                status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.Statement);
                 return Task.FromResult(StatusId.GetStatementTypeForStatement);
             }
             if (msg.ToLowerContainsAny(Keyword, "keyword"))
             {
+                status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.Keywords);
                 return Task.FromResult(StatusId.GetKeywordForKeywords);
             }
             context.Sender.AddMessage($"对不起，我不明白您在说什么{Kaomojis.Sad}");
@@ -56,11 +59,15 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
-            sender
-                .AddMessage("我为您找到了如下资料：")
-                .NewScope()
-                ;
-            context.Worker.GetDocumentCollection().SendStandardLibraryMessage(sender);
+            if (status.GetCount(Id) == 0)
+            {
+                sender
+                    .AddMessage("我为您找到了如下资料：")
+                    .NewScope()
+                    ;
+                context.Worker.GetDocumentCollection().SendStandardLibraryMessage(sender);
+                status.IncreaseCount(Id);
+            }
             sender
                 .AddMessage("请问是否帮您解决了问题呢？")
                 .AddPrompt(Yes)
@@ -75,6 +82,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             string msg = context.Receiver.UserMessage;
             if (msg.ToLowerContainsAny(No, "没", "未", "否", "无", "No", "不"))
             {
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetSimpleDescribe);
             }
             if (msg.ToLowerContainsAny(Yes, "谢谢", "OK", "finish", "解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
@@ -82,6 +90,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 sender
                     .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
                     ;
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.Welcome);
             }
             sender.AddMessage($"抱歉我不明白您的意思{Kaomojis.Sad}").NewScope();
@@ -133,12 +142,16 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
-            sender
-                .AddMessage("我为您找到了如下资料：")
-                .NewScope()
-                ;
-            StatementType type = status.Get<StatementType>(Key.StatementType);
-            context.Worker.GetDocumentCollection().SendStatementMessage(type, sender);
+            if (status.GetCount(Id) == 0)
+            {
+                sender
+                    .AddMessage("我为您找到了如下资料：")
+                    .NewScope()
+                    ;
+                StatementType type = status.Get<StatementType>(Key.StatementType);
+                context.Worker.GetDocumentCollection().SendStatementMessage(type, sender);
+                status.IncreaseCount(Id);
+            }
             sender
                 .AddMessage("请问您的问题是否解决了呢？")
                 .AddPrompt(Yes)
@@ -153,6 +166,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             string msg = context.Receiver.UserMessage;
             if (msg.ToLowerContainsAny(No, "没", "未", "否", "无", "No", "不"))
             {
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetSimpleDescribe);
             }
             if (msg.ToLowerContainsAny(Yes, "谢谢", "OK", "finish", "解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
@@ -160,6 +174,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 sender
                     .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
                     ;
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.Welcome);
             }
             sender.AddMessage($"抱歉我不能理解您的意思{Kaomojis.Sad}").NewScope();
@@ -208,12 +223,16 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         public Task EnterAsync(IBotStatusContainer status, IBotEnterContext context)
         {
             var sender = context.Sender;
-            sender
-                .AddMessage("我为您找到了如下资料：")
-                .NewScope()
-                ;
-            Keyword keyword = status.Get<Keyword>(Key.Keyword);
-            context.Worker.GetDocumentCollection().SendKeywordMessage(keyword, sender);
+            if (status.GetCount(Id) == 0)
+            {
+                sender
+                    .AddMessage("我为您找到了如下资料：")
+                    .NewScope()
+                    ;
+                Keyword keyword = status.Get<Keyword>(Key.Keyword);
+                context.Worker.GetDocumentCollection().SendKeywordMessage(keyword, sender);
+                status.IncreaseCount(Id);
+            }
             sender
                 .AddMessage("请问您的问题是否解决了呢？")
                 .AddPrompt(Yes)
@@ -228,6 +247,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
             string msg = context.Receiver.UserMessage;
             if (msg.ToLowerContainsAny(No, "没", "未", "否", "无", "No", "不"))
             {
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.GetSimpleDescribe);
             }
             if (msg.ToLowerContainsAny(Yes, "谢谢", "OK", "finish", "解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
@@ -235,6 +255,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 sender
                     .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")
                     ;
+                status.ClearCount(Id);
                 return Task.FromResult(StatusId.Welcome);
             }
             sender.AddMessage($"抱歉我不能理解您的意思{Kaomojis.Sad}").NewScope();

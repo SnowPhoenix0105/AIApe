@@ -23,6 +23,7 @@ namespace Buaa.AIBot.Repository
                 .AddScoped<IQuestionRepository, QuestionRepository>()
                 .AddScoped<IAnswerRepository, AnswerRepository>()
                 .AddScoped<ITagRepostory, TagRepository>()
+                .AddTransient<ICrawlerOuterRepository, BaiduCrawlerRepository>();
                 ;
 
             return services;
