@@ -58,12 +58,6 @@ export default {
                     });
                     _this.$store.commit('setAuth', response.data.auth);
                     _this.$router.replace('/questionList');
-                    _this.$axios.post(_this.BASE_URL + '/api/bot/start', {}, {
-                        headers: {
-                            Authorization : 'Bearer ' + response.data.token,
-                            type : 'application/json;charset=utf-8'
-                        }
-                    })
                     _this.$axios.get(_this.BASE_URL + '/api/user/internal_info', {
                         headers: {
                             Authorization : 'Bearer ' + response.data.token,
@@ -72,6 +66,7 @@ export default {
                     })
                     .then(function (response) {
                         _this.$store.commit('setUsername', response.data.name);
+                        _this.$store.commit('setUid', response.data.uid);
                     })
                     .catch(function (error) {
                         console.log(error);
