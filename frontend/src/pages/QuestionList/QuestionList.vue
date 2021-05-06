@@ -4,10 +4,12 @@
             <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
             <el-link :underline="false" disabled style="cursor: default">|</el-link>
             <el-link :underline="false">注销</el-link>
+            <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
         </el-header>
-        <el-main class="tag-selector"  v-if="showTag">
+        <el-main class="tag-selector" v-if="showTag">
             <el-tag v-for="(tid, tag_name) in this.$store.state.tagList" :key="tid"
-                    :effect="tagState[tid]? 'dark' : 'light'" @click="tagClick(tid)">{{ tag_name }}</el-tag>
+                    :effect="tagState[tid]? 'dark' : 'light'" @click="tagClick(tid)">{{ tag_name }}
+            </el-tag>
         </el-main>
         <el-main class="table">
             <el-table
@@ -51,13 +53,16 @@ export default {
     methods: {
         getQuestions() {
             let _this = this;
+
             _this.$axios.post(_this.BASE_URL + '/api/questions/questionlist', {
                 number: 16,
                 tags: _this.$data.selectedTag
+
             })
                 .then(function (response) {
                     let questionIdList = response.data;
                     questionIdList.sort();
+
                     let questions = [];
                     for (let qid of questionIdList) {
                         _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
@@ -73,9 +78,10 @@ export default {
                     }
 
                 })
-            .catch(function (error) {
-                _this.questions = [];
-            });
+                .catch(function (error) {
+                    _this.questions = [];
+                });
+
         },
         goToDetail(qid) {
             this.$router.replace('questionDetail');
@@ -84,6 +90,18 @@ export default {
         goToPersonalCenter() {
             this.$router.replace('PersonalCenter');
         },
+
+        gotoAdministration() {
+            this.$router.replace('/administration');
+        },
+        handleCommand(command) {
+            if (command === 'personalCenter') {
+                this.goToPersonalCenter();
+            } else if (command === 'administration') {
+                this.gotoAdministration();
+            }
+        },
+
         initTagState() {
             let tagList = this.$store.state.tagList;
             for (let tagname in tagList) {
@@ -94,8 +112,7 @@ export default {
             if (!this.tagState[tid]) {
                 this.tagState[tid] = true;
                 this.selectedTag.push(tid);
-            }
-            else {
+            } else {
                 this.tagState[tid] = false;
                 let index = this.selectedTag.indexOf(tid);
                 this.selectedTag.splice(index, 1);
@@ -105,6 +122,7 @@ export default {
                 this.showTag = true;
             })
             this.getQuestions();
+
         }
     }
 }
@@ -122,6 +140,12 @@ export default {
     overflow: scroll;
     height: 100%;
     margin-left: 1px;
+}
+
+
+.el-dropdown {
+    margin: 20px;
+    float: right;
 }
 
 .el-header {
@@ -145,9 +169,11 @@ export default {
 .tag-selector {
     padding-top: 0;
 }
+
 .table {
     padding: 0;
     overflow-x: hidden;
+
 }
 
 </style>

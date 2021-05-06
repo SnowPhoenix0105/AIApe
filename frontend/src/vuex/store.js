@@ -7,12 +7,14 @@ export default new Vuex.Store({
     state: {
         questionID: 0,
         username: '',
+        uid: 0,
         token: '',
         auth: 0,
         timeout: 0,
         tagList: {},
         lastTokenTime: new Date(),
-        logs: [{id: 2, content: '你好，我是AIApe!请先登录！'}]
+        logs: [{id: 2, content: '你好，我是AIApe!请先登录！'}],
+        prompt: []
     },
     mutations: {
         setUsername(state, value) {
@@ -43,6 +45,12 @@ export default new Vuex.Store({
                 id: 1,
                 content: message
             })
+        },
+        setPrompt(state, prompt) {
+            state.prompt = prompt;
+        },
+        setUid(state, uid) {
+            state.uid = uid
         }
     }
 })

@@ -3,7 +3,9 @@
         <div class="log" ref="words">
             <!-- 根据vue对象中的数组，遍历出对应的标签。 -->
             <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
-                <span>{{ msg.content }}</span>
+                <span v-html="msg.content">
+                    {{ msg.content }}
+                </span>
             </div>
         </div>
         <div class="send">
@@ -28,10 +30,14 @@ export default {
         },
         logs() {
             return this.$store.state.logs;
+        },
+        prompt() {
+            return this.$store.state.prompt;
         }
     },
     methods: {
         send() {
+            let _this = this;
             if (this.$store.state.username === '') {
                 this.$store.commit('addAImessage', '你好,请先登录！看右边→');
                 return;
@@ -45,10 +51,19 @@ export default {
             }
             this.$store.commit('addUserMessage', this.$data.message);
 
-            this.$axios.post(this.BASE_URL + '/api/ot/message', {
+            this.$axios.post(this.BASE_URL + '/api/bot/message', {
                 message: this.$data.message
+            }, {
+                headers: {
+                    Authorization : 'Bearer ' + _this.$store.state.token,
+                    type : 'application/json;charset=utf-8'
+                }
             })
                 .then(function (response) {
+                    for (let message of response.data.messages) {
+                        _this.$store.commit('addAImessage', message);
+                    }
+                    _this.$store.commit('setPrompt', response.data.prompt);
                 })
                 .catch(function (error) {
                 })
@@ -66,16 +81,53 @@ export default {
                     }
                     _this.$store.commit('setTagList', tagList);
                 })
+        },
+        transform(msg) {
+            msg = msg.replaceAll('\n', '<br/>');
+            let left, right;
+            left = msg.indexOf('[');
+            right = msg.indexOf(']');
+            while (left !== -1) {
+                let url = msg.substring(left + 1, right);
+                msg = msg.substring(0, left) + '<a target="_blank" style="color: white" href="' + url + '">' + url + '</a>'+ msg.substring(right + 1);
+                left = msg.indexOf('[');
+                right = msg.indexOf(']');
+            }
+            return msg;
         }
     },
     watch: {
         username: function (username) {
+            let _this = this;
             this.$store.commit('addAImessage', '你好,' + username + '！');
+            _this.$axios.post(_this.BASE_URL + '/api/bot/start', {}, {
+                headers: {
+                    Authorization : 'Bearer ' + _this.$store.state.token,
+                    type : 'application/json;charset=utf-8'
+                }
+            })
+                .then(function (response) {
+                    for (let message of response.data.messages) {
+                        message = _this.transform(message);
+                        _this.$store.commit('addAImessage', message);
+                    }
+                    _this.$store.commit('setPrompt', response.data.prompt);
+                })
         },
         logs: function () {
             this.$nextTick(() => {
                 this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
             })
+        },
+        prompt: function () {
+            if (this.$store.state.prompt.length === 0) {
+                return;
+            }
+            let message = '比如:<br/>';
+            for (let p of this.$store.state.prompt) {
+                message += p + '<br/>';
+            }
+            this.$store.commit('addAImessage', message);
         }
     },
     mounted() {
@@ -95,8 +147,7 @@ div {
 
 .log {
     position: absolute;
-    height: 70%;
-    top: 20px;
+    height: 72%;
     overflow: scroll;
 }
 
@@ -127,29 +178,36 @@ div {
 
 .bot span {
     display: inline-block;
-    background: #0181cc;
+    background: #409EFF;
     border-radius: 10px;
     color: #fff;
     padding: 5px 10px;
-    position: absolute;
     left: 10px;
 }
 
 .user {
     margin: 10px;
     text-align: right;
-    height: 30px;
-    width: 100%;
+    width: auto;
+    height: auto;
+}
+
+.bot {
+    height: auto;
+    margin: 10px;
+    width: auto;
 }
 
 .user span {
     display: inline-block;
-    background: #ef8201;
+    background: #ffb449;
     border-radius: 10px;
     color: #fff;
     padding: 5px 10px;
-    position: absolute;
     right: 10px;
 }
 
+a:visited {
+    color: #409EFF;
+}
 </style>

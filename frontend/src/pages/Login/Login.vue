@@ -1,17 +1,22 @@
 <template>
-    <el-form ref="form" :model="form" label-width="40px">
-        <el-form-item label="邮箱">
-            <el-input v-model="form.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
-        </el-form-item>
-        <el-form-item label="密码" prop="password">
-            <el-input v-model="form.password" prefix-icon="el-icon-lock" @keyup.native.enter="onSubmit" placeholder="请输入密码" show-password></el-input>
-        </el-form-item>
-        <el-form-item>
-            <el-button type="primary" @click="onSubmit">登录</el-button>
-        </el-form-item>
-        <br/>
-        <el-link type="info" @click="goToRegister()">还没有账号?点击注册</el-link>
-    </el-form>
+    <div>
+        <el-form ref="form" :model="form" label-width="40px">
+            <el-form-item label="邮箱">
+                <el-input v-model="form.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+                <el-input v-model="form.password" prefix-icon="el-icon-lock" @keyup.native.enter="onSubmit"
+                          placeholder="请输入密码" show-password></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="onSubmit">登录</el-button>
+            </el-form-item>
+            <br/>
+            <el-link type="info" @click="goToRegister()">还没有账号?点击注册</el-link>
+        </el-form>
+
+<!--        <el-button type="primary" @click="gotoAdministration">管理员登录</el-button>-->
+    </div>
 </template>
 
 <script>
@@ -45,6 +50,7 @@ export default {
                         message: '登录成功!',
                         type: 'success'
                     });
+                    // _this.GLOBAL.token = response.data.token;
                     _this.$store.commit('refreshToken', {
                         token: response.data.token,
                         time: new Date(),
@@ -52,12 +58,6 @@ export default {
                     });
                     _this.$store.commit('setAuth', response.data.auth);
                     _this.$router.replace('/questionList');
-                    _this.$axios.post(_this.BASE_URL + '/api/bot/start', {}, {
-                        headers: {
-                            Authorization : 'Bearer ' + response.data.token,
-                            type : 'application/json;charset=utf-8'
-                        }
-                    })
                     _this.$axios.get(_this.BASE_URL + '/api/user/internal_info', {
                         headers: {
                             Authorization : 'Bearer ' + response.data.token,
@@ -66,6 +66,7 @@ export default {
                     })
                     .then(function (response) {
                         _this.$store.commit('setUsername', response.data.name);
+                        _this.$store.commit('setUid', response.data.uid);
                     })
                     .catch(function (error) {
                         console.log(error);
@@ -75,6 +76,9 @@ export default {
         },
         goToRegister() {
             this.$router.replace('/register');
+        },
+        gotoAdministration() {
+            this.$router.replace('/administration');
         }
     }
 }
