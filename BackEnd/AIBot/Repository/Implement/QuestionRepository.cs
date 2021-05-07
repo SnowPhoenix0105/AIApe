@@ -18,19 +18,22 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<IEnumerable<int>> SelectAnswersForQuestionByIdAsync(int questionId)
         {
+            var query = await Context
+                .Answers
+                .Where(a => a.QuestionId == questionId)
+                .Select(a => a.AnswerId)
+                .ToListAsync()
+                ;
+            if (query.Count != 0)
+            {
+                return query;
+            }
             var question = await Context.Questions.FindAsync(questionId);
             if (question == null)
             {
                 return null;
             }
-            if (question.Answers == null)
-            {
-                return new int[0];
-            }
-            var query = question
-                .Answers
-                .Select(a => a.AnswerId);
-            return query.ToList();
+            return query;
         }
 
         public async Task<QuestionInfo> SelectQuestionByIdAsync(int questionId)
