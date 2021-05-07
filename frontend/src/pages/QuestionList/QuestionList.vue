@@ -5,6 +5,7 @@
             <el-link :underline="false" disabled style="cursor: default">|</el-link>
             <el-link :underline="false">注销</el-link>
             <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
+<!--            <el-link :underline="false" @click="addQuestion">添加问题</el-link>-->
         </el-header>
         <el-main class="tag-selector" v-if="showTag">
             <el-tag v-for="(tid, tag_name) in this.$store.state.tagList" :key="tid"
@@ -37,6 +38,8 @@
 </template>
 
 <script>
+import store from "../../vuex/store";
+
 export default {
     data() {
         return {
@@ -51,6 +54,22 @@ export default {
         this.initTagState();
     },
     methods: {
+        // addQuestion() {
+        //     let _this = this;
+        //     let token = store.state.token;
+        //     _this.$axios.post(_this.BASE_URL + '/api/questions/add_question', {
+        //         title: "一个题目",
+        //         remarks: "一个描述",
+        //         tags: [],
+        //     }, {
+        //         headers: {
+        //             Authorization: 'Bearer ' + token,
+        //         },
+        //     })
+        //         .then(function (response) {
+        //             console.log(response);
+        //         })
+        // },
         getQuestions() {
             let _this = this;
 
