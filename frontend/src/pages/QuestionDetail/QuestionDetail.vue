@@ -58,7 +58,6 @@ export default {
             let id = this.$store.state.questionID;
             _this.$axios.get("https://aiape.snowphoenix.design/api/test/questions/question?qid=" + id)
                 .then(async function (response) {
-                    console.log(response);
                     _this.$data.title = response.data.question.title;
                     _this.$data.detail = response.data.question.remarks;
                     _this.$data.creator = response.data.question.creater;
@@ -67,17 +66,27 @@ export default {
                     _this.$data.date = response.data.question.createTime;
                     _this.$data.tags = response.data.question.tags;
                     let aidList = response.data.question.answers;
-                    let best = response.data.best;
+                    let best = response.data.question.best;
                     for (let aid of aidList) {
                         _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(async function (response) {
                                 let answer = response.data.answer;
                                 answer['creatorName'] = await _this.getUserName(response.data.answer.creator);
+                                answer['id'] = parseInt(response.data.message[response.data.message.indexOf('=') + 1]);
                                 if (best === aid) {
                                     _this.$data.answers.splice(0, 0, answer);
                                 } else {
                                     _this.$data.answers.push(answer);
                                 }
+                                _this.answers.sort((a, b) => {
+                                    if (a['id'] === best) {
+                                        return -1;
+                                    }
+                                    if (b['id'] === best) {
+                                        return 1;
+                                    }
+                                    return b['id'] - a['id'];
+                                });
                             })
                             .catch(function (error) {
                                 console.log(error);

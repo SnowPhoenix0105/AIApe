@@ -83,7 +83,7 @@ export default {
                 }
                 else if (status === 'passwordInvalid') {
                     _this.$message({
-                        message: '密码格式错误',
+                        message: '密码长度应大于8位！',
                         type: 'warning'
                     })
                 }
