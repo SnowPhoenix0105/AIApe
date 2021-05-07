@@ -43,8 +43,29 @@
                     </el-table>
                 </el-tab-pane>
                 <el-tab-pane label="我回答的问题" name="second">
-                    <el-table :data="answeredQuestions" style="width: 100%">
-                        <el-table-column prop="date" label="日期" style="width: 100%">
+                    <el-table
+                        :data="answers"
+                        style="width: 100%"
+                        :header-cell-style="{textAlign: 'center'}"
+                        :cell-style="{ textAlign: 'center' }">
+                        <el-table-column
+                            prop="aid"
+                            label="编号"
+                            width="180">
+                        </el-table-column>
+                        <el-table-column
+                            label="回答"
+                            prop="content"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                            label="编辑"
+                            width="180">
+                            <template slot-scope="scope">
+                                <el-link @click="removeAnswer(scope.row.aid)" slot="reference">
+                                    删除
+                                </el-link>
+                            </template>
                         </el-table-column>
                     </el-table>
                 </el-tab-pane>
@@ -65,24 +86,6 @@ export default {
 
             activeName: "first",
 
-            askedQuestions: [{
-                date: '提问题1',
-            }, {
-                date: '提问题2',
-            }, {
-                date: '提问题3',
-            }, {
-                date: '提问题4',
-            }],
-            answeredQuestions: [{
-                date: '答问题1',
-            }, {
-                date: '答问题2',
-            }, {
-                date: '答问题3',
-            }, {
-                date: '答问题4',
-            }],
             questions: [],
             answers: [],
         }
@@ -90,6 +93,48 @@ export default {
     methods: {
         goBack() {
             this.$router.replace('/questionList');
+        },
+        removeAnswer(aid) {
+            // alert('删除回答' + aid);
+            let _this = this;
+            let token = store.state.token;
+            _this.$axios.delete(_this.BASE_URL + '/api/questions/delete_answer', {
+                data: {aid: aid},
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                    _this.answers = [];
+                    _this.getAnswers();
+                })
+        },
+        getAnswers() {
+            let _this = this;
+            let token = store.state.token;
+            _this.$axios.get(this.BASE_URL + '/api/user/answers', {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    // console.log('成功获得回答序号');
+                    // console.log(response);
+                    // console.log(response.data.answers);
+                    let answerIdList = response.data.answers;
+                    for (let aid of answerIdList) {
+                        _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + aid)
+                            .then(function (res) {
+                                // console.log("问题详细信息：");
+                                // console.log(res);
+                                _this.$data.answers.push({
+                                    'aid': aid,
+                                    'content': res.data.answer.content
+                                });
+                            })
+                    }
+                })
         },
         getQuestions() {
             let _this = this;
@@ -110,12 +155,6 @@ export default {
                     }
                 })
         },
-        // getAnswers() {
-        //     let _this = this;
-        //     _this.$axios.post(_this.BASE_URL + '/api/user/answers', {
-        //         number: 5
-        //     })
-        // },
         goToDetail(qid) {
             this.$router.replace('questionDetail');
             this.$store.commit('setQuestionID', qid);
@@ -123,9 +162,10 @@ export default {
     },
     mounted() {
         this.getQuestions();
+        this.getAnswers();
         let _this = this;
         // var token = this.GLOBAL.token;
-        var token = store.state.token;
+        let token = store.state.token;
         // console.log(token);
         console.log('获取到的token是' + token);
         this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
