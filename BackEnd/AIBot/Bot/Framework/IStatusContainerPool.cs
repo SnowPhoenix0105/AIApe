@@ -14,7 +14,19 @@ namespace Buaa.AIBot.Bot.Framework
     /// <typeparam name="IdType">The type to mark a status, usually an enum.</typeparam>
     public interface IStatusContainerPool<IdType>
     {
+        /// <summary>
+        /// Get the status by given <paramref name="sessionId"/>.
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <returns>status if exists and not timeout, or null. </returns>
         Task<BotStatus<IdType>> GetStatusAsync(int sessionId);
+
+        /// <summary>
+        /// Save the status. Get the equals one when call <see cref="GetStatusAsync(int)"/> with the same <paramref name="sessionId"/>.
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <param name="status"></param>
+        /// <returns></returns>
         Task SaveStatusAsync(int sessionId, BotStatus<IdType> status);
     }
 
@@ -29,9 +41,21 @@ namespace Buaa.AIBot.Bot.Framework
     public class StatusContainerPoolInMemory<IdType> : IStatusContainerPool<IdType>
     {
         private Dictionary<int, Node> memory = new Dictionary<int, Node>();
-        private readonly TimeSpan liveTime = TimeSpan.FromMinutes(10);
-        private readonly int gcCount = 128;
+        private readonly TimeSpan liveTime;
+        private readonly int gcCount;
         private readonly SemaphoreSlim gate = new SemaphoreSlim(1);
+
+        public StatusContainerPoolInMemory()
+        {
+            liveTime = TimeSpan.FromMinutes(10);
+            gcCount = 128;
+        }
+
+        public StatusContainerPoolInMemory(TimeSpan liveTime, int gcCount = 128)
+        {
+            this.liveTime = liveTime;
+            this.gcCount = gcCount;
+        }
 
         private class Node
         {
