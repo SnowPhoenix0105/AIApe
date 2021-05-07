@@ -40,6 +40,15 @@
                                 </el-popover>
                             </template>
                         </el-table-column>
+                        <el-table-column
+                            label="编辑"
+                            width="180">
+                            <template slot-scope="scope">
+                                <el-link @click="removeQuestion(scope.row.id)" slot="reference">
+                                    删除
+                                </el-link>
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </el-tab-pane>
                 <el-tab-pane label="我回答的问题" name="second">
@@ -94,6 +103,22 @@ export default {
         goBack() {
             this.$router.replace('/questionList');
         },
+        removeQuestion(qid) {
+            // alert('删除问题' + qid);
+            let _this = this;
+            let token = store.state.token;
+            _this.$axios.delete(_this.BASE_URL + '/api/questions/delete_question', {
+                data: {qid: qid},
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                    _this.questions = [];
+                    _this.getQuestions();
+                })
+        },
         removeAnswer(aid) {
             // alert('删除回答' + aid);
             let _this = this;
@@ -138,14 +163,19 @@ export default {
         },
         getQuestions() {
             let _this = this;
-            _this.$axios.post(_this.BASE_URL + '/api/test/questions/questionlist', {
-                number: 5
+            let token = store.state.token;
+            _this.$axios.get(_this.BASE_URL + '/api/user/questions', {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
             })
                 .then(function (response) {
-                    let questionIdList = response.data;
-                    questionIdList.sort();
+                    console.log('成功获得问题列表');
+                    console.log(response);
+                    let questionIdList = response.data.questions;
+                    // questionIdList.sort();
                     for (let qid of questionIdList) {
-                        _this.$axios.get('https://aiape.snowphoenix.design/api/test/questions/question?qid=' + qid)
+                        _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
                             .then(function (response) {
                                 _this.$data.questions.push({
                                     'id': qid,
