@@ -20,5 +20,5 @@ stages:
 test_job:
   stage: test
   script:
-    - python run ./Scripts/BackEndUnitTest.py
+    - python ./Scripts/BackEndUnitTest.py
 
