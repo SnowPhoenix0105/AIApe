@@ -21,7 +21,7 @@ namespace AIBotTest.Repository
         private DbContextOptions<DatabaseContext> CreateUniqueOptions()
         {
             var builder = new DbContextOptionsBuilder<DatabaseContext>();
-            builder.UseInMemoryDatabase($"{nameof(TagRepositoryTest)}@{count++}");
+            builder.UseInMemoryDatabase($"{nameof(AnswerRepositoryTest)}@{count++}");
             return builder.Options;
         }
 
