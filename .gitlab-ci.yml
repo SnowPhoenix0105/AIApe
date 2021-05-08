@@ -1,0 +1,24 @@
+image: python:latest
+
+variables:
+  NUGET_PATH: 'C:\NuGet\nuget.exe'
+  MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe'
+
+stages:
+#  - build
+  - test
+#  - deploy
+
+#build_job:
+#  stage: build
+#  only:
+#    - tags  # the build process will only be started by git tag commits
+#  script:
+#    - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
+#    - '& "$env:MSBUILD_PATH" /p:Configuration=Release'  # build the project
+
+test_job:
+  stage: test
+  script:
+    - python run ./Scripts/BackEndUnitTest.py
+
