@@ -30,7 +30,7 @@ class Path:
 
 class StopException(Exception):
     def __init__(self, *args, **kargs):
-        super.__init__(self, *args, **kargs)
+        super().__init__(*args, **kargs)
 
 def exec(command: str, ensure_success: bool=True) -> int:
     log("executing command: {}".format(command))
@@ -52,7 +52,11 @@ def build_without_restore():
 
 def test_without_build()->str:
     log("运行测试")
-    old_dir = set(os.listdir(Path.AIBotTest_TestResults))
+    old_dir = None
+    if not os.path.exists(Path.AIBotTest_TestResults):
+        old_dir = set()
+    else:
+        old_dir = set(os.listdir(Path.AIBotTest_TestResults))
     command = "dotnet test --no-build --collect:\"XPlat Code Coverage\" {}".format(Path.BackEnd)
     exec(command)
     new_dir = set(os.listdir(Path.AIBotTest_TestResults))
@@ -95,7 +99,7 @@ def print_cli_message(guid: str):
     log("branch-coverage:\t{:.2f} % ({:d}/{:d})".format(branch_rate * 100, branches_covered, branches_valid))
 
     
-def main():
+def main() -> int:
     try:
         restore()
         build_without_restore()
@@ -103,12 +107,13 @@ def main():
         try:
             install_tool_ReportGenerator()
             generate_report(guid)
-        except StopException as e:
-            log(str(e), LogLevel.WAR)
+            return 0
         finally:
             print_cli_message(guid)
     except StopException as e:
         log(str(e), LogLevel.WAR)
+        return -1
 
 if __name__ == '__main__':
-    main()
+    ret = main()
+    exit(ret)

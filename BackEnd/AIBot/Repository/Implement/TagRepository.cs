@@ -45,6 +45,7 @@ namespace Buaa.AIBot.Repository.Implement
                     Name = t.Name,
                     Desc = t.Desc
                 })
+                .Where(t => t.TagId == tagId)
                 .FirstOrDefaultAsync();
             return query;
         }
@@ -73,7 +74,7 @@ namespace Buaa.AIBot.Repository.Implement
             }
             if (tag.Name.Length > Constants.TagNameMaxLength)
             {
-                throw new TagNameToLongException(tag.Name.Length, Constants.TagNameMaxLength);
+                throw new TagNameTooLongException(tag.Name.Length, Constants.TagNameMaxLength);
             }
             var target = new TagData()
             {
@@ -92,6 +93,7 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 await CheckTagName(tag.Name);
             }
+            changed = true;
             return target.TagId;
         }
 
@@ -99,18 +101,23 @@ namespace Buaa.AIBot.Repository.Implement
         {
             bool success = true;
             var target = await Context.Tags.FindAsync(tag.TagId);
+            if (target == null)
+            {
+                throw new TagNotExistException(tag.TagId);
+            }
             if (tag.Name != null)
             {
                 if (tag.Name.Length > Constants.TagNameMaxLength)
                 {
-                    throw new TagNameToLongException(tag.Name.Length, Constants.TagNameMaxLength);
+                    throw new TagNameTooLongException(tag.Name.Length, Constants.TagNameMaxLength);
                 }
                 success = false;
                 target.Name = tag.Name;
             }
-            if (tag.Desc == null)
+            if (tag.Desc != null)
             {
-                throw new ArgumentNullException(nameof(tag.Desc));
+                success = false;
+                target.Desc = tag.Desc;
             }
             await CheckTagName(tag.Name);
             while (!success)
@@ -122,6 +129,7 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 await CheckTagName(tag.Name);
             }
+            changed = true;
         }
 
         public async Task DeleteTagAsync(int tagId)
@@ -131,6 +139,7 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 Context.Tags.Remove(target);
                 await SaveChangesAgainAndAgainAsync();
+                changed = true;
             }
         }
     }

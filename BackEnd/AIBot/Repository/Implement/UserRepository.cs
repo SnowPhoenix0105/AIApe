@@ -186,6 +186,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new ArgumentNullException(nameof(user.Name));
             }
+            if (user.Email == null)
+            {
+                throw new ArgumentNullException(nameof(user.Email));
+            }
             if (user.Auth == AuthLevel.None)
             {
                 throw new ArgumentNullException(nameof(user.Auth));
