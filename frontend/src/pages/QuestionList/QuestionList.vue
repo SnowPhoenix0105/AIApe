@@ -4,7 +4,9 @@
             <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
             <el-link :underline="false" disabled style="cursor: default">|</el-link>
             <el-link :underline="false">注销</el-link>
+            <template v-if="isAdmin">
             <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
+            </template>
 <!--            <el-link :underline="false" @click="addQuestion">添加问题</el-link>-->
         </el-header>
         <el-main class="tag-selector" v-if="showTag">
@@ -46,12 +48,14 @@ export default {
             questions: [],
             selectedTag: [],
             tagState: {},
-            showTag: true
+            showTag: true,
+            isAdmin: false,
         }
     },
     mounted() {
         this.getQuestions();
         this.initTagState();
+        this.isAdmin = (this.$store.state.auth === 2);
     },
     methods: {
         // addQuestion() {
@@ -69,6 +73,11 @@ export default {
         //         .then(function (response) {
         //             console.log(response);
         //         })
+        // },
+        // isAdmin() {
+        //     let res = this.$store.state.auth === 2;
+        //     alert(res);
+        //     return res;
         // },
         getQuestions() {
             let _this = this;
