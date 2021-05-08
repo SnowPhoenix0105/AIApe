@@ -1,5 +1,5 @@
 image: python:latest
-image: mono:5.20.0
+image: mcr.microsoft.com/dotnet/sdk:5.0
 
 variables:
   NUGET_PATH: 'C:\NuGet\nuget.exe'
