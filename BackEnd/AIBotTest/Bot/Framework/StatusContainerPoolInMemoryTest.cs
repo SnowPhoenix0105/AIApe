@@ -77,12 +77,7 @@ namespace AIBotTest.Bot.Framework
         #endregion
 
         [Fact]
-        public void GarbageCollectionTest()
-        {
-            _GarbageCollectionTest().Wait();
-        }
-
-        private async Task _GarbageCollectionTest()
+        public async Task GarbageCollectionTest()
         {
             TimeSpan liveTime = TimeSpan.FromMilliseconds(10);
             int gcCount = 8;
@@ -120,12 +115,7 @@ namespace AIBotTest.Bot.Framework
         }
 
         [Fact]
-        public void ConcurrentWithoutGCTest()
-        {
-            _ConcurrentWithoutGCTest().Wait();
-        }
-
-        private async Task _ConcurrentWithoutGCTest()
+        public async Task ConcurrentWithoutGCTest()
         {
             TimeSpan liveTime = TimeSpan.FromMilliseconds(100);
             int gcCount = 128;

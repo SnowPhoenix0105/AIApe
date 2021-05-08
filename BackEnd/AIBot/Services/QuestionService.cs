@@ -226,11 +226,22 @@ namespace Buaa.AIBot.Services
         {
             try
             {
+                int max = Constants.TagNameMaxLength;
+                int actual = name.Length;
+                if (actual > max)
+                {
+                    throw new Exceptions.TagNameTooLongException(actual, max);
+                }
                 await tagRepostory.UpdateTagAsync(new TagInfo()
                 {
+                    TagId = tid,
                     Name = name,
                     Desc = desc
                 });
+            }
+            catch (Repository.Exceptions.TagNotExistException e)
+            {
+                throw new Exceptions.TagNotExistException(tid, e);
             }
             catch (Repository.Exceptions.TagNameHasExistException e)
             {
