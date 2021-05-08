@@ -18,12 +18,20 @@
                     <el-input v-model="userForm.auth" placeholder="1 表示用户， 2 表示管理员"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" @click="">查询</el-button>
+                    <el-button type="primary" @click="queryUserInfo">查询</el-button>
                 </el-form-item>
                 <br/>
                 <el-form-item>
-                    <el-button type="primary" @click="">保存修改</el-button>
+                    <el-button type="primary" @click="modifyUserInfo">保存其他信息</el-button>
                 </el-form-item>
+                <br/>
+                <!--                <el-form-item>-->
+                <!--                    <el-button type="primary" @click="modifyUserPassword">保存密码</el-button>-->
+                <!--                </el-form-item>-->
+                <!--                <br/>-->
+                <!--                <el-form-item label="用户密码">-->
+                <!--                    <el-input v-model="userForm.password"></el-input>-->
+                <!--                </el-form-item>-->
             </el-form>
             <br/>
             <hr/>
@@ -32,7 +40,7 @@
             <h2>问题管理</h2>
             <el-form ref="form" :model="questionForm" label-width="100px">
                 <el-form-item label="问题id">
-                    <el-input v-model="questionForm.uid"></el-input>
+                    <el-input v-model="questionForm.qid"></el-input>
                 </el-form-item>
                 <el-form-item label="问题题目">
                     <el-input v-model="questionForm.question"></el-input>
@@ -40,15 +48,19 @@
                 <el-form-item label="问题内容">
                     <el-input v-model="questionForm.remarks"></el-input>
                 </el-form-item>
-                <el-form-item label="问题标签">
-                    <el-input v-model="questionForm.tags"></el-input>
+                <el-form-item label="问题回答编号">
+                    <el-input v-model="questionForm.answers"></el-input>
                 </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="queryQuestionInfo">查询问题</el-button>
+                </el-form-item>
+                <br/>
                 <el-form-item>
                     <el-button type="primary" @click="">删除问题</el-button>
                 </el-form-item>
                 <br/>
                 <el-form-item>
-                    <el-button type="primary" @click="">保存修改</el-button>
+                    <el-button type="primary" @click="modifyQuestionInfo">保存修改</el-button>
                 </el-form-item>
             </el-form>
             <br/>
@@ -63,6 +75,10 @@
                 <el-form-item label="回答内容">
                     <el-input v-model="answerForm.content"></el-input>
                 </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="queryAnswerInfo">查询回答</el-button>
+                </el-form-item>
+                <br/>
                 <el-form-item>
                     <el-button type="primary" @click="">删除回答</el-button>
                 </el-form-item>
@@ -111,12 +127,13 @@ export default {
                 nickName: '',
                 email: '',
                 auth: '',
+                password: '',
             },
             questionForm: {
                 qid: '',
                 question: '',
                 remarks: '',
-                tags: [1,2,3],
+                answers: [],
             },
             answerForm: {
                 aid: '',
@@ -132,6 +149,101 @@ export default {
     methods: {
         goBack() {
             this.$router.replace('/questionList');
+        },
+        queryUserInfo() {
+            let _this = this;
+            let token = _this.$store.state.token;
+            _this.$axios.get(_this.BASE_URL + '/api/user/full_info?uid=' + _this.userForm.uid, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                    _this.userForm.nickName = response.data.name;
+                    _this.userForm.email = response.data.email;
+                    _this.userForm.auth = response.data.auth;
+                });
+        },
+        modifyUserInfo() {
+            let _this = this;
+            let token = _this.$store.state.token;
+            _this.$axios.put(_this.BASE_URL + '/api/user/modify', {
+                uid: _this.userForm.uid,
+                name: _this.userForm.nickName,
+                auth: _this.userForm.auth,
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                })
+        },
+        // modifyUserPassword() {
+        //     let _this = this;
+        //     let token = _this.$store.state.token;
+        //     _this.$axios.put(_this.BASE_URL + '/api/user/modify', {
+        //         uid: _this.userForm.uid,
+        //         password: _this.userForm.password,
+        //     }, {
+        //         headers: {
+        //             Authorization: 'Bearer ' + token,
+        //         },
+        //     })
+        //         .then(function (response) {
+        //             console.log(response);
+        //         }).catch(function (error) {
+        //         console.log(error);
+        //     })
+        // }
+        queryQuestionInfo() {
+            let _this = this;
+            let token = _this.$store.state.token;
+            _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + _this.questionForm.qid, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                    _this.questionForm.question = response.data.question.title;
+                    _this.questionForm.remarks = response.data.question.remarks;
+                    _this.questionForm.answers = response.data.question.answers;
+                });
+        },
+        modifyQuestionInfo() {
+            // alert('HERE!!!');
+            let _this = this;
+            alert(_this.questionForm.qid);
+            alert(_this.questionForm.question);
+            alert(_this.questionForm.remarks);
+            let token = _this.$store.state.token;
+            _this.$axios.put(_this.BASE_URL + '/api/questions/modify_question', {
+                qid: _this.questionForm.qid,
+                question: _this.questionForm.question,
+                remarks: _this.questionForm.remarks
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                })
+        },
+        queryAnswerInfo() {
+            let _this = this;
+            let token = _this.$store.state.token;
+            _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + _this.answerForm.aid, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            }).then(function (response) {
+                console.log(response);
+                _this.answerForm.content = response.data.answer.content;
+            });
         }
     }
 }
