@@ -30,7 +30,7 @@ class Path:
 
 class StopException(Exception):
     def __init__(self, *args, **kargs):
-        super.__init__(self, *args, **kargs)
+        super().__init__(*args, **kargs)
 
 def exec(command: str, ensure_success: bool=True) -> int:
     log("executing command: {}".format(command))

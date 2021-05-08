@@ -54,6 +54,10 @@ namespace Buaa.AIBot.Repository.Implement
 
         private async Task CheckInsertAsync(AnswerInfo answer)
         {
+            if ((await Context.Questions.FindAsync(answer.QuestionId)) == null)
+            {
+                throw new QuestionNotExistException(answer.QuestionId);
+            }
             if ((await Context
                 .Answers
                 .Select(a => new
@@ -66,10 +70,6 @@ namespace Buaa.AIBot.Repository.Implement
                 .SingleOrDefaultAsync()) != null)
             {
                 throw new UserHasAnswerTheQuestionException((int)answer.CreaterId, answer.QuestionId);
-            }
-            if ((await Context.Questions.FindAsync(answer.QuestionId)) == null)
-            {
-                throw new QuestionNotExistException(answer.QuestionId);
             }
         }
 
