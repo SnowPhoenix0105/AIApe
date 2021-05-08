@@ -1,4 +1,5 @@
-image: python:latest, mono:5.20.0
+image: python:latest
+image: mono:5.20.0
 
 variables:
   NUGET_PATH: 'C:\NuGet\nuget.exe'
