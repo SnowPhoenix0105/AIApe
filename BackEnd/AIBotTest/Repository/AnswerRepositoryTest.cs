@@ -17,6 +17,7 @@ namespace AIBotTest.Repository
     public class AnswerRepositoryTest
     {
         private static int count = 0;
+        private Buaa.AIBot.Utils.GlobalCancellationTokenSource globalCancellation = new Buaa.AIBot.Utils.GlobalCancellationTokenSource();
 
         private DbContextOptions<DatabaseContext> CreateUniqueOptions()
         {
@@ -70,7 +71,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var res = await answerRepository.SelectAnswerByIdAsync(aid);
                 Assert.Single(context.Answers);
@@ -81,7 +82,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var res = await answerRepository.SelectAnswerByIdAsync(aid + 1);
                 Assert.Single(context.Answers);
@@ -136,7 +137,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var res = await answerRepository.SelectAnswerByQuestionAndUserAsync(qid, uid);
                 Assert.Single(context.Answers);
@@ -180,7 +181,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var res = await answerRepository.SelectAnswerByQuestionAndUserAsync(qid, uid);
                 Assert.Empty(context.Answers);
@@ -233,7 +234,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var res = await answerRepository.SelectAnswerByQuestionAndUserAsync(qid, uid + 1);
                 Assert.Single(context.Answers);
@@ -286,7 +287,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var res = await answerRepository.SelectAnswerByQuestionAndUserAsync(qid + 1, uid);
                 Assert.Single(context.Answers);
@@ -331,7 +332,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 string content = "content";
                 var answer = new AnswerInfo()
@@ -384,7 +385,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var answer = new AnswerInfo()
                 {
@@ -432,7 +433,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var answer1 = new AnswerInfo()
                 {
@@ -493,7 +494,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 var answer = new AnswerInfo()
                 {
@@ -546,7 +547,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 string content = "content";
                 var origin = new AnswerInfo()
@@ -604,7 +605,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 string content = "content";
                 var origin = new AnswerInfo()
@@ -665,7 +666,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IAnswerRepository answerRepository = new AnswerRepository(context);
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
 
                 string content = "content";
                 var origin = new AnswerInfo()

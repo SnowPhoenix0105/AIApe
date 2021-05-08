@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository.Implement
 {
@@ -14,7 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="ITagRepostory"/></remarks>
     public class TagRepository : RepositoryBase, ITagRepostory
     {
-        public TagRepository(DatabaseContext context) : base(context) { }
+        public TagRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, globalCancellationTokenSource.Token) { }
 
         private volatile bool changed = true;
         private Dictionary<string, int> cache = null;
@@ -29,7 +31,7 @@ namespace Buaa.AIBot.Repository.Implement
                  .Tags
                  .AsQueryable()
                  .Select(t => new KeyValuePair<string, int>(t.Name, t.TagId))
-                 .ToListAsync();
+                 .ToListAsync(CancellationToken);
             cache = new Dictionary<string, int>(query);
             changed = false;
             return cache;
@@ -46,7 +48,7 @@ namespace Buaa.AIBot.Repository.Implement
                     Desc = t.Desc
                 })
                 .Where(t => t.TagId == tagId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(CancellationToken);
             return query;
         }
 
@@ -56,7 +58,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Tags
                 .AsQueryable()
                 .Where(t => t.Name == tagName)
-                .SingleOrDefaultAsync()) != null)
+                .SingleOrDefaultAsync(CancellationToken)) != null)
             {
                 throw new TagNameHasExistException(tagName);
             }

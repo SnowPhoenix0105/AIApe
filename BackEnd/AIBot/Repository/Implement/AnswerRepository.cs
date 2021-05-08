@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository.Implement
 {
@@ -14,7 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IAnswerRepository"/></remarks>
     public class AnswerRepository : RepositoryBase, IAnswerRepository
     {
-        public AnswerRepository(DatabaseContext context) : base(context) { }
+        public AnswerRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource) 
+            : base(context, globalCancellationTokenSource.Token) { }
 
         public async Task<AnswerInfo> SelectAnswerByIdAsync(int answerId)
         {
@@ -30,7 +32,7 @@ namespace Buaa.AIBot.Repository.Implement
                     ModifyTime = a.ModifyTime
                 })
                 .Where(a => a.AnswerId == answerId)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(CancellationToken);
             return query;
         }
 
@@ -48,7 +50,7 @@ namespace Buaa.AIBot.Repository.Implement
                     ModifyTime = a.ModifyTime
                 })
                 .Where(a => a.QuestionId == questionId && a.CreaterId == userId)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(CancellationToken);
             return query;
         }
 
@@ -67,7 +69,7 @@ namespace Buaa.AIBot.Repository.Implement
                     a.QuestionId
                 })
                 .Where(a => a.QuestionId == answer.QuestionId && a.UserId == answer.CreaterId)
-                .SingleOrDefaultAsync()) != null)
+                .SingleOrDefaultAsync(CancellationToken)) != null)
             {
                 throw new UserHasAnswerTheQuestionException((int)answer.CreaterId, answer.QuestionId);
             }
