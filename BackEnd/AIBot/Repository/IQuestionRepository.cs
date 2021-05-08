@@ -49,7 +49,8 @@ namespace Buaa.AIBot.Repository
         /// Insert a new question. QuestionId, CreateTime, and ModifyTime will be generated automatically.
         /// </summary>
         /// <remarks>
-        /// CreaterId is required, but BestAnswerId is optional (can be null).
+        /// CreaterId is required
+        /// BestAnswerId will be ignore.
         /// No operation if any exception occurs.
         /// </remarks>
         /// <exception cref="ArgumentNullException">CreaterId is null</exception>

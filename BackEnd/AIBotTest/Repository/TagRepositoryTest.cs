@@ -32,12 +32,13 @@ namespace AIBotTest.Repository
             int tagNum = 10;
             using (var context = new DatabaseContext(options))
             {
-                var tags = new List<TagData>(tagNum);
-                foreach (int i in Enumerable.Range(0, tagNum))
-                {
-                    tags.Add(new TagData() { Name = $"Tag{i}", Desc = $"This is tag No.{i}" });
-                }
-                context.AddRange(tags);
+                context.AddRange(
+                    Enumerable.Range(0, tagNum)
+                    .Select(i =>new TagData() 
+                    { 
+                        Name = $"Tag{i}", 
+                        Desc = $"This is tag No.{i}" 
+                    }));
                 await context.SaveChangesAsync();
             }
 
@@ -62,12 +63,13 @@ namespace AIBotTest.Repository
             int tagNum = 10;
             using (var context = new DatabaseContext(options))
             {
-                var tags = new List<TagData>(tagNum);
-                foreach (int i in Enumerable.Range(0, tagNum))
-                {
-                    tags.Add(new TagData() { Name = $"Tag{i}", Desc = $"This is tag No.{i}" });
-                }
-                context.AddRange(tags);
+                context.AddRange(
+                    Enumerable.Range(0, tagNum)
+                    .Select(i =>new TagData()
+                    {
+                        Name = $"Tag{i}",
+                        Desc = $"This is tag No.{i}"
+                    }));
                 await context.SaveChangesAsync();
             }
 
@@ -97,12 +99,13 @@ namespace AIBotTest.Repository
             int tagNum = 10;
             using (var context = new DatabaseContext(options))
             {
-                var tags = new List<TagData>(tagNum);
-                foreach (int i in Enumerable.Range(0, tagNum))
-                {
-                    tags.Add(new TagData() { Name = $"Tag{i}", Desc = $"This is tag No.{i}" });
-                }
-                context.AddRange(tags);
+                context.AddRange(
+                    Enumerable.Range(0, tagNum)
+                    .Select(i => new TagData()
+                    {
+                        Name = $"Tag{i}",
+                        Desc = $"This is tag No.{i}"
+                    }));
                 await context.SaveChangesAsync();
             }
 
@@ -138,12 +141,13 @@ namespace AIBotTest.Repository
             int tagNum = 10;
             using (var context = new DatabaseContext(options))
             {
-                var tags = new List<TagData>(tagNum);
-                foreach (int i in Enumerable.Range(0, tagNum))
-                {
-                    tags.Add(new TagData() { Name = $"Tag{i}", Desc = $"This is tag No.{i}" });
-                }
-                context.AddRange(tags);
+                context.AddRange(
+                    Enumerable.Range(0, tagNum)
+                    .Select(i => new TagData()
+                    {
+                        Name = $"Tag{i}",
+                        Desc = $"This is tag No.{i}"
+                    }));
                 await context.SaveChangesAsync();
             }
 
