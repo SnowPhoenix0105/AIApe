@@ -213,6 +213,7 @@ namespace Buaa.AIBot.Services
             {
                 await answerRepository.UpdateAnswerAsync(new AnswerInfo()
                 {
+                    AnswerId = aid,
                     Content = content
                 });
             }
