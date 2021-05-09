@@ -18,6 +18,7 @@ namespace AIBotTest.Repository
     public class UserRepositoryTest
     {
         private static int count = 0;
+        private Buaa.AIBot.Utils.GlobalCancellationTokenSource globalCancellation = new Buaa.AIBot.Utils.GlobalCancellationTokenSource();
 
         private DbContextOptions<DatabaseContext> CreateUniqueOptions()
         {
@@ -53,7 +54,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectUserByIdAsync(uid);
                 Assert.Equal(uid, res.UserId);
@@ -65,7 +66,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectUserByIdAsync(uid + 1);
                 Assert.Null(res);
@@ -100,7 +101,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectUserByEmailAsync(email);
                 Assert.Equal(uid, res.UserId);
@@ -112,7 +113,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectUserByEmailAsync(email + ".edu.cn");
                 Assert.Null(res);
@@ -147,7 +148,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectUserByNameAsync(name);
                 Assert.Equal(uid, res.UserId);
@@ -159,7 +160,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectUserByNameAsync("Dr." + name);
                 Assert.Null(res);
@@ -193,14 +194,14 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectBcryptByEmailAsync(email);
                 Assert.True(BNBCrypt.Verify(password, res));
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var res = await userRepository.SelectUserByEmailAsync(email + ".edu.cn");
                 Assert.Null(res);
@@ -279,19 +280,19 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectQuestionsIdByIdAsync(uid1);
                 Assert.Equal(2, res.Count());
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectQuestionsIdByIdAsync(uid2);
                 Assert.Empty(res);
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectQuestionsIdByIdAsync(Math.Max(uid1, uid2) + 1);
                 Assert.Null(res);
             }
@@ -368,7 +369,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectQuestionsIdByIdOrderByModifyTimeAsync(uid1);
                 Assert.Equal(2, res.Count());
 
@@ -379,13 +380,13 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectQuestionsIdByIdOrderByModifyTimeAsync(uid2);
                 Assert.Empty(res);
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectQuestionsIdByIdOrderByModifyTimeAsync(Math.Max(uid1, uid2) + 1);
                 Assert.Null(res);
             }
@@ -462,19 +463,19 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectAnswersIdByIdAsync(uid1);
                 Assert.Equal(2, res.Count());
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectAnswersIdByIdAsync(uid2);
                 Assert.Empty(res);
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectAnswersIdByIdAsync(Math.Max(uid1, uid2) + 1);
                 Assert.Null(res);
             }
@@ -551,7 +552,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectAnswersIdByIdByModifyTimeAsync(uid1);
                 Assert.Equal(2, res.Count());
 
@@ -562,13 +563,13 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectAnswersIdByIdByModifyTimeAsync(uid2);
                 Assert.Empty(res);
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
                 var res = await userRepository.SelectAnswersIdByIdByModifyTimeAsync(Math.Max(uid1, uid2) + 1);
                 Assert.Null(res);
             }
@@ -583,7 +584,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string password = "password";
                 var user = new UserInfo()
@@ -612,7 +613,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string password = "password";
                 var user = new UserInfo()
@@ -636,7 +637,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var user = new UserInfo()
                 {
@@ -659,7 +660,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string password = "password";
                 var user = new UserInfo()
@@ -683,7 +684,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string password = "password";
                 var user = new UserInfo()
@@ -715,7 +716,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var user = new UserInfo()
                 {
@@ -732,7 +733,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var user = new UserInfo()
                 {
@@ -759,7 +760,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var user = new UserInfo()
                 {
@@ -776,7 +777,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var user = new UserInfo()
                 {
@@ -798,7 +799,7 @@ namespace AIBotTest.Repository
             string password = "password";
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var user = new UserInfo()
                 {
@@ -815,7 +816,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var user = new UserInfo()
                 {
@@ -837,7 +838,7 @@ namespace AIBotTest.Repository
             string password = "password";
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string email = "user@buaa";
                 var first = new UserInfo()
@@ -874,7 +875,7 @@ namespace AIBotTest.Repository
             string password = "password";
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string name = "user";
                 var first = new UserInfo()
@@ -914,7 +915,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var origin = new UserInfo()
                 {
@@ -949,7 +950,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var origin = new UserInfo()
                 {
@@ -984,7 +985,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var origin = new UserInfo()
                 {
@@ -1019,7 +1020,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var origin = new UserInfo()
                 {
@@ -1054,7 +1055,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var origin = new UserInfo()
                 {
@@ -1091,7 +1092,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 var origin = new UserInfo()
                 {
@@ -1141,7 +1142,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string name = "user";
                 var origin = new UserInfo()
@@ -1175,7 +1176,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string name = "user";
                 var origin = new UserInfo()
@@ -1209,7 +1210,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string name = "user";
                 var origin = new UserInfo()
@@ -1245,7 +1246,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IUserRepository userRepository = new UserRepository(context);
+                IUserRepository userRepository = new UserRepository(context, globalCancellation);
 
                 string name = "user";
                 var origin = new UserInfo()

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository.Implement
 {
@@ -14,7 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IQuestionRepository"/></remarks>
     public class QuestionRepository : RepositoryBase , IQuestionRepository
     {
-        public QuestionRepository(DatabaseContext context) : base(context) { }
+        public QuestionRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, globalCancellationTokenSource.Token) { }
 
         public async Task<IEnumerable<int>> SelectAnswersForQuestionByIdAsync(int questionId)
         {
@@ -22,7 +24,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Answers
                 .Where(a => a.QuestionId == questionId)
                 .Select(a => a.AnswerId)
-                .ToListAsync()
+                .ToListAsync(CancellationToken)
                 ;
             if (query.Count != 0)
             {
@@ -51,7 +53,7 @@ namespace Buaa.AIBot.Repository.Implement
                     ModifyTime = q.ModifyTime
                 })
                 .Where(q => q.QuestionId == questionId)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(CancellationToken);
             return question;
         }
 
@@ -113,7 +115,7 @@ namespace Buaa.AIBot.Repository.Implement
             var list = tags.ToList();
             if (list.Count == 0)
             {
-                return await Context.Questions.Select(q => q.QuestionId).ToListAsync();
+                return await Context.Questions.Select(q => q.QuestionId).ToListAsync(CancellationToken);
             }
             string create_set = "drop table if exists tids;\ncreate temporary table tids (tid int not null, primary key(tid));\n";
             string values = string.Join("),(", list);
@@ -122,13 +124,13 @@ namespace Buaa.AIBot.Repository.Implement
                 "select *\n" +
                 "from Questions\n" +
                 "where not exists\n" +
-                "(\n\t" +
-                    "select tid from tids\n\t" +
-                    "where not exists\n\t" +
-                    "(\n\t\t" +
-                        "select *\n\t\t" +
-                        "from QuestionTagRelations as qt\n\t\t" +
-                        "where qt.QuestionId=Questions.QuestionId and qt.TagId=tids.tid\n\t" +
+                "(\n  " +
+                    "select tid from tids\n  " +
+                    "where not exists\n  " +
+                    "(\n    " +
+                        "select *\n    " +
+                        "from QuestionTagRelations as qt\n    " +
+                        "where qt.QuestionId=Questions.QuestionId and qt.TagId=tids.tid\n  " +
                     ")\n" +
                 ");";
             string sql = create_set + insert_set + select;
@@ -152,7 +154,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .QuestionTagRelations
                 .Where(qt => qt.QuestionId == questionId)
                 .Select(qt => new KeyValuePair<string, int>(qt.Tag.Name, qt.TagId));
-            var list = await query.ToListAsync();
+            var list = await query.ToListAsync(CancellationToken);
             if (list.Count != 0)
             {
                 return list;
@@ -167,7 +169,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         private async Task CheckInsertAsync(QuestionWithListTag question, TagMatcher matcher)
         {
-            if ((await Context.Users.SingleOrDefaultAsync(u => u.UserId == question.CreaterId)) == null)
+            if ((await Context.Users.SingleOrDefaultAsync(u => u.UserId == question.CreaterId, CancellationToken)) == null)
             {
                 throw new UserNotExistException((int)question.CreaterId);
             }
@@ -179,7 +181,7 @@ namespace Buaa.AIBot.Repository.Implement
             if (!matcher.Match(Context.Tags.Select(t => t.TagId)))
             {
                 var set = new HashSet<int>(matcher.Requires);
-                foreach (int t in await Context.Tags.Select(t => t.TagId).ToListAsync())
+                foreach (int t in await Context.Tags.Select(t => t.TagId).ToListAsync(CancellationToken))
                 {
                     set.Remove(t);
                 }
@@ -341,7 +343,7 @@ namespace Buaa.AIBot.Repository.Implement
                 {
                     var tagsInDb = await Context.QuestionTagRelations
                         .Where(qt => qt.QuestionId == question.QuestionId)
-                        .ToListAsync();
+                        .ToListAsync(CancellationToken);
                     pool.AddRange(tagsInDb);
                     var inside = new HashSet<int>(tagsInDb.Select(qt => qt.TagId));
                     foreach (var tid in tidsAdded)

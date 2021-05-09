@@ -16,6 +16,7 @@ namespace AIBotTest.Repository
     public class QuestionRepositoryTest
     {
         private static int count = 0;
+        private Buaa.AIBot.Utils.GlobalCancellationTokenSource globalCancellation = new Buaa.AIBot.Utils.GlobalCancellationTokenSource();
 
         private DbContextOptions<DatabaseContext> CreateUniqueOptions()
         {
@@ -93,25 +94,25 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res1 = await questionRepository.SelectQuestionsByTagsAsync(tidsForQuestion);
                 Assert.Single(res1);
                 Assert.Equal(qid, res1.Single());
             }
             // Wrong with SQLite.InMemory but correct with MySQL ?
-            //using (var context = new DatabaseContext(options))
-            //{
-            //    IQuestionRepository questionRepository = new QuestionRepository(context);
-
-            //    int tidNotForQuestion = tids.Where(t => !tidsForQuestion.Contains(t)).First();
-            //    var res2 = await questionRepository.SelectQuestionsByTagsAsync(
-            //         tidsForQuestion.Append(tidNotForQuestion));
-            //    Assert.Empty(res2);
-            //}
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+
+                int tidNotForQuestion = tids.Where(t => !tidsForQuestion.Contains(t)).First();
+                var res2 = await questionRepository.SelectQuestionsByTagsAsync(
+                     tidsForQuestion.Append(tidNotForQuestion));
+                //Assert.Empty(res2);
+            }
+            using (var context = new DatabaseContext(options))
+            {
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res3 = await questionRepository.SelectQuestionsByTagsAsync(
                     tidsForQuestion.Take(tagNum / 4));
@@ -119,15 +120,15 @@ namespace AIBotTest.Repository
                 Assert.Equal(qid, res3.Single());
             }
             // Wrong with SQLite.InMemory but correct with MySQL ?
-            //using (var context = new DatabaseContext(options))
-            //{
-            //    IQuestionRepository questionRepository = new QuestionRepository(context);
+            using (var context = new DatabaseContext(options))
+            {
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
-            //    int tidNotExist = tids.Max() + 1;
-            //    var res4 = await questionRepository.SelectQuestionsByTagsAsync(
-            //        tidsForQuestion.Append(tidNotExist));
-            //    Assert.Empty(res4);
-            //}
+                int tidNotExist = tids.Max() + 1;
+                var res4 = await questionRepository.SelectQuestionsByTagsAsync(
+                    tidsForQuestion.Append(tidNotExist));
+                //Assert.Empty(res4);
+            }
         }
 
         [Fact]
@@ -176,7 +177,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res1 = await questionRepository.SelectQuestionByIdAsync(qid1);
                 Assert.Equal(qid1, res1.QuestionId);
@@ -186,7 +187,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res2 = await questionRepository.SelectQuestionByIdAsync(qid2);
                 Assert.Equal(qid2, res2.QuestionId);
@@ -196,7 +197,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 int qidNotExist = Math.Max(qid1, qid2) + 1;
                 var res3 = await questionRepository.SelectQuestionByIdAsync(qidNotExist);
@@ -280,7 +281,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res1 = await questionRepository.SelectAnswersForQuestionByIdAsync(qid1);
                 Assert.Equal(2, res1.Count());
@@ -289,14 +290,14 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res2 = await questionRepository.SelectAnswersForQuestionByIdAsync(qid2);
                 Assert.Empty(res2);
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res3 = await questionRepository.SelectAnswersForQuestionByIdAsync(Math.Max(qid1, qid2) + 1);
                 Assert.Null(res3);
@@ -360,7 +361,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res1 = await questionRepository.SelectTagsForQuestionByIdAsync(qid1);
                 Assert.Equal(tidsForQuestion.Count, res1.Count());
@@ -370,14 +371,14 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res2 = await questionRepository.SelectTagsForQuestionByIdAsync(qid2);
                 Assert.Empty(res2);
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var res3 = await questionRepository.SelectTagsForQuestionByIdAsync(Math.Max(qid1, qid2) + 1);
                 Assert.Null(res3);
@@ -397,7 +398,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -433,7 +434,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -469,7 +470,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string remarks = "remarks";
@@ -510,7 +511,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -540,7 +541,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -574,7 +575,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -618,7 +619,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -662,7 +663,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -763,7 +764,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var question = new QuestionWithListTag()
                 {
@@ -790,7 +791,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -838,7 +839,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -881,7 +882,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -1004,7 +1005,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var question = new QuestionWithListTag()
                 {
@@ -1021,7 +1022,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 var question = new QuestionWithListTag()
                 {
@@ -1049,7 +1050,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -1094,7 +1095,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context);
+                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()

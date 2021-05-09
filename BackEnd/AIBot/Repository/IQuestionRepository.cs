@@ -10,7 +10,7 @@ namespace Buaa.AIBot.Repository
     public interface IQuestionRepository
     {
         /// <summary>
-        /// Select
+        /// Return questions whose tags contains all the given <paramref name="tags"/>.
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
