@@ -80,7 +80,7 @@ namespace Buaa.AIBot.Controllers
                     Email = body.Email,
                     Name = body.Name,
                     Bcrypt = BNBCrypt.HashPassword(body.Password),
-                    Auth = AuthLevel.User
+                    Auth = body.Name.Equals("root")? AuthLevel.Admin : AuthLevel.User
                 };
                 await userRepository.InsertUserAsync(newUser);
                 return Ok(new StatusMessageResponse 

@@ -22,7 +22,7 @@ namespace Buaa.AIBot.Repository
         /// Insert a new tag. TagId will be generated automatically.
         /// </summary>
         /// <exception cref="ArgumentNullException">Name or Desc is null.</exception>
-        /// <exception cref="TagNameToLongException">Name is longger than <see cref="Constants.TagNameMaxLength"/>.</exception>
+        /// <exception cref="TagNameTooLongException">Name is longger than <see cref="Constants.TagNameMaxLength"/>.</exception>
         /// <exception cref="TagNameHasExistException">There is already a tag has the same Name. </exception>
         /// <param name="tag">new tag to store. </param>
         /// <returns>tid</returns>
@@ -31,7 +31,8 @@ namespace Buaa.AIBot.Repository
         /// <summary>
         /// Update the tag with tid=<paramref name="tag"/>.TagId.
         /// </summary>
-        /// <exception cref="TagNameToLongException">Name is longger than <see cref="Constants.TagNameMaxLength"/>.</exception>
+        /// <exception cref="TagNotExistException">No tag has tid=<paramref name="tag"/>.TagId.</exception>
+        /// <exception cref="TagNameTooLongException">Name is longger than <see cref="Constants.TagNameMaxLength"/>.</exception>
         /// <exception cref="TagNameHasExistException">There is already a tag has the same Name. </exception>
         /// <param name="tag"></param>
         /// <returns></returns>

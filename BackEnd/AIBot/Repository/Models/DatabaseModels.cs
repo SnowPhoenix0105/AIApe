@@ -105,5 +105,17 @@ namespace Buaa.AIBot.Repository.Models
         // relation references
         public QuestionData Question { get; set; }
         public TagData Tag { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is QuestionTagRelation relation &&
+                   TagId == relation.TagId &&
+                   QuestionId == relation.QuestionId;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(TagId, QuestionId);
+        }
     }
 }

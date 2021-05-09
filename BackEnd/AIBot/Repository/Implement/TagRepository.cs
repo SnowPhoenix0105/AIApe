@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository.Implement
 {
@@ -14,7 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="ITagRepostory"/></remarks>
     public class TagRepository : RepositoryBase, ITagRepostory
     {
-        public TagRepository(DatabaseContext context) : base(context) { }
+        public TagRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, globalCancellationTokenSource.Token) { }
 
         private volatile bool changed = true;
         private Dictionary<string, int> cache = null;
@@ -29,7 +31,8 @@ namespace Buaa.AIBot.Repository.Implement
                  .Tags
                  .AsQueryable()
                  .Select(t => new KeyValuePair<string, int>(t.Name, t.TagId))
-                 .ToListAsync();
+                 .ToListAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             cache = new Dictionary<string, int>(query);
             changed = false;
             return cache;
@@ -45,17 +48,21 @@ namespace Buaa.AIBot.Repository.Implement
                     Name = t.Name,
                     Desc = t.Desc
                 })
-                .FirstOrDefaultAsync();
+                .Where(t => t.TagId == tagId)
+                .FirstOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return query;
         }
 
         private async Task CheckTagName(string tagName)
         {
-            if ((await Context
+            var old = await Context
                 .Tags
                 .AsQueryable()
                 .Where(t => t.Name == tagName)
-                .SingleOrDefaultAsync()) != null)
+                .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
+            if (old != null)
             {
                 throw new TagNameHasExistException(tagName);
             }
@@ -73,7 +80,7 @@ namespace Buaa.AIBot.Repository.Implement
             }
             if (tag.Name.Length > Constants.TagNameMaxLength)
             {
-                throw new TagNameToLongException(tag.Name.Length, Constants.TagNameMaxLength);
+                throw new TagNameTooLongException(tag.Name.Length, Constants.TagNameMaxLength);
             }
             var target = new TagData()
             {
@@ -92,6 +99,7 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 await CheckTagName(tag.Name);
             }
+            changed = true;
             return target.TagId;
         }
 
@@ -99,18 +107,23 @@ namespace Buaa.AIBot.Repository.Implement
         {
             bool success = true;
             var target = await Context.Tags.FindAsync(tag.TagId);
+            if (target == null)
+            {
+                throw new TagNotExistException(tag.TagId);
+            }
             if (tag.Name != null)
             {
                 if (tag.Name.Length > Constants.TagNameMaxLength)
                 {
-                    throw new TagNameToLongException(tag.Name.Length, Constants.TagNameMaxLength);
+                    throw new TagNameTooLongException(tag.Name.Length, Constants.TagNameMaxLength);
                 }
                 success = false;
                 target.Name = tag.Name;
             }
-            if (tag.Desc == null)
+            if (tag.Desc != null)
             {
-                throw new ArgumentNullException(nameof(tag.Desc));
+                success = false;
+                target.Desc = tag.Desc;
             }
             await CheckTagName(tag.Name);
             while (!success)
@@ -122,6 +135,7 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 await CheckTagName(tag.Name);
             }
+            changed = true;
         }
 
         public async Task DeleteTagAsync(int tagId)
@@ -131,6 +145,7 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 Context.Tags.Remove(target);
                 await SaveChangesAgainAndAgainAsync();
+                changed = true;
             }
         }
     }

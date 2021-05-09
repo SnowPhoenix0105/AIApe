@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Buaa.AIBot.Repository.Models;
+using Buaa.AIBot.Repository.Exceptions;
 
 namespace Buaa.AIBot.Repository
 {
@@ -15,7 +16,16 @@ namespace Buaa.AIBot.Repository
         /// <returns>an AnswerInfo object if exist, or null</returns>
         Task<AnswerInfo> SelectAnswerByIdAsync(int answerId);
 
-        Task<AnswerInfo> SelectAnswerByQuestionAndUserAsync(int questionId, int userId); 
+        /// <summary>
+        /// Select an answer by qid and uid.
+        /// </summary>
+        /// <remarks>
+        /// if <paramref name="questionId"/> or <paramref name="userId"/> not match any Question or User, returns null, without any exception.
+        /// </remarks>
+        /// <param name="questionId"></param>
+        /// <param name="userId"></param>
+        /// <returns>an AnswerInfo object if exist, or null.</returns>
+        Task<AnswerInfo> SelectAnswerByQuestionAndUserAsync(int questionId, int userId);
 
         /// <summary>
         /// Insert a new answer. AnswerId, CreateTime, ModifyTime will be generated automatically.
@@ -25,8 +35,9 @@ namespace Buaa.AIBot.Repository
         /// No operation if any exception occurs.
         /// </remarks>
         /// <exception cref="ArgumentNullException">CreaterId is null.</exception>
-        /// <exception cref="UserHasAnswerTheQuestionException">There us an answer with given uid and qid</exception>
+        /// <exception cref="UserNotExistException">No User with uid=CreaterId.</exception>
         /// <exception cref="QuestionNotExistException">There is no question with qid=<paramref name="answer"/>.QuestionId</exception>
+        /// <exception cref="UserHasAnswerTheQuestionException">There us an answer with given uid and qid</exception>
         /// <param name="answer">the new answer to store</param>
         /// <returns></returns>
         Task<int> InsertAnswerAsync(AnswerInfo answer);
