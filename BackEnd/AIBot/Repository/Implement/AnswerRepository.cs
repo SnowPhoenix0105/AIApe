@@ -56,6 +56,10 @@ namespace Buaa.AIBot.Repository.Implement
 
         private async Task CheckInsertAsync(AnswerInfo answer)
         {
+            if ((await Context.Users.FindAsync(answer.CreaterId)) == null)
+            {
+                throw new UserNotExistException(answer.CreaterId ?? 0);
+            }
             if ((await Context.Questions.FindAsync(answer.QuestionId)) == null)
             {
                 throw new QuestionNotExistException(answer.QuestionId);

@@ -90,7 +90,7 @@ namespace Buaa.AIBot.Services
 
         public async Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number)
         {
-            if (number < 0)
+            if (number <= 0)
             {
                 return new int[0];
             }

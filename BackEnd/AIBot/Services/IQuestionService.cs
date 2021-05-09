@@ -61,7 +61,8 @@ namespace Buaa.AIBot.Services
         /// 
         /// </summary>
         /// <exception cref="UserHasAnswerTheQuestionException"></exception>
-        /// <exception cref="UserNotExistException">creater not exist</exception>
+        /// <exception cref="UserNotExistException">creater not exist.</exception>
+        /// <exception cref="QuestionNotExistException">qid not exist.</exception>
         /// <param name="creater">uid</param>
         /// <param name="qid"></param>
         /// <param name="content"></param>

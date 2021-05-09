@@ -35,6 +35,7 @@ namespace Buaa.AIBot.Repository
         /// No operation if any exception occurs.
         /// </remarks>
         /// <exception cref="ArgumentNullException">CreaterId is null.</exception>
+        /// <exception cref="UserNotExistException">No User with uid=CreaterId.</exception>
         /// <exception cref="QuestionNotExistException">There is no question with qid=<paramref name="answer"/>.QuestionId</exception>
         /// <exception cref="UserHasAnswerTheQuestionException">There us an answer with given uid and qid</exception>
         /// <param name="answer">the new answer to store</param>

@@ -279,6 +279,20 @@ namespace AIBotTest.Services
             Assert.True(Enumerable.Range(0, list3.Count).Select(i => newStart - i).SequenceEqual(list3));
         }
 
+        [Fact]
+        public async Task GetQuestionListAsync_ZeroNumber()
+        {
+            IEnumerable<int> tags = new List<int>() { 1, 3, 2, 4 };
+
+            var questionService = CreateQuestionService();
+
+            var res1 = await questionService.GetQuestionListAsync(tags, null, 0);
+            Assert.Empty(res1);
+
+            var res2 = await questionService.GetQuestionListAsync(tags, null, -1);
+            Assert.Empty(res2);
+        }
+
         #endregion
 
         [Fact]
@@ -411,7 +425,7 @@ namespace AIBotTest.Services
             int tidNotExist = 4;
             queMock
                 .Setup(qr => qr.InsertQuestionAsync(It.Is<QuestionWithListTag>(q => q.Tags.Contains(tidNotExist))))
-                .ThrowsAsync(new Buaa.AIBot.Repository.Exceptions.UserNotExistException(uid));
+                .ThrowsAsync(new Buaa.AIBot.Repository.Exceptions.TagNotExistException(uid));
             queMock
                 .Setup(qr => qr.InsertQuestionAsync(It.Is<QuestionWithListTag>(q => !q.Tags.Contains(tidNotExist))))
                 .Callback((QuestionWithListTag q) => { res.Value = q; })
@@ -424,7 +438,7 @@ namespace AIBotTest.Services
             string remarks = "remarks";
             IEnumerable<int> tags = Enumerable.Range(0, 13)
                 .Select(i => i << 2).Where(i => i != tidNotExist).ToList();
-            await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.UserNotExistException>(async () =>
+            await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.TagNotExistException>(async () =>
                 await questionService.AddQuestionAsync(uid, title, remarks, tags.Append(tidNotExist)));
 
             Assert.Null(res.Value);
@@ -509,24 +523,56 @@ namespace AIBotTest.Services
             string content = "content";
             ansMock
                 .Setup(ar => ar.InsertAnswerAsync(It.Is<AnswerInfo>(a => a.CreaterId == uid)))
-                .ThrowsAsync(new Buaa.AIBot.Repository.Exceptions.UserNotExistException(uid));
-            ansMock
-                .Setup(ar => ar.InsertAnswerAsync(It.Is<AnswerInfo>(a => a.CreaterId != uid)))
                 .Callback((AnswerInfo a) => res.Value = a)
                 .ReturnsAsync(aid);
+            ansMock
+                .Setup(ar => ar.InsertAnswerAsync(It.Is<AnswerInfo>(a => a.CreaterId != uid)))
+                .ThrowsAsync(new Buaa.AIBot.Repository.Exceptions.UserNotExistException(uid));
 
             var questionService = CreateQuestionService();
 
             await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.UserNotExistException>(async () =>
-                await questionService.AddAnswerAsync(uid, qid, content));
+                await questionService.AddAnswerAsync(uid + 1, qid, content));
 
             Assert.Null(res.Value);
 
-            int ret = await questionService.AddAnswerAsync(uid + 1, qid, content);
+            int ret = await questionService.AddAnswerAsync(uid, qid, content);
 
             Assert.Equal(aid, ret);
             ansMock.Verify();
-            Assert.Equal(uid + 1, res.Value.CreaterId);
+            Assert.Equal(uid, res.Value.CreaterId);
+            Assert.Equal(qid, res.Value.QuestionId);
+            Assert.Equal(content, res.Value.Content);
+        }
+
+        [Fact]
+        public async Task AddAnswerAsync_QuestionNotExist()
+        {
+            Result<AnswerInfo> res = new Result<AnswerInfo>();
+            int uid = 2;
+            int qid = 3;
+            int aid = 4;
+            string content = "content";
+            ansMock
+                .Setup(ar => ar.InsertAnswerAsync(It.Is<AnswerInfo>(a => a.QuestionId == qid)))
+                .Callback((AnswerInfo a) => res.Value = a)
+                .ReturnsAsync(aid);
+            ansMock
+                .Setup(ar => ar.InsertAnswerAsync(It.Is<AnswerInfo>(a => a.QuestionId != qid)))
+                .ThrowsAsync(new Buaa.AIBot.Repository.Exceptions.QuestionNotExistException(uid));
+
+            var questionService = CreateQuestionService();
+
+            await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.QuestionNotExistException>(async () =>
+                await questionService.AddAnswerAsync(uid, qid + 1, content));
+
+            Assert.Null(res.Value);
+
+            int ret = await questionService.AddAnswerAsync(uid, qid, content);
+
+            Assert.Equal(aid, ret);
+            ansMock.Verify();
+            Assert.Equal(uid, res.Value.CreaterId);
             Assert.Equal(qid, res.Value.QuestionId);
             Assert.Equal(content, res.Value.Content);
         }

@@ -401,6 +401,55 @@ namespace AIBotTest.Repository
         }
 
         [Fact]
+        public async Task InsertAnswerAsync_CreaterNotExist()
+        {
+            var options = CreateUniqueOptions();
+
+            int uid;
+            int qid;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = new UserData()
+                {
+                    Name = "user",
+                    Email = "user@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                };
+                context.Add(user);
+                await context.SaveChangesAsync();
+                uid = user.UserId;
+
+                var question = new QuestionData()
+                {
+                    UserId = uid,
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                IAnswerRepository answerRepository = new AnswerRepository(context, globalCancellation);
+
+                var answer = new AnswerInfo()
+                {
+                    CreaterId = uid + 1,
+                    QuestionId = qid,
+                    Content = "content"
+                };
+
+                await Assert.ThrowsAsync<UserNotExistException>(async () =>
+                    await answerRepository.InsertAnswerAsync(answer));
+
+                Assert.Empty(context.Answers);
+            }
+        }
+
+        [Fact]
         public async Task InsertAnswerAsync_Answered()
         {
             var options = CreateUniqueOptions();
