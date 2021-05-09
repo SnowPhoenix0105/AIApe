@@ -51,9 +51,9 @@ namespace Buaa.AIBot.Services
 
         AuthLevel GetAuthLevelFromToken(HttpRequest request);
 
-        DateTime GetExpirationFromToken(HttpRequest request);
+        DateTime GetExpirationFromToken(UserBody userBody);
 
-        Task<string> FleshTokenAsync(HttpRequest request);
+        Task<string> FreshTokenAsync(UserBody userBody);
     }
 
     public class UserService : IUserService
@@ -258,19 +258,19 @@ namespace Buaa.AIBot.Services
             return stringToAuthLevel[authLevel.ToString()];
         }
         
-        public DateTime GetExpirationFromToken(HttpRequest request)
+        public DateTime GetExpirationFromToken(UserBody userBody)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(request.Headers["Authorization"].ToString().Substring(7));
+            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(userBody.Token);
             Object expiration;
             jwtToken.Payload.TryGetValue(ClaimTypes.Expiration, out expiration);
             return DateTime.Parse(expiration.ToString());
         }
 
-        public async Task<string> FleshTokenAsync(HttpRequest request)
+        public async Task<string> FreshTokenAsync(UserBody userBody)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(request.Headers["Authorization"].ToString().Substring(7));
+            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(userBody.Token);
             Object uid;
             Object email;
             jwtToken.Payload.TryGetValue(ClaimTypes.Sid, out uid);

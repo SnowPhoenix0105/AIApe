@@ -11,15 +11,16 @@ def post(target: str, body, headers: dict=None):
     if headers is None:
         headers = {}
     headers["Content-Type"] = "application/json"
+    if len(jwt) != 0:
+        headers["Authorization"] = "Bearer " + jwt
 
-    origin_host = "https://aiape.snowphoenix.design" 
+    origin_host = ["https://aiape.snowphoenix.design", "http://localhost:5000"][1]
     url = origin_host + target
 
     req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
 
     with urllib.request.urlopen(req) as f:
         raw_json = f.read().decode("utf8")
-
     # print("[RAW]:\t", raw_json)
     return json.loads(raw_json)
 
@@ -51,19 +52,21 @@ def login():
             print(rsp["message"])
 
 def print_bot_message(rsp):
-    messages = rsp["message"].split("\n")
-    print(">>>\t", "\n\t".join(messages))
+    messages = rsp["messages"]
+    for message in messages:
+        message_lines = message.strip().replace("\\[", "[").replace("\\]", "]").split("\n")
+        print(">>>\t" + "\n\t".join(message_lines))
     prompt = rsp["prompt"]
     if len(prompt) != 0:
         print(prompt)
 
 def start_bot():
-    rsp = post("/api/bot/start", body={}, headers={ "Authorization" : "Bearer " + jwt })
+    rsp = post("/api/bot/start", body={})
     print_bot_message(rsp)
 
 def message_bot():
     message = input("<<<\t")
-    rsp = post("/api/bot/message", body={ "message": message }, headers={ "Authorization" : "Bearer " + jwt })
+    rsp = post("/api/bot/message", body={ "message": message })
     print_bot_message(rsp)
 
 

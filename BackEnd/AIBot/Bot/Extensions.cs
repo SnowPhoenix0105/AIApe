@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using Buaa.AIBot.Bot.Framework;
+using Buaa.AIBot.Bot.WorkingModule;
+using Microsoft.Extensions.Configuration;
 
 namespace Buaa.AIBot.Bot
 {
     public static class Extensions
     {
-        public static IServiceCollection AddEchoBot(this IServiceCollection services)
+        public static IServiceCollection AddEchoBot(this IServiceCollection services, IConfiguration config)
         {
             var options = new BotRunnerOptions<EchoBot.StatusEnum>()
             {
@@ -21,8 +23,29 @@ namespace Buaa.AIBot.Bot
                     Status = EchoBot.StatusEnum.Welcome
                 }
             };
-            var bot = new BotRunner<EchoBot.StatusEnum>(options);
-            services.AddSingleton<IBotRunner>(bot);
+            services
+                .AddWorkingModule(config)
+                .AddTransient<IBotRunner>(
+                services => new BotRunner<EchoBot.StatusEnum>(options, services.GetService<IWorkingModule>()));
+
+            return services;
+        }
+
+        public static IServiceCollection AddAlphaBot(this IServiceCollection services, IConfiguration config)
+        {
+            var options = new BotRunnerOptions<AlphaBot.StatusId>()
+            {
+                StatusPool = new StatusContainerPoolInMemory<AlphaBot.StatusId>(),
+                BehaviourPool = new StatusBehaviourPool<AlphaBot.StatusId>(AlphaBot.Configuration.GetStatusBehaviours()),
+                InitStatus = new BotStatus<AlphaBot.StatusId>()
+                {
+                    Status = AlphaBot.StatusId.Welcome
+                }
+            };
+            services
+                .AddWorkingModule(config)
+                .AddTransient<IBotRunner>(
+                services => new BotRunner<AlphaBot.StatusId>(options, services.GetService<IWorkingModule>()));
 
             return services;
         }

@@ -89,9 +89,9 @@ namespace Buaa.AIBot.Repository.Exceptions
             : base($"Question title has max length={max}, but {actual} get.") { }
     }
 
-    public class TagNameToLongException : RepositoryException
+    public class TagNameTooLongException : RepositoryException
     {
-        public TagNameToLongException(int actual, int max)
+        public TagNameTooLongException(int actual, int max)
             : base($"Tag name has max length={max}, but {actual} get.") { }
     }
 }
