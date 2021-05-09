@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using System.Threading;
 using System.Collections.Generic;
 using System.IO.Compression;
 using System.IO;
@@ -11,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Buaa.AIBot.Repository.Models;
-
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository
 {
@@ -60,6 +61,8 @@ namespace Buaa.AIBot.Repository
         
         private readonly ILogger<BaiduCrawlerRepository> logger;
 
+        private readonly CancellationToken token;
+
         private string pageSource;
         private static CookieContainer CookiesContainer { get; set; }
 
@@ -76,7 +79,7 @@ namespace Buaa.AIBot.Repository
         private readonly static int maxWebCount = 3;
 
         private static readonly Regex reAnswer = new Regex(@"<h3\s*class\s*=\s*(.|\n)*?>\s*<a(.|\n)*?href\s*=\s*""(?<url>.*?)""(.|\n)*?>(?<content>(.|\n)*?)</a>\s*</h3>");
-        public BaiduCrawlerRepository(ILogger<BaiduCrawlerRepository> logger)
+        public BaiduCrawlerRepository(ILogger<BaiduCrawlerRepository> logger, GlobalCancellationTokenSource globalCancellationTokenSource)
         {
             if (CookiesContainer == null)
             {
@@ -91,6 +94,7 @@ namespace Buaa.AIBot.Repository
             onCompleted = (s, e) =>
             {
                 var matches = reAnswer.Matches(pageSource);
+                token.ThrowIfCancellationRequested();
                 int localCount = 0;
                 foreach (Match match in matches)
                 {
@@ -98,9 +102,9 @@ namespace Buaa.AIBot.Repository
                     {
                         break;
                     }
+                    string clearTitle = ClearString(match.Groups["content"].ToString());
                     foreach (string web in websites)
                     {
-                        string clearTitle = ClearString(match.Groups["content"].ToString());
                         if (clearTitle.Contains(web))
                         {
                             results.Add(new SearchResult
@@ -116,6 +120,7 @@ namespace Buaa.AIBot.Repository
             };
             onError = (s, e) =>
             { };
+            this.token = globalCancellationTokenSource.Token;
             this.logger = logger;
         }
 
@@ -164,12 +169,13 @@ namespace Buaa.AIBot.Repository
             Stopwatch watch = new Stopwatch();
             watch.Start();
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 try
                 {
-                    using(HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                    using(HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync())
                     {
+                        token.ThrowIfCancellationRequested();
                         foreach (Cookie cookie in response.Cookies)
                         {
                             CookiesContainer = new CookieContainer();
