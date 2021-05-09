@@ -56,7 +56,7 @@
                 </el-form-item>
                 <br/>
                 <el-form-item>
-                    <el-button type="primary" @click="">删除问题</el-button>
+                    <el-button type="primary" @click="deleteQuestion">删除问题</el-button>
                 </el-form-item>
                 <br/>
                 <el-form-item>
@@ -80,11 +80,11 @@
                 </el-form-item>
                 <br/>
                 <el-form-item>
-                    <el-button type="primary" @click="">删除回答</el-button>
+                    <el-button type="primary" @click="deleteAnswer">删除回答</el-button>
                 </el-form-item>
                 <br/>
                 <el-form-item>
-                    <el-button type="primary" @click="">保存修改</el-button>
+                    <el-button type="primary" @click="modifyAnswerInfo">保存修改</el-button>
                 </el-form-item>
             </el-form>
             <br/>
@@ -118,6 +118,7 @@
 
 <script>
 import Chat from '../../components/Chat/Chat.vue'
+import store from "../../vuex/store";
 
 export default {
     data() {
@@ -216,9 +217,9 @@ export default {
         modifyQuestionInfo() {
             // alert('HERE!!!');
             let _this = this;
-            alert(_this.questionForm.qid);
-            alert(_this.questionForm.question);
-            alert(_this.questionForm.remarks);
+            // alert(_this.questionForm.qid);
+            // alert(_this.questionForm.question);
+            // alert(_this.questionForm.remarks);
             let token = _this.$store.state.token;
             _this.$axios.put(_this.BASE_URL + '/api/questions/modify_question', {
                 qid: _this.questionForm.qid,
@@ -244,6 +245,49 @@ export default {
                 console.log(response);
                 _this.answerForm.content = response.data.answer.content;
             });
+        },
+        modifyAnswerInfo() {
+            let _this = this;
+            let token = _this.$store.state.token;
+            _this.$axios.put(_this.BASE_URL + '/api/questions/modify_answer', {
+                aid: 4,
+                content: _this.answerForm.content,
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                })
+        },
+        deleteAnswer() {
+            let _this = this;
+            let token = _this.$store.state.token;
+            _this.$axios.delete(_this.BASE_URL + '/api/questions/delete_answer', {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+                data: {
+                    aid: _this.answerForm.aid,
+                }
+            })
+                .then(function (response) {
+                    console.log(response);
+                })
+        },
+        deleteQuestion() {
+            let _this = this;
+            let token = store.state.token;
+            _this.$axios.delete(_this.BASE_URL + '/api/questions/delete_question', {
+                data: {qid: _this.questionForm.qid},
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                },
+            })
+                .then(function (response) {
+                    console.log(response);
+                })
         }
     }
 }
