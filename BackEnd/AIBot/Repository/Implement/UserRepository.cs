@@ -32,6 +32,7 @@ namespace Buaa.AIBot.Repository.Implement
                     Auth = u.Auth
                 })
                 .SingleOrDefaultAsync(user => user.UserId == userId, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return user;
         }
 
@@ -48,6 +49,7 @@ namespace Buaa.AIBot.Repository.Implement
                     Auth = u.Auth
                 })
                 .SingleOrDefaultAsync(user => user.Email == email, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return user;
         }
 
@@ -64,6 +66,7 @@ namespace Buaa.AIBot.Repository.Implement
                     Auth = u.Auth
                 })
                 .SingleOrDefaultAsync(user => user.Name == name, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return user;
         }
 
@@ -73,6 +76,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Users
                 .Select(user => new { user.Email, user.Bcrypt })
                 .SingleOrDefaultAsync(user => user.Email == email, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             if (user == null)
             {
                 return null;
@@ -88,6 +92,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Select(a => a.AnswerId)
                 .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -109,6 +114,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Select(a => a.AnswerId)
                 .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -129,6 +135,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Select(q => q.QuestionId)
                 .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -150,6 +157,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Select(q => q.QuestionId)
                 .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -168,6 +176,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Users
                 .Select(u => new { u.Name, u.Email })
                 .FirstOrDefaultAsync(u => u.Name == user.Name || u.Email == user.Email, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             if (dup != null)
             {
                 if (dup.Email == user.Email)
@@ -263,11 +272,17 @@ namespace Buaa.AIBot.Repository.Implement
             }
             while (!success)
             {
-                if (user.Name != null && (
-                    await Context.Users.FirstOrDefaultAsync(u => u.Name == user.Name, CancellationToken)) != null)
+                if (user.Name != null)
                 {
-                    throw new NameHasExistException(user.Name);
-                }
+                    var old = await Context.Users
+                        .Where(u => u.Name == user.Name)
+                        .FirstOrDefaultAsync(CancellationToken);
+                    CancellationToken.ThrowIfCancellationRequested();
+                    if (old != null)
+                    {
+                        throw new NameHasExistException(user.Name);
+                    }
+                } 
                 if ((await Context.Users.FindAsync(user.UserId)) == null)
                 {
                     throw new UserNotExistException(user.UserId);

@@ -33,6 +33,7 @@ namespace Buaa.AIBot.Repository.Implement
                 })
                 .Where(a => a.AnswerId == answerId)
                 .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return query;
         }
 
@@ -51,6 +52,7 @@ namespace Buaa.AIBot.Repository.Implement
                 })
                 .Where(a => a.QuestionId == questionId && a.CreaterId == userId)
                 .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return query;
         }
 
@@ -64,7 +66,7 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new QuestionNotExistException(answer.QuestionId);
             }
-            if ((await Context
+            var old = await Context
                 .Answers
                 .Select(a => new
                 {
@@ -73,7 +75,9 @@ namespace Buaa.AIBot.Repository.Implement
                     a.QuestionId
                 })
                 .Where(a => a.QuestionId == answer.QuestionId && a.UserId == answer.CreaterId)
-                .SingleOrDefaultAsync(CancellationToken)) != null)
+                .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
+            if (old != null)
             {
                 throw new UserHasAnswerTheQuestionException((int)answer.CreaterId, answer.QuestionId);
             }
