@@ -33,6 +33,13 @@ namespace Buaa.AIBot.Services
         /// <returns></returns>
         Task<TagInformation> GetTagAsync(int tid);
 
+        /// <summary>
+        /// Return qids 
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <param name="pt"></param>
+        /// <param name="number"></param>
+        /// <returns></returns>
         Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number);
 
         Task<Dictionary<string, int>> GetTagListAsync();

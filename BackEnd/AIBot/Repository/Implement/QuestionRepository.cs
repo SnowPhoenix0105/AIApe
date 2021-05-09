@@ -132,8 +132,7 @@ namespace Buaa.AIBot.Repository.Implement
                         "from QuestionTagRelations as qt\n    " +
                         "where qt.QuestionId=Questions.QuestionId and qt.TagId=tids.tid\n  " +
                     ")\n" +
-                ")\n" +
-                $"limit {Constants.QuestionListMaxNumber};";
+                ");";
             string sql = create_set + insert_set + select;
             var query = Context
                 .Questions

@@ -169,10 +169,18 @@ namespace Buaa.AIBot.Services
             {
                 throw new Exceptions.UserHasAnswerTheQuestionException(uid: creater, qid: qid, e);
             }
+            catch (Repository.Exceptions.UserNotExistException e)
+            {
+                throw new Exceptions.UserNotExistException(creater, e);
+            }
         }
 
         public async Task<int> AddTagAsync(string name, string desc)
         {
+            if (name.Length > Constants.TagNameMaxLength)
+            {
+                throw new Exceptions.TagNameTooLongException(name.Length, Constants.TagNameMaxLength);
+            }
             try
             {
                 int tid = await tagRepostory.InsertTagAsync(new TagInfo()
@@ -190,6 +198,11 @@ namespace Buaa.AIBot.Services
 
         public async Task ModifyQuestionAsync(int qid, QuestionModifyItems modifyItems)
         {
+            if (modifyItems.Title != null && modifyItems.Title.Length > Constants.QuestionTitleMaxLength)
+            {
+                throw new Exceptions.
+                    QuestionTitleTooLongException(modifyItems.Title.Length, Constants.QuestionTitleMaxLength);
+            }
             try
             {
                 await questionRepository.UpdateQuestionAsync(new QuestionWithListTag()
@@ -204,6 +217,18 @@ namespace Buaa.AIBot.Services
             catch (Repository.Exceptions.TagNotExistException e)
             {
                 throw new Exceptions.TagNotExistException(e.TagId, e);
+            }
+            catch (Repository.Exceptions.QuestionNotExistException e)
+            {
+                throw new Exceptions.QuestionNotExistException(qid, e);
+            }
+            catch (Repository.Exceptions.AnswerNotExistException e)
+            {
+                if (modifyItems.BestAnswer != null)
+                {
+                    throw new Exceptions.AnswerNotExistException((int)modifyItems.BestAnswer, e);
+                }
+                throw;
             }
         }
 
@@ -225,7 +250,7 @@ namespace Buaa.AIBot.Services
 
         public async Task ModifyTagAsync(int tid, string name, string desc)
         {
-            try
+            if (name != null)
             {
                 int max = Constants.TagNameMaxLength;
                 int actual = name.Length;
@@ -233,6 +258,9 @@ namespace Buaa.AIBot.Services
                 {
                     throw new Exceptions.TagNameTooLongException(actual, max);
                 }
+            }
+            try
+            {
                 await tagRepostory.UpdateTagAsync(new TagInfo()
                 {
                     TagId = tid,
