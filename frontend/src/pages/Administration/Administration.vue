@@ -299,6 +299,7 @@ export default {
     /*position: absolute;*/
     /*left: 35%;*/
     /*top: 35%;*/
+
 }
 
 .el-button {
