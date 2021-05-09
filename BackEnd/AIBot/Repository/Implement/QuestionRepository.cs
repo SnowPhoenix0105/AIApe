@@ -26,6 +26,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Select(a => a.AnswerId)
                 .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -54,6 +55,7 @@ namespace Buaa.AIBot.Repository.Implement
                 })
                 .Where(q => q.QuestionId == questionId)
                 .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return question;
         }
 
@@ -117,6 +119,7 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 return await Context.Questions.Select(q => q.QuestionId).ToListAsync(CancellationToken);
             }
+            // TODO can make it faster?
             string create_set = "drop table if exists tids;\ncreate temporary table tids (tid int not null, primary key(tid));\n";
             string values = string.Join("),(", list);
             string insert_set = $"insert into tids values ({values});\n";
@@ -155,6 +158,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Where(qt => qt.QuestionId == questionId)
                 .Select(qt => new KeyValuePair<string, int>(qt.Tag.Name, qt.TagId));
             var list = await query.ToListAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             if (list.Count != 0)
             {
                 return list;
@@ -169,7 +173,12 @@ namespace Buaa.AIBot.Repository.Implement
 
         private async Task CheckInsertAsync(QuestionWithListTag question, TagMatcher matcher)
         {
-            if ((await Context.Users.SingleOrDefaultAsync(u => u.UserId == question.CreaterId, CancellationToken)) == null)
+            var user = await Context
+                .Users
+                .Where(u => u.UserId == question.CreaterId)
+                .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
+            if (user == null)
             {
                 throw new UserNotExistException((int)question.CreaterId);
             }
@@ -181,7 +190,12 @@ namespace Buaa.AIBot.Repository.Implement
             if (!matcher.Match(Context.Tags.Select(t => t.TagId)))
             {
                 var set = new HashSet<int>(matcher.Requires);
-                foreach (int t in await Context.Tags.Select(t => t.TagId).ToListAsync(CancellationToken))
+                var tagsInDatabase = await Context
+                    .Tags
+                    .Select(t => t.TagId)
+                    .ToListAsync(CancellationToken);
+                CancellationToken.ThrowIfCancellationRequested();
+                foreach (int t in tagsInDatabase)
                 {
                     set.Remove(t);
                 }
@@ -344,6 +358,7 @@ namespace Buaa.AIBot.Repository.Implement
                     var tagsInDb = await Context.QuestionTagRelations
                         .Where(qt => qt.QuestionId == question.QuestionId)
                         .ToListAsync(CancellationToken);
+                    CancellationToken.ThrowIfCancellationRequested();
                     pool.AddRange(tagsInDb);
                     var inside = new HashSet<int>(tagsInDb.Select(qt => qt.TagId));
                     foreach (var tid in tidsAdded)

@@ -32,6 +32,7 @@ namespace Buaa.AIBot.Repository.Implement
                  .AsQueryable()
                  .Select(t => new KeyValuePair<string, int>(t.Name, t.TagId))
                  .ToListAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             cache = new Dictionary<string, int>(query);
             changed = false;
             return cache;
@@ -49,16 +50,19 @@ namespace Buaa.AIBot.Repository.Implement
                 })
                 .Where(t => t.TagId == tagId)
                 .FirstOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return query;
         }
 
         private async Task CheckTagName(string tagName)
         {
-            if ((await Context
+            var old = await Context
                 .Tags
                 .AsQueryable()
                 .Where(t => t.Name == tagName)
-                .SingleOrDefaultAsync(CancellationToken)) != null)
+                .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
+            if (old != null)
             {
                 throw new TagNameHasExistException(tagName);
             }
