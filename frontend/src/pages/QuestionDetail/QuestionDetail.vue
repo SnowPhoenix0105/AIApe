@@ -56,8 +56,10 @@ export default {
         getQuestionDetail() {
             let _this = this;
             let id = this.$store.state.questionID;
-            _this.$axios.get("https://aiape.snowphoenix.design/api/test/questions/question?qid=" + id)
+            _this.questions = [];
+            _this.$axios.get("https://aiape.snowphoenix.design/api/questions/question?qid=" + id)
                 .then(async function (response) {
+                    console.log(response);
                     _this.$data.title = response.data.question.title;
                     _this.$data.detail = response.data.question.remarks;
                     _this.$data.creator = response.data.question.creater;
@@ -120,8 +122,10 @@ export default {
             })
             .then(function (response) {
                 _this.myAnswer = '';
+                console.log(response);
                 if (response.data.status === 'success') {
                     _this.$store.commit('addAImessage', '感谢你的回答!');
+                    _this.getQuestionDetail();
                 }
                 else {
                     _this.$store.commit('addAImessage', '你已经回答过这个问题啦!');

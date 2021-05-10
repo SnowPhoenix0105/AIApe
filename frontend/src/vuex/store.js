@@ -13,8 +13,7 @@ export default new Vuex.Store({
         timeout: 0,
         tagList: {},
         lastTokenTime: new Date(),
-        logs: [{id: 2, content: '你好，我是AIApe!请先登录！'}],
-        prompt: []
+        logs: [{id: 2, content: '你好，我是AIApe!请先登录！', prompts:['环境', '语言'], promptValid: false}]
     },
     mutations: {
         setUsername(state, value) {
@@ -34,20 +33,17 @@ export default new Vuex.Store({
         setTagList(state, tagList) {
             state.tagList = tagList;
         },
-        addAImessage(state, message) {
-            state.logs.push({
-                id: 2,
-                content: message
-            })
+        addAImessage(state, payload) {
+            payload['id'] = 2;
+            state.logs.push(payload);
         },
         addUserMessage(state, message) {
             state.logs.push({
                 id: 1,
-                content: message
+                content: message,
+                prompts: [],
+                promptValid: false
             })
-        },
-        setPrompt(state, prompt) {
-            state.prompt = prompt;
         },
         setUid(state, uid) {
             state.uid = uid
