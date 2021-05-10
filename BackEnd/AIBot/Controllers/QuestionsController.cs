@@ -129,7 +129,8 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "success",
-                    Message = "new question add successfully"
+                    Message = "new question add successfully",
+                    Qid = qid
                 });
             } catch (QuestionTitleTooLongException) {
                 return Ok(new
@@ -165,7 +166,8 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "success",
-                    Message = "new answer add successfully"
+                    Message = "new answer add successfully",
+                    Aid = aid
                 });
             } catch (UserHasAnswerTheQuestionException) {
                 return Ok(new
@@ -194,7 +196,8 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "success",
-                    Message = "new tag add successfully"
+                    Message = "new tag add successfully",
+                    Tid = tid
                 });
             } catch (TagNameTooLongException) {
                 return Ok(new
