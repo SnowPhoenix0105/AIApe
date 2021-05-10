@@ -24,7 +24,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             return Task.CompletedTask;
         }
 
-        public bool CheckoutChineseComma(IBotStatusContainer status, IBotSender sender)
+        private bool CheckoutChineseComma(IBotStatusContainer status, IBotSender sender)
         {
             bool sourceComma = false;
             bool inputComma = false;

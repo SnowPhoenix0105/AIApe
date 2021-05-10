@@ -40,7 +40,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
                 status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.Statement);
                 return Task.FromResult(StatusId.GetStatementTypeForStatement);
             }
-            if (msg.ToLowerContainsAny(Keyword, "keyword"))
+            if (msg.ToLowerContainsAny(Keyword, "关键词", "keyword"))
             {
                 status.Put(WorkingModule.QuestionBuilder.Category, WorkingModule.QuestionBuilder.QuestionCategory.Keywords);
                 return Task.FromResult(StatusId.GetKeywordForKeywords);

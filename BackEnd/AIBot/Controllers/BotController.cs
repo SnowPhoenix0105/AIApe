@@ -47,6 +47,7 @@ namespace Buaa.AIBot.Controllers
             string message = (body.Message == null)? "" : body.Message;
             int uid = userService.GetUidFromToken(Request);
             OutputInfo info = await botRunner.Run(uid, new InputInfo
+
             {
                 Message = message
             });

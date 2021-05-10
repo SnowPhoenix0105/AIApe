@@ -31,7 +31,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             Code
         }
 
-        public readonly IReadOnlyDictionary<QuestionCategory, string> CategoryToChinese = new Dictionary<QuestionCategory, string>()
+        public static readonly IReadOnlyDictionary<QuestionCategory, string> CategoryToChinese = new Dictionary<QuestionCategory, string>()
         {
             [QuestionCategory.EnvInstalling] = "环境配置",
             [QuestionCategory.EnvUsing] = "工具使用",
