@@ -7,7 +7,6 @@
             <template v-if="isAdmin">
             <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
             </template>
-<!--            <el-link :underline="false" @click="addQuestion">添加问题</el-link>-->
         </el-header>
         <el-main class="tag-selector" v-if="showTag">
             <el-tag v-for="(tid, tag_name) in this.$store.state.tagList" :key="tid"
