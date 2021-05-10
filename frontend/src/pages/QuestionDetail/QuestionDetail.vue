@@ -57,7 +57,7 @@ export default {
             let _this = this;
             let id = this.$store.state.questionID;
             _this.questions = [];
-            _this.$axios.get("https://aiape.snowphoenix.design/api/questions/question?qid=" + id)
+            _this.$axios.get(_this.BASE_URL + "/api/questions/question?qid=" + id)
                 .then(async function (response) {
                     console.log(response);
                     _this.$data.title = response.data.question.title;
