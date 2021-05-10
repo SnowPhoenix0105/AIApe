@@ -10,7 +10,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Buaa.AIBot.Bot.WorkingModule
 {
-    public class GccHandlerFactory
+    public interface IGccHandlerFactory
+    {
+        Task<GccHandlerFactory.IGccHandler> CreateHandlerAsync();
+    }
+
+    public class GccHandlerFactory : IGccHandlerFactory
     {
         public string WorkDir { get; }
         public ILogger<GccHandlerFactory> Logger { get; }
@@ -28,7 +33,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             logger.LogInformation("GccHandlerFactory use workdir={GccWorkDir}", Path.GetFullPath(workDir));
         }
 
-        public async Task<GccHandler> CreateHandlerAsync()
+        public async Task<IGccHandler> CreateHandlerAsync()
         {
             await semaphore.WaitAsync();
             if (needInit)
@@ -66,13 +71,21 @@ namespace Buaa.AIBot.Bot.WorkingModule
             used.TryRemove(name, out _);
         }
 
-        public class GccHandler : IDisposable
+        public interface IGccHandler : IDisposable
+        {
+            void CleanUp();
+            Task<string> CompileAsync();
+            Task CreatSourceFileAsync(string content);
+        }
+
+        private class GccHandler : IGccHandler
         {
             public string BasePath => Path.Combine(factory.WorkDir, Name.ToString());
             public string SourcePath => BasePath + ".c";
             public string ExecutablePath => BasePath + ".exe";
             public int Name { get; }
             private GccHandlerFactory factory;
+
             internal GccHandler(GccHandlerFactory factory, int name)
             {
                 this.Name = name;
