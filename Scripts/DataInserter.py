@@ -1,14 +1,15 @@
 # -*- coding: utf8 -*-
 
 from utils.Utils import LogLevel
-from utils.Utils import post
-from utils.Utils import set_jwt
+from utils.Poster import post
+from utils.Poster import get
+from utils.Poster import login 
+from utils.Poster import signup 
+from utils.Poster import NoAuthorization
+import utils.Poster as poster
 from utils.Utils import log
-from utils.Utils import protocol
-from utils.Utils import base_url
-
-root_email = "root@aiape.icu"
-root_password = "aiaperoot"
+from utils.Config import Path
+import json
 
 tag_table = {
     "环境配置" : "环境配置相关，包括IDE安装、编译器安装。",
@@ -29,15 +30,11 @@ tag_table = {
     "msvc" : "由微软公司（Microsoft）开发的C++编译器，是微软旗下IDE（Visual Studio、Visual C++等）的默认C++编译器。",
 }
 
-def login() -> bool:
-    res = post("/api/user/login", { "email" : root_email, "password": root_password })
-    if res["status"] == "success":
-        log("login success")
-        set_jwt(res["token"])
-        return True
-    else:
-        log(res["message"])
-        return False
+tid = None
+
+def init_tids():
+    global tid
+    tid = get("/api/questions/taglist")
 
 def add_tag(name: str, desc: str) -> int:
     obj = { "name": name, "desc": desc }
@@ -51,43 +48,80 @@ def add_tag(name: str, desc: str) -> int:
         log("添加标签：", name, "成功", "tid=", tid)
         return tid
 
-def add_question(title: str, remarks: str, tags: list) -> int:
-    obj = { "title": title, "remarks": remarks, "tags": [tag_table[t] for t in tags] }
-    log("添加问题：", obj)
-    res = post("/api/questions/add_tag", obj)
+def add_question(title: str, remarks: str, tags: list, question_jwt: str=None) -> int:
+    global tid
+    if tid is None:
+        init_tids()
+    obj = { "title": title, "remarks": remarks, "tags": [tid[t] for t in tags if t in tid.keys()] }
+    log("添加问题：", title[:10])
+    res = post("/api/questions/add_question", obj, jwt=question_jwt)
     if res["status"] != "success":
-        log("添加问题：", obj, "失败", "[{}] {}".format(res["status"], res["message"]), level=LogLevel.WAR)
+        log("添加问题：", title[:10], "失败", "[{}] {}".format(res["status"], res["message"]), level=LogLevel.WAR)
         return -1
     else:
         qid = res["qid"]
-        log("添加问题：", obj, "成功", "qid=", qid)
+        log("添加问题：", title[:10], "成功", "qid=", qid)
         return qid
 
-def add_answer(qid: int, content: str) -> int:
+def add_answer(qid: int, content: str, answer_jwt: str=None) -> int:
     obj = { "qid": qid, "content": content }
-    log("添加回答：", obj)
-    res = post("/api/questions/add_tag", obj)
+    log("添加回答：", content[:10])
+    res = post("/api/questions/add_answer", obj, jwt=answer_jwt)
     if res["status"] != "success":
-        log("添加回答：", obj, "失败", "[{}] {}".format(res["status"], res["message"]), level=LogLevel.WAR)
+        log("添加回答：", content[:10], "失败", "[{}] {}".format(res["status"], res["message"]), level=LogLevel.WAR)
         return -1
     else:
         aid = res["aid"]
-        log("添加回答：", obj, "成功", "aid=", aid)
+        log("添加回答：", content[:10], "成功", "aid=", aid)
         return aid
 
 def try_add_all_tags():
     for k, v in tag_table.items():
         add_tag(k, v)
 
+def try_add_all_questions(question_jwt: str, answer_jwt: str):
+    with open(Path.Script_CSDNData, 'r', encoding='utf8') as f:
+        questions = json.load(f)
+    for question in questions:
+        q = question["q"]
+        a = question["a"]
+        qid = add_question(q["title"], q["remarks"], q["tags"], question_jwt)
+        if qid < 0:
+            continue
+        aid = add_answer(qid, a["content"], answer_jwt)
+
+
 def main() -> int:
-    log("using protocol:", protocol)
-    log("using base_url:", base_url)
-    if not login():
-        log("login fail", level=LogLevel.ERR)
-        return -1
-    try_add_all_tags()
-    return 0
+    log("using protocol:", poster.protocol)
+    log("using base_url:", poster.base_url)
+    while True:
+        command = input("signup, login, tag, question, or exit:\t")
+        try:
+            if command == "signup":
+                signup()
+            elif command == "exit":
+                return
+            elif command == "tag":
+                print("please login with admin account")
+                login()
+                try_add_all_tags()
+            elif command == "question":
+                print("please login with question account")
+                question_jwt = login()
+                print("please login with answer account")
+                answer_jwt = login()
+                try_add_all_questions(question_jwt, answer_jwt)
+            else:
+                print("unknow command:", command)
+        except KeyboardInterrupt:
+            print("")
+        except NoAuthorization:
+            print("login required!")
+        
 
 if __name__ == '__main__':
-    ret = main()
-    exit(ret)
+    try:
+        main()
+        print("exit with exit command")
+    except KeyboardInterrupt:
+        print("\nexit with keyboard interrupt")

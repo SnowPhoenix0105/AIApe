@@ -7,6 +7,8 @@ from .Utils import pcat
 
 class Path:
     Script = sys.path[0]
+    Script_AfterProcess = pcat(Script, "after_process")
+    Script_CSDNData = pcat(Script, "csdn_data.json")
     Top = pcat(Script, "..")
     BackEnd = pcat(Top, "BackEnd")
     AIBot = pcat(BackEnd, "AIBot")

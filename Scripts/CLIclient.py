@@ -2,35 +2,12 @@
 
 import json
 import urllib.request
-from utils.Utils import set_jwt
-from utils.Utils import post
-from utils.Utils import NoAuthorization
+from utils.Poster import post
+from utils.Poster import login
+from utils.Poster import signup
+from utils.Poster import NoAuthorization
 
-def signup():
-    flag = True
-    while flag:
-        name = input("name:\t")
-        email = input("email:\t")
-        password = input("password:\t")
-        rsp = post("/api/user/signup", { "name" : name, "email" : email, "password": password})
-        if rsp["status"] == "success":
-            flag = False
-            print("signup success")
-        else:
-            print(rsp["message"])
 
-def login():
-    flag = True
-    while flag:
-        email = input("email:\t")
-        password = input("password:\t")
-        rsp = post("/api/user/login", { "email" : email, "password": password})
-        if rsp["status"] == "success":
-            flag = False
-            print("login success")
-            set_jwt(rsp["token"])
-        else:
-            print(rsp["message"])
 
 def print_bot_message(rsp):
     messages = rsp["messages"]
