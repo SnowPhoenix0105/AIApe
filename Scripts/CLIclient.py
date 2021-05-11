@@ -1,29 +1,10 @@
+# -*- coding: utf8 -*-
+
 import json
 import urllib.request
-
-jwt = ""
-
-class NoAuthorization(Exception):
-    pass
-
-def post(target: str, body, headers: dict=None):
-    body = json.dumps(body)
-    if headers is None:
-        headers = {}
-    headers["Content-Type"] = "application/json"
-    if len(jwt) != 0:
-        headers["Authorization"] = "Bearer " + jwt
-
-    origin_host = ["https://aiape.snowphoenix.design", "http://localhost:5000"][0]
-    url = origin_host + target
-
-    req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
-
-    with urllib.request.urlopen(req) as f:
-        raw_json = f.read().decode("utf8")
-
-    # print("[RAW]:\t", raw_json)
-    return json.loads(raw_json)
+from utils.Utils import set_jwt
+from utils.Utils import post
+from utils.Utils import NoAuthorization
 
 def signup():
     flag = True
@@ -39,7 +20,6 @@ def signup():
             print(rsp["message"])
 
 def login():
-    global jwt
     flag = True
     while flag:
         email = input("email:\t")
@@ -48,7 +28,7 @@ def login():
         if rsp["status"] == "success":
             flag = False
             print("login success")
-            jwt = rsp["token"]
+            set_jwt(rsp["token"])
         else:
             print(rsp["message"])
 

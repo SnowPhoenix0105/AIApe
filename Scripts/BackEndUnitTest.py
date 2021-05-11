@@ -5,28 +5,10 @@ import sys
 import enum
 import time
 import xml.etree.ElementTree as ET
-
-class LogLevel(enum.Enum):
-    DBG = 0
-    INF = 1
-    WAR = 2
-    ERR = 3
-
-def get_time_stampe():
-    return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))
-
-def log(*msg, level = LogLevel.INF):
-    print("{}: [{}] {}".format(get_time_stampe(), level.name, " ".join(str(o) for o in msg)))
-
-pcat = lambda p, c : os.path.abspath(os.path.join(p, c))
-
-class Path:
-    Script = sys.path[0]
-    Top = pcat(Script, "..")
-    BackEnd = pcat(Top, "BackEnd")
-    AIBot = pcat(BackEnd, "AIBot")
-    AIBotTest = pcat(BackEnd, "AIBotTest")
-    AIBotTest_TestResults = pcat(AIBotTest, "TestResults")
+from utils.Utils import log
+from utils.Utils import pcat
+from utils.Utils import LogLevel
+from utils.Config import Path
 
 class StopException(Exception):
     def __init__(self, *args, **kargs):
@@ -111,7 +93,7 @@ def main() -> int:
         finally:
             print_cli_message(guid)
     except StopException as e:
-        log(str(e), LogLevel.WAR)
+        log(str(e), level=LogLevel.WAR)
         return -1
 
 if __name__ == '__main__':
