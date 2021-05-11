@@ -93,7 +93,7 @@ def try_add_all_questions(question_jwt: str, answer_jwt: str):
         to_add = list(range(len(questions)))
     added = []
     try:
-        for i, question in enumerate(questions):
+        for question in to_add:
             q = question["q"]
             a = question["a"]
             qid = add_question(q["title"], q["remarks"], q["tags"], question_jwt)
@@ -102,7 +102,7 @@ def try_add_all_questions(question_jwt: str, answer_jwt: str):
             aid = add_answer(qid, a["content"], answer_jwt)
             if aid < 0:
                 continue
-            added.append(i)
+            added.append(question)
     finally:
         for a in added:
             to_add.remove(a)
