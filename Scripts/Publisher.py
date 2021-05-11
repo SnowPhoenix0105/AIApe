@@ -9,23 +9,23 @@ from utils.Utils import StopException
 
 def compile():
     log("编译打包")
-    exec("dotnet publish --configuration Release --project {}".format(Path.AIBot))
+    exec("dotnet publish --configuration Release {}".format(Path.AIBot))
 
 def move_build():
     log("移动可执行文件")
     origin_path = pcat(pcat(Path.AIBot_Release, "net5.0"), "publish")
-    target_path = "/user/local/bin/aiape/dotnet"
+    target_path = "/usr/local/bin/aiape/dotnet"
     if os.path.exists(target_path):
-        exec("rm -r {}".format(target_path))
-    exec("mv {} {}".format(origin_path, target_path))
+        exec("sudo rm -r {}".format(target_path))
+    exec("sudo mv {} {}".format(origin_path, target_path))
 
 def link_service():
     log("链接service文件")
     origin_path = pcat(Path.Script, "kestrel-aiape.service")
     target_path = "/etc/systemd/system/kestrel-aiape.service"
     if os.path.exists(target_path):
-        exec("rm {}".format(target_path))
-    exec("ln -s {} {}".format(origin_path, target_path))
+        exec("sudo rm {}".format(target_path))
+    exec("sudo ln -s {} {}".format(origin_path, target_path))
 
 def start():
     log("启动服务")
@@ -38,7 +38,7 @@ def start():
 
 def main() -> int:
     while True:
-        command = input("signup, login, tag, question, or exit:\t")
+        command = input("compile, start, or exit:\t")
         try:
             if command == "compile":
                 compile()

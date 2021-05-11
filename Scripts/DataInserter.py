@@ -9,7 +9,9 @@ from utils.Poster import NoAuthorization
 import utils.Poster as poster
 from utils.Utils import log
 from utils.Config import Path
+from utils.Utils import pcat
 import json
+import os
 
 tag_table = {
     "环境配置" : "环境配置相关，包括IDE安装、编译器安装。",
@@ -82,20 +84,37 @@ def try_add_all_tags():
 def try_add_all_questions(question_jwt: str, answer_jwt: str):
     with open(Path.Script_CSDNData, 'r', encoding='utf8') as f:
         questions = json.load(f)
-    for question in questions:
-        q = question["q"]
-        a = question["a"]
-        qid = add_question(q["title"], q["remarks"], q["tags"], question_jwt)
-        if qid < 0:
-            continue
-        aid = add_answer(qid, a["content"], answer_jwt)
+    to_add_file = pcat(Path.Script, "questions_to_add.json")
+    to_add = None
+    if os.path.exists(to_add_file):
+        with open(to_add_file, 'r', encoding='utf8') as f:
+            to_add = json.load(f)
+    else:
+        to_add = list(range(len(questions)))
+    added = []
+    try:
+        for i, question in enumerate(questions):
+            q = question["q"]
+            a = question["a"]
+            qid = add_question(q["title"], q["remarks"], q["tags"], question_jwt)
+            if qid < 0:
+                continue
+            aid = add_answer(qid, a["content"], answer_jwt)
+            if aid < 0:
+                continue
+            added.append(i)
+    finally:
+        for a in added:
+            to_add.remove(a)
+        with open(to_add_file, 'w', encoding='utf8') as f:
+            json.dump(to_add, f)
 
 
 def main() -> int:
     log("using protocol:", poster.protocol)
     log("using base_url:", poster.base_url)
     while True:
-        command = input("signup, login, tag, question, or exit:\t")
+        command = input("signup, tag, question, or exit:\t")
         try:
             if command == "signup":
                 signup()
