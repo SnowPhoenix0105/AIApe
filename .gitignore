@@ -35,6 +35,7 @@ BackEnd/AIBot/GccWorkDir/
 [Tt]est[Rr]esult*/
 [Ll]og/
 [Bb]uild[Ll]og.*
+__pycache__/
 
 
 
