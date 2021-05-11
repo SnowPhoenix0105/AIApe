@@ -164,7 +164,7 @@ namespace Buaa.AIBot.Bot.AlphaBot.Status
         {
             string msg = context.Receiver.UserMessage;
             var sender = context.Sender;
-            if (msg.ToLowerContainsAny(Solved, "谢谢", "OK", "finish", "已解决", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
+            if (msg.ToLowerContainsAny(Solved, "谢谢", "OK", "finish", "已解决", "解决了", "thanks", "thx", "yes") || msg.ToLowerInvariant() == "y")
             {
                 sender
                     .AddMessage($"很荣幸能够帮到您{Kaomojis.Happy}")

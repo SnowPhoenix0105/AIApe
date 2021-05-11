@@ -41,7 +41,7 @@ namespace Buaa.AIBot.Repository.Models
         public int? UserId { get; set; }
 
         [Required]
-        [Column(TypeName = "varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci")]
+        [Column(TypeName = "varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci")]
         public string Title { get; set; }
 
         [Required]
@@ -87,7 +87,7 @@ namespace Buaa.AIBot.Repository.Models
         public int TagId { get; set; }
 
         [Required]
-        [Column(TypeName = "varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci UNIQUE")]
+        [Column(TypeName = "varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci UNIQUE")]
         public string Name { get; set; }
 
         [Required]

@@ -51,6 +51,7 @@ namespace Buaa.AIBot.Repository.Implement
                     ModifyTime = a.ModifyTime
                 })
                 .Where(a => a.QuestionId == questionId && a.CreaterId == userId)
+                // .FirstOrDefaultAsync(CancellationToken);
                 .SingleOrDefaultAsync(CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
             return query;
