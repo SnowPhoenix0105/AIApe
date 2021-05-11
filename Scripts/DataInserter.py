@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
 
-import json
 from utils.Utils import LogLevel
 from utils.Utils import post
 from utils.Utils import set_jwt
@@ -42,38 +41,38 @@ def login() -> bool:
 
 def add_tag(name: str, desc: str) -> int:
     obj = { "name": name, "desc": desc }
-    log("添加标签：", json.dumps(obj))
+    log("添加标签：", name)
     res = post("/api/questions/add_tag", obj)
     if res["status"] != "success":
-        log("添加标签：", json.dumps(obj), "失败", "ret=", res, level=LogLevel.WAR)
+        log("添加标签：", name, "失败", "[{}] {}".format(res["status"], res["message"]), level=LogLevel.WAR)
         return -1
     else:
         tid = res["tid"]
-        log("添加标签：", json.dumps(obj), "成功", "tid=", tid)
+        log("添加标签：", name, "成功", "tid=", tid)
         return tid
 
 def add_question(title: str, remarks: str, tags: list) -> int:
     obj = { "title": title, "remarks": remarks, "tags": [tag_table[t] for t in tags] }
-    log("添加问题：", json.dumps(obj))
+    log("添加问题：", obj)
     res = post("/api/questions/add_tag", obj)
     if res["status"] != "success":
-        log("添加问题：", json.dumps(obj), "失败", "ret=", res, level=LogLevel.WAR)
+        log("添加问题：", obj, "失败", "[{}] {}".format(res["status"], res["message"]), level=LogLevel.WAR)
         return -1
     else:
         qid = res["qid"]
-        log("添加问题：", json.dumps(obj), "成功", "qid=", qid)
+        log("添加问题：", obj, "成功", "qid=", qid)
         return qid
 
 def add_answer(qid: int, content: str) -> int:
     obj = { "qid": qid, "content": content }
-    log("添加回答：", json.dumps(obj))
+    log("添加回答：", obj)
     res = post("/api/questions/add_tag", obj)
     if res["status"] != "success":
-        log("添加回答：", json.dumps(obj), "失败", "ret=", res, level=LogLevel.WAR)
+        log("添加回答：", obj, "失败", "[{}] {}".format(res["status"], res["message"]), level=LogLevel.WAR)
         return -1
     else:
         aid = res["aid"]
-        log("添加回答：", json.dumps(obj), "成功", "aid=", aid)
+        log("添加回答：", obj, "成功", "aid=", aid)
         return aid
 
 def try_add_all_tags():
