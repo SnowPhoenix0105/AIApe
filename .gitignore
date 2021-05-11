@@ -53,4 +53,5 @@ Scripts/after_process/
 Scripts/cache
 Scripts/question_list_dump
 Scripts/csdn_data.json
-
+Scripts/questions_to_add.json
+Scripts/*.json

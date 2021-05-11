@@ -12,6 +12,7 @@ class Path:
     Top = pcat(Script, "..")
     BackEnd = pcat(Top, "BackEnd")
     AIBot = pcat(BackEnd, "AIBot")
+    AIBot_Release = pcat(pcat(AIBot, "bin"), "Release")
     AIBotTest = pcat(BackEnd, "AIBotTest")
     AIBotTest_TestResults = pcat(AIBotTest, "TestResults")
 
