@@ -179,7 +179,13 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "userNotExist",
-                    Message = "adding question fail for user problem"
+                    Message = "adding answer fail for user problem"
+                });
+            } catch(QuestionNotExistException) {
+                return Ok(new
+                {
+                    Status = "questionNotExist",
+                    Message = "add answer fail because of missing question"
                 });
             } // TODO: question/answer too long or too short
         }
