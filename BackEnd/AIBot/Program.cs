@@ -21,6 +21,7 @@ namespace Buaa.AIBot
             {
                 ConsoleLevel = Serilog.Events.LogEventLevel.Information,
                 EnableIpLog = false,
+                EnableConsoleLog = false,
             };
             builder.ConfigureLoggingWithSerilog(settings);
             return builder;

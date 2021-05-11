@@ -12,8 +12,8 @@ namespace Buaa.AIBot
         public static readonly int UserBcryptLength = 60;
 
         public static readonly int QuestionListMaxNumber = 64;
-        public static readonly int QuestionTitleMaxLength = 20;
+        public static readonly int QuestionTitleMaxLength = 150;
 
-        public static readonly int TagNameMaxLength = 8;
+        public static readonly int TagNameMaxLength = 16;
     }
 }
