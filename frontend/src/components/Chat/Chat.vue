@@ -119,6 +119,7 @@ export default {
         },
         choosePrompt(prompt, msg) {
             msg.promptValid = false;
+            this.$store.commit("addUserMessage", prompt);
             let _this = this;
             this.$axios.post(this.BASE_URL + '/api/bot/message', {
                 message: prompt
