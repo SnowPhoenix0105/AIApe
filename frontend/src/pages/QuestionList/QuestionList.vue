@@ -47,7 +47,7 @@ export default {
             questions: [],
             selectedTag: [],
             tagState: {},
-            showTag: true,
+            showTag: false,
             isAdmin: false,
         }
     },
@@ -159,6 +159,11 @@ export default {
 .outside {
     height: 100%;
     overflow: hidden;
+}
+
+.el-container {
+    height: 100%;
+    float: top;
 }
 
 .el-table {
