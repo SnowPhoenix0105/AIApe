@@ -51,7 +51,9 @@ namespace Buaa.AIBot.Repository.Implement
                     ModifyTime = a.ModifyTime
                 })
                 .Where(a => a.QuestionId == questionId && a.CreaterId == userId)
-                .SingleOrDefaultAsync(CancellationToken);
+                // TODO
+                .FirstOrDefaultAsync(CancellationToken);
+                // .SingleOrDefaultAsync(CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
             return query;
         }
@@ -66,21 +68,22 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new QuestionNotExistException(answer.QuestionId);
             }
-            var old = await Context
-                .Answers
-                .Select(a => new
-                {
-                    a.AnswerId,
-                    a.UserId,
-                    a.QuestionId
-                })
-                .Where(a => a.QuestionId == answer.QuestionId && a.UserId == answer.CreaterId)
-                .SingleOrDefaultAsync(CancellationToken);
-            CancellationToken.ThrowIfCancellationRequested();
-            if (old != null)
-            {
-                throw new UserHasAnswerTheQuestionException((int)answer.CreaterId, answer.QuestionId);
-            }
+            // TODO
+            // var old = await Context
+            //     .Answers
+            //     .Select(a => new
+            //     {
+            //         a.AnswerId,
+            //         a.UserId,
+            //         a.QuestionId
+            //     })
+            //     .Where(a => a.QuestionId == answer.QuestionId && a.UserId == answer.CreaterId)
+            //     .SingleOrDefaultAsync(CancellationToken);
+            // CancellationToken.ThrowIfCancellationRequested();
+            // if (old != null)
+            // {
+            //     throw new UserHasAnswerTheQuestionException((int)answer.CreaterId, answer.QuestionId);
+            // }
         }
 
         public async Task<int> InsertAnswerAsync(AnswerInfo answer)

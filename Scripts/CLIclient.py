@@ -1,56 +1,13 @@
+# -*- coding: utf8 -*-
+
 import json
 import urllib.request
+from utils.Poster import post
+from utils.Poster import login
+from utils.Poster import signup
+from utils.Poster import NoAuthorization
 
-jwt = ""
 
-class NoAuthorization(Exception):
-    pass
-
-def post(target: str, body, headers: dict=None):
-    body = json.dumps(body)
-    if headers is None:
-        headers = {}
-    headers["Content-Type"] = "application/json"
-    if len(jwt) != 0:
-        headers["Authorization"] = "Bearer " + jwt
-
-    origin_host = ["https://aiape.snowphoenix.design", "http://localhost:5000"][0]
-    url = origin_host + target
-
-    req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
-
-    with urllib.request.urlopen(req) as f:
-        raw_json = f.read().decode("utf8")
-
-    # print("[RAW]:\t", raw_json)
-    return json.loads(raw_json)
-
-def signup():
-    flag = True
-    while flag:
-        name = input("name:\t")
-        email = input("email:\t")
-        password = input("password:\t")
-        rsp = post("/api/user/signup", { "name" : name, "email" : email, "password": password})
-        if rsp["status"] == "success":
-            flag = False
-            print("signup success")
-        else:
-            print(rsp["message"])
-
-def login():
-    global jwt
-    flag = True
-    while flag:
-        email = input("email:\t")
-        password = input("password:\t")
-        rsp = post("/api/user/login", { "email" : email, "password": password})
-        if rsp["status"] == "success":
-            flag = False
-            print("login success")
-            jwt = rsp["token"]
-        else:
-            print(rsp["message"])
 
 def print_bot_message(rsp):
     messages = rsp["messages"]
