@@ -1,12 +1,12 @@
-image: python:latest
-image: mcr.microsoft.com/dotnet/sdk:5.0
+#image: python:latest
+#image: mcr.microsoft.com/dotnet/sdk:5.0
 
 variables:
   NUGET_PATH: 'C:\NuGet\nuget.exe'
   MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe'
 
 stages:
-#  - build
+  - build
   - test
 #  - deploy
 
@@ -17,6 +17,12 @@ stages:
 #  script:
 #    - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
 #    - '& "$env:MSBUILD_PATH" /p:Configuration=Release'  # build the project
+
+build_job:
+  stage: build
+  script:
+    - docker pull mcr.microsoft.com/dotnet/sdk:5.0
+    - docker pull python
 
 test_job:
   stage: test
