@@ -90,7 +90,7 @@ def try_add_all_questions(question_jwt: str, answer_jwt: str):
         with open(to_add_file, 'r', encoding='utf8') as f:
             to_add = json.load(f)
     else:
-        to_add = list(range(len(questions)))
+        to_add = list(questions)
     added = []
     try:
         for question in to_add:
