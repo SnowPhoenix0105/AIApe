@@ -13,7 +13,7 @@ export default new Vuex.Store({
         timeout: 0,
         tagList: {},
         lastTokenTime: new Date(),
-        logs: [{id: 2, content: '你好，我是AIApe!请先登录！', prompts:['环境', '语言'], promptValid: false}]
+        logs: [{id: 2, content: '你好，我是AIApe!请先登录！', prompts:[], promptValid: false}]
     },
     mutations: {
         setUsername(state, value) {
