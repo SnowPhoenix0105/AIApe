@@ -27,10 +27,11 @@
                 <el-table-column
                     label="问题">
                     <template slot-scope="scope">
-                        <el-popover trigger="hover" placement="top">
-                            <markdown-it-vue class="md-body" :content="scope.row.content"/>
-                            <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
-                        </el-popover>
+<!--                        <el-popover trigger="hover" placement="top">-->
+<!--                            <markdown-it-vue class="md-body" :content="scope.row.content"/>-->
+<!--                            <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>-->
+<!--                        </el-popover>-->
+                        <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
                     </template>
                 </el-table-column>
             </el-table>
