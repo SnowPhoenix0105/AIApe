@@ -5,7 +5,9 @@
         <el-header style="height: auto">
             <div class="header">
                 <h1 align="center">{{ title }}</h1>
-                <markdown-it-vue class="md-body" :content="detail"/>
+                <el-scrollbar style="height:200px">
+                    <markdown-it-vue class="md-body" :content="detail"/>
+                </el-scrollbar>
                 <p class="creator" align="right">{{ creatorName }}</p>
                 <p class="date" align="right">{{ date }}</p>
                 <el-tag v-for="(tid, tag_name, index) in tags" :key="tid">{{ tag_name }}</el-tag>
@@ -25,11 +27,11 @@
             <div>
                 <div v-for="answer in answers" class="userAnswer">
                     <markdown-it-vue class="md-body" :content="answer.content"/>
-<!--                    <div class="markdown-body">-->
-<!--                        <vue-markdown>{{ answer.content }}</vue-markdown>-->
-<!--                    </div>-->
-<!--                    <p class="answerContent">{{ answer.content }}</p>-->
-                    <p class="creator" align="right">{{ answer.creatorName}}</p>
+                    <!--                    <div class="markdown-body">-->
+                    <!--                        <vue-markdown>{{ answer.content }}</vue-markdown>-->
+                    <!--                    </div>-->
+                    <!--                    <p class="answerContent">{{ answer.content }}</p>-->
+                    <p class="creator" align="right">{{ answer.creatorName }}</p>
                     <p class="date" align="right">{{ answer.createTime }}</p>
                 </div>
             </div>
@@ -126,30 +128,39 @@ export default {
                 content: answer
             }, {
                 headers: {
-                    Authorization : 'Bearer ' + _this.$store.state.token,
-                    type : 'application/json;charset=utf-8'
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
                 }
             })
-            .then(function (response) {
-                _this.myAnswer = '';
-                console.log(response);
-                if (response.data.status === 'success') {
-                    _this.$store.commit('addAImessage', {id: 2, content: '感谢你的回答!', prompts:[], promptValid: false});
-                    _this.getQuestionDetail();
-                    location.reload();
-                }
-                else {
-                    _this.$store.commit('addAImessage', {id: 2, content: '你已经回答过这个问题啦!', prompts:[], promptValid: false});
-                }
-            })
+                .then(function (response) {
+                    _this.myAnswer = '';
+                    console.log(response);
+                    if (response.data.status === 'success') {
+                        _this.$store.commit('addAImessage', {
+                            id: 2,
+                            content: '感谢你的回答!',
+                            prompts: [],
+                            promptValid: false
+                        });
+                        _this.getQuestionDetail();
+                        location.reload();
+                    } else {
+                        _this.$store.commit('addAImessage', {
+                            id: 2,
+                            content: '你已经回答过这个问题啦!',
+                            prompts: [],
+                            promptValid: false
+                        });
+                    }
+                })
         },
         async getUserName(uid) {
             let _this = this;
             let name = '';
             await this.$axios.get(this.BASE_URL + '/api/user/public_info?uid=' + uid)
-            .then(function (response) {
-                name = response.data.name;
-            })
+                .then(function (response) {
+                    name = response.data.name;
+                })
             return name;
         }
     },
