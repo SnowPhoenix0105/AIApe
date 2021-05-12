@@ -73,4 +73,10 @@ html, body, #app, .left, .right {
     background-color: #eaecf1;
     border-radius: 3px;
 }
+
+.el-popover {
+    height: 100px;
+    width: 500px;
+    overflow: hidden;
+}
 </style>

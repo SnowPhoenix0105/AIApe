@@ -2,8 +2,8 @@
     <el-container>
         <el-header>
             <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
-            <el-link :underline="false" disabled style="cursor: default">|</el-link>
-            <el-link :underline="false">注销</el-link>
+<!--            <el-link :underline="false" disabled style="cursor: default">|</el-link>-->
+<!--            <el-link :underline="false">注销</el-link>-->
             <template v-if="isAdmin">
             <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
             </template>
@@ -28,7 +28,7 @@
                     label="问题">
                     <template slot-scope="scope">
                         <el-popover trigger="hover" placement="top">
-                            <p>{{ scope.row.content }}</p>
+                            <markdown-it-vue class="md-body" :content="scope.row.content"/>
                             <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
                         </el-popover>
                     </template>
@@ -40,8 +40,14 @@
 
 <script>
 import store from "../../vuex/store";
+import VueMarkdown from 'vue-markdown';
+import MarkdownItVue from 'markdown-it-vue'
+import 'markdown-it-vue/dist/markdown-it-vue.css'
 
 export default {
+    components: {
+        MarkdownItVue
+    },
     data() {
         return {
             questions: [],
@@ -205,7 +211,9 @@ export default {
 .table {
     padding: 0;
     overflow-x: hidden;
-
 }
 
+.md-body {
+    text-overflow: ellipsis;
+}
 </style>

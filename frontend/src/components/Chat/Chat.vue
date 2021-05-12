@@ -47,7 +47,7 @@ export default {
             let _this = this;
             let message = this.message;
             if (this.$store.state.username === '') {
-                this.$store.commit('addAImessage', '你好,请先登录！看右边→');
+                this.$store.commit('addAImessage', {id: 2, content: '你好,请先登录！看右边→', prompts:[], promptValid: false});
                 return;
             }
             if (this.$data.message === '') {
