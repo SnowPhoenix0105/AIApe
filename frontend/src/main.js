@@ -7,6 +7,7 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import store from "./vuex/store";
 import axios from 'axios';
+import 'github-markdown-css/github-markdown.css';
 import VueAxios from 'vue-axios';
 // import global_ from './components/tool/Global'
 // Vue.prototype.GLOBAL = global_
