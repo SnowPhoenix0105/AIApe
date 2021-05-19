@@ -24,8 +24,7 @@
                     label="编号"
                     width="180">
                 </el-table-column>
-                <el-table-column
-                    label="问题">
+                <el-table-column label="问题">
 <!--                    <template slot-scope="scope">-->
 <!--                        <el-popover trigger="hover" placement="top">-->
 <!--                            <markdown-it-vue class="md-body" :content="scope.row.content"/>-->
