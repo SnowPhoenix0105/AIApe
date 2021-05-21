@@ -47,7 +47,7 @@ export default {
             let _this = this;
             let message = this.message;
             if (this.$store.state.username === '') {
-                this.$store.commit('addAImessage', '你好,请先登录！看右边→');
+                this.$store.commit('addAImessage', {id: 2, content: '你好,请先登录！看右边→', prompts:[], promptValid: false});
                 return;
             }
             if (this.$data.message === '') {
@@ -57,7 +57,16 @@ export default {
                 })
                 return;
             }
+
+            for (let prompt of this.$store.state.logs[this.$store.state.logs.length - 1].prompts) {
+                if (prompt === this.message) {
+                    this.$store.state.logs[this.$store.state.logs.length - 1].promptValid = false;
+                    break;
+                }
+            }
+
             this.$store.commit('addUserMessage', this.$data.message);
+
 
             this.$axios.post(this.BASE_URL + '/api/bot/message', {
                 message: this.$data.message
@@ -83,6 +92,9 @@ export default {
                         }
                         i++;
                         _this.$store.commit('addAImessage', payload);
+                        if (message.indexOf('el-link') !== -1) {
+                            location.reload();
+                        }
                     }
                 })
                 .catch(function (error) {
@@ -105,13 +117,29 @@ export default {
             while (left !== -1) {
                 let space = msg.substring(left, right).indexOf(' ');
                 let url;
+                let type = 'url';
+                let id;
                 if (space !== -1) {
-                    url = msg.substring(left + space + 1, right);
+                    type = msg.substring(left + 1, left + space);
+                    if (type === 'question') {
+                        id = msg.substring(left + space + 1, right);
+                    }
+                    else {
+                        url = msg.substring(left + space + 1, right);
+                    }
                 }
                 else {
                     url = msg.substring(left + 1, right);
                 }
-                msg = msg.substring(0, left) + '<a target="_blank" style="color: white" href="' + url + '">' + url + '</a>'+ msg.substring(right + 1);
+                if (type === 'question') {
+                    this.$store.commit('setQuestionID', id);
+                    msg = msg.substring(0, left) +
+                        '<el-link type="text" @click="gotoQuestionDetail()">' +
+                        'Question' + id + '</el-link>' + msg.substring(right + 1);
+                }
+                else {
+                    msg = msg.substring(0, left) + '<a target="_blank" style="color: white" href="' + url + '">' + url + '</a>' + msg.substring(right + 1);
+                }
                 left = msg.indexOf('[');
                 right = msg.indexOf(']');
             }
@@ -119,6 +147,7 @@ export default {
         },
         choosePrompt(prompt, msg) {
             msg.promptValid = false;
+            this.$store.commit("addUserMessage", prompt);
             let _this = this;
             this.$axios.post(this.BASE_URL + '/api/bot/message', {
                 message: prompt
@@ -148,6 +177,9 @@ export default {
                 })
                 .catch(function (error) {
                 })
+        },
+        gotoQuestionDetail() {
+            this.$router.replace('/questionDetail');
         }
     },
     watch: {
@@ -195,6 +227,11 @@ export default {
     },
     mounted() {
         this.getTagList();
+    },
+    created() {
+        this.$nextTick(() => {
+            this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
+        })
     }
 }
 </script>
