@@ -14,9 +14,11 @@
 * 网关：Nginx
 * 框架：
   * [ASP.NET Core](https://docs.microsoft.com/zh-cn/aspnet/core/?view=aspnetcore-5.0)：用于创建Web API，提供网络服务，是整个后端的基础框架；
-  * [Bot Framework for .NET](https://docs.microsoft.com/zh-cn/azure/bot-service/index-bf-sdk?view=azure-bot-service-4.0)：提供BOT相关支持，作为BOT部分主要依赖的框架；
+  * ~~[Bot Framework for .NET](https://docs.microsoft.com/zh-cn/azure/bot-service/index-bf-sdk?view=azure-bot-service-4.0)：提供BOT相关支持，作为BOT部分主要依赖的框架；~~
   * [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)：提供数据库访问的支持；
-* 运行环境：Linux服务器，将使用云服务器，同时需要具备`.NET Core 3.1`运行时环境
+  * 【Beta新增】[Flask](https://flask.palletsprojects.com/en/2.0.x/#)：用于为机器学习模块提供网络接口，使得Python实现的机器学习模块得以与其他模块进行交互；
+  * 【Beta新增】[Pytorch](https://pytorch.org/)：用于机器学习模块的实现；
+* 运行环境：Linux服务器，将使用云服务器，同时需要具备~~`.NET Core 3.1`~~【Beta新增】`.NET 5`运行时环境
 
 
 
@@ -33,6 +35,7 @@
 1. 由于BOT服务经常需要依赖外部数据来提供服务，所以数据层除了常规的数据库，还需要外部资源；
 2. BOT服务的执行模块，除了会进行数据检索这类常规任务，还可能替代用户执行一些操作，还可能向人工问答服务中添加新的提问，它不仅属于服务提供方，也具有一定服务使用方的属性（上图中因为表示不方便未能展示）；
 3. BOT服务可以承接绝大多数功能，通过BOT与用户的文字交流具有很大的灵活性，使得只需要后端开发为BOT服务添加新的功能，不需要更改前端和`Web API`就可以添加新的功能；
+4. 【Beta新增】由于机器学习模块暂时只能通过Python进行开发，为了避免每次.NET模块调用Python模块时需要冷启动，尤其是机器学习模块冷启动时加载时间更久，将其作为一个微服务来实现，.NET模块通过http请求来与机器学习模块进行交互；
 
 ### 2. 包含的子系统
 
@@ -111,6 +114,10 @@
 
       处理从交互模块传递来的较为复杂的问题，通过对问题的分析并综合从数据层获取的数据给出反馈。同样，该模块如果也认为不能给出满意答复，则会再人工问答服务中创建问题。
 
+   3. 【Beta新增】机器学习模块
+
+      通过机器学习模型，提供NLP相关支持。由于目前没有精力将模型移植到.NET平台，暂定将机器学习模块作为微服务来进行实现。
+
 3. 人工问答服务
 
    人工问答服务对应于前端的用户问答页面。
@@ -145,15 +152,19 @@
 
 ## 三、功能的详细设计
 
-**暂未进行，将在实现阶段补充**
+**此时功能的详细设计为暂定版本，后续可能会进行修改和订正**
 
 ## 四、数据库与API接口设计
 
 ### 1. 数据库设计
 
+**此时数据库设计为暂定版本，后续可能会进行修改和订正**
+
 详见[AiApe问答机器人项目数据库设计说明书](https://www.cnblogs.com/DQSJ2021/p/14794924.html)
 
 ### 2. API接口设计
+
+**本处API接口设计为暂定版本，后续可能会进行修改和订正**
 
 具体设计见[前后端接口说明书](前后端接口说明书.md)
 
@@ -180,7 +191,8 @@ https://aiape.icu/api/question?qid=1024
 
 |URL|类型|权限|功能简介|
 |:-|:-|:-|:-|
-|`/api/message`|`POST`|`游客`|与机器人进行交互，具体接口参见[Bot Framework REST API](https://docs.microsoft.com/zh-cn/azure/bot-service/rest-api/bot-framework-rest-overview?view=azure-bot-service-4.0)|
+|`/api/bot/start`|`POST`|`用户`|开始机器人对话|
+|`/api/bot/message`|`POST`|`用户`|向机器人发送消息|
 |`/api/user/signup`|`POST`|`游客`|注册用户|
 |`/api/user/login`|`POST`|`游客`|用户登录|
 |`/api/user/public_info`|`GET`|`游客`|获取用户公开信息|
@@ -190,9 +202,11 @@ https://aiape.icu/api/question?qid=1024
 |`/api/user/questions`|`GET`|`用户`|获取用户创建的所有问题|
 |`/api/user/answers`|`GET`|`用户`|获取用户创建的所有回答|
 |`/api/user/fresh`|`POST`|`游客`|刷新令牌|
+|`/api/questions/like`|`POST`|`用户`|为回答点赞|
 |`/api/questions/question`|`GET`|`游客`|获取问题的详细信息|
 |`/api/questions/answer`|`GET`|`游客`|获取回答的详细信息|
 |`/api/questions/tag`|`GET`|`游客`|获取标签的详细信息|
+|`/api/questions/search`|`POST`|`游客`|搜索问题|
 |`/api/questions/questionlist`|`GET`|`游客`|获取问题列表|
 |`/api/questions/taglist`|`GET`|`游客`|获取全部标签|
 |`/api/questions/add_question`|`POST`|`用户`|添加问题|
@@ -204,16 +218,24 @@ https://aiape.icu/api/question?qid=1024
 |`/api/questions/delete_question`|`DELETE`|`用户`/`管理员`|删除问题|
 |`/api/questions/delete_answer`|`DELETE`|`用户`/`管理员`|获取回答的详细信息|
 |`/api/questions/delete_tag`|`DELETE`|`用户`/`管理员`|获取标签的详细信息|
+|`/api/code/static_analyze`|`POST`|`用户`|进行代码静态分析|
+
 
 ## 五、系统的开发目标
 
 ### 1. 代码编写目标
 
-在本阶段中：
+在Alpha阶段中：
 
 * 前端需要完成注册登录页面、机器人交互页面、问答页面、后台管理页面，其中机器人交互页面只需要完成简单的文字交互即可，不必要完成[Bot Framework REST API](https://docs.microsoft.com/zh-cn/azure/bot-service/rest-api/bot-framework-rest-overview?view=azure-bot-service-4.0)中的附件、卡片、语音功能；
 * 后端需要完成所有`Web API`的响应工作，其中`/api/message`接口只需要完成简单的响应即可，可以进一步进行开发，但本阶段不做要求；
 * 完成Nginx配置，使得网站能够正常访问；
+
+【Beta新增】在Beta阶段中：
+
+* 前端需要重新设计页面，并在完成Alpha阶段功能的基础上，添加代码检查页面；
+* 后端需要根据新的功能调整，修改目前的功能，此外，引入NLP模型重构机器人问答模型，并利用开源软件完成独立的代码静态检查模块；
+* 弹性功能：当前后端有余力时，添加机器人功能与问答、代码检查之间的联动；
 
 ### 2. 单元测试目标
 
