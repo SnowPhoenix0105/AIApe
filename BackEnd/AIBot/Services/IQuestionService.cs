@@ -33,6 +33,13 @@ namespace Buaa.AIBot.Services
         /// <returns></returns>
         Task<TagInformation> GetTagAsync(int tid);
 
+        /// <summary>
+        /// Return qids 
+        /// </summary>
+        /// <param name="tags"></param>
+        /// <param name="pt"></param>
+        /// <param name="number"></param>
+        /// <returns></returns>
         Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number);
 
         Task<Dictionary<string, int>> GetTagListAsync();
@@ -54,7 +61,8 @@ namespace Buaa.AIBot.Services
         /// 
         /// </summary>
         /// <exception cref="UserHasAnswerTheQuestionException"></exception>
-        /// <exception cref="UserNotExistException">creater not exist</exception>
+        /// <exception cref="UserNotExistException">creater not exist.</exception>
+        /// <exception cref="QuestionNotExistException">qid not exist.</exception>
         /// <param name="creater">uid</param>
         /// <param name="qid"></param>
         /// <param name="content"></param>

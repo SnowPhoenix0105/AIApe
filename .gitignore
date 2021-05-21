@@ -25,6 +25,7 @@
 [Mm]igrations/
 Documents/BackEnd_API_Doxygen/Docs/
 BackEnd/AIBot/GccWorkDir/
+__pycache__/
 
 *.exe
 *.lib
@@ -46,4 +47,11 @@ BackEnd/AIBot/GccWorkDir/
 ## user profiles
 *.csproj.user
 
-
+## script generation
+Scripts/95/
+Scripts/after_process/
+Scripts/cache
+Scripts/question_list_dump
+Scripts/csdn_data.json
+Scripts/questions_to_add.json
+Scripts/*.json

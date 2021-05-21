@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Models;
 
@@ -11,9 +12,12 @@ namespace Buaa.AIBot.Repository.Implement
     {
         protected DatabaseContext Context { get; }
 
-        public RepositoryBase(DatabaseContext context)
+        protected CancellationToken CancellationToken { get; }
+
+        public RepositoryBase(DatabaseContext context, CancellationToken cancellationToken)
         {
             Context = context;
+            CancellationToken = cancellationToken;
         }
 
         protected async Task SaveChangesAgainAndAgainAsync()
@@ -21,6 +25,7 @@ namespace Buaa.AIBot.Repository.Implement
             bool saved = false;
             while (!saved)
             {
+                CancellationToken.ThrowIfCancellationRequested();
                 try
                 {
                     await Context.SaveChangesAsync();
@@ -28,6 +33,7 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 catch (DbUpdateConcurrencyException e)
                 {
+                    CancellationToken.ThrowIfCancellationRequested();
                     foreach (var entry in e.Entries)
                     {
                         var proposedValues = entry.CurrentValues;

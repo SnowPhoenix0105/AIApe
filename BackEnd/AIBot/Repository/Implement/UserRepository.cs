@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository.Implement
 {
@@ -14,7 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IUserRepository"/></remarks>
     public class UserRepository : RepositoryBase, IUserRepository
     {
-        public UserRepository(DatabaseContext context) : base (context) { }
+        public UserRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, globalCancellationTokenSource.Token) { }
 
         public async Task<UserInfo> SelectUserByIdAsync(int userId)
         {
@@ -29,7 +31,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Name = u.Name,
                     Auth = u.Auth
                 })
-                .SingleOrDefaultAsync(user => user.UserId == userId);
+                .SingleOrDefaultAsync(user => user.UserId == userId, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return user;
         }
 
@@ -45,7 +48,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Name = u.Name,
                     Auth = u.Auth
                 })
-                .SingleOrDefaultAsync(user => user.Email == email);
+                .SingleOrDefaultAsync(user => user.Email == email, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return user;
         }
 
@@ -61,7 +65,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Name = u.Name,
                     Auth = u.Auth
                 })
-                .SingleOrDefaultAsync(user => user.Name == name);
+                .SingleOrDefaultAsync(user => user.Name == name, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return user;
         }
 
@@ -70,7 +75,8 @@ namespace Buaa.AIBot.Repository.Implement
             var user = await Context
                 .Users
                 .Select(user => new { user.Email, user.Bcrypt })
-                .SingleOrDefaultAsync(user => user.Email == email);
+                .SingleOrDefaultAsync(user => user.Email == email, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             if (user == null)
             {
                 return null;
@@ -84,8 +90,9 @@ namespace Buaa.AIBot.Repository.Implement
                 .Answers
                 .Where(a => a.UserId == userId)
                 .Select(a => a.AnswerId)
-                .ToListAsync()
+                .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -105,8 +112,9 @@ namespace Buaa.AIBot.Repository.Implement
                 .Where(a => a.UserId == userId)
                 .OrderByDescending(a => a.ModifyTime)
                 .Select(a => a.AnswerId)
-                .ToListAsync()
+                .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -125,8 +133,9 @@ namespace Buaa.AIBot.Repository.Implement
                 .Questions
                 .Where(q => q.UserId == userId)
                 .Select(q => q.QuestionId)
-                .ToListAsync()
+                .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -146,8 +155,9 @@ namespace Buaa.AIBot.Repository.Implement
                 .Where(q => q.UserId == userId)
                 .OrderByDescending(a => a.ModifyTime)
                 .Select(q => q.QuestionId)
-                .ToListAsync()
+                .ToListAsync(CancellationToken)
                 ;
+            CancellationToken.ThrowIfCancellationRequested();
             if (query.Count != 0)
             {
                 return query;
@@ -165,7 +175,8 @@ namespace Buaa.AIBot.Repository.Implement
             var dup = await Context
                 .Users
                 .Select(u => new { u.Name, u.Email })
-                .FirstOrDefaultAsync(u => u.Name == user.Name || u.Email == user.Email);
+                .FirstOrDefaultAsync(u => u.Name == user.Name || u.Email == user.Email, CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             if (dup != null)
             {
                 if (dup.Email == user.Email)
@@ -185,6 +196,10 @@ namespace Buaa.AIBot.Repository.Implement
             if (user.Name == null)
             {
                 throw new ArgumentNullException(nameof(user.Name));
+            }
+            if (user.Email == null)
+            {
+                throw new ArgumentNullException(nameof(user.Email));
             }
             if (user.Auth == AuthLevel.None)
             {
@@ -257,11 +272,17 @@ namespace Buaa.AIBot.Repository.Implement
             }
             while (!success)
             {
-                if (user.Name != null && (
-                    await Context.Users.FirstOrDefaultAsync(u => u.Name == user.Name)) != null)
+                if (user.Name != null)
                 {
-                    throw new NameHasExistException(user.Name);
-                }
+                    var old = await Context.Users
+                        .Where(u => u.Name == user.Name)
+                        .FirstOrDefaultAsync(CancellationToken);
+                    CancellationToken.ThrowIfCancellationRequested();
+                    if (old != null)
+                    {
+                        throw new NameHasExistException(user.Name);
+                    }
+                } 
                 if ((await Context.Users.FindAsync(user.UserId)) == null)
                 {
                     throw new UserNotExistException(user.UserId);

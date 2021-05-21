@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository.Implement
 {
@@ -14,7 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IAnswerRepository"/></remarks>
     public class AnswerRepository : RepositoryBase, IAnswerRepository
     {
-        public AnswerRepository(DatabaseContext context) : base(context) { }
+        public AnswerRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource) 
+            : base(context, globalCancellationTokenSource.Token) { }
 
         public async Task<AnswerInfo> SelectAnswerByIdAsync(int answerId)
         {
@@ -30,7 +32,8 @@ namespace Buaa.AIBot.Repository.Implement
                     ModifyTime = a.ModifyTime
                 })
                 .Where(a => a.AnswerId == answerId)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return query;
         }
 
@@ -48,13 +51,23 @@ namespace Buaa.AIBot.Repository.Implement
                     ModifyTime = a.ModifyTime
                 })
                 .Where(a => a.QuestionId == questionId && a.CreaterId == userId)
-                .SingleOrDefaultAsync();
+                // .FirstOrDefaultAsync(CancellationToken);
+                .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
             return query;
         }
 
         private async Task CheckInsertAsync(AnswerInfo answer)
         {
-            if ((await Context
+            if ((await Context.Users.FindAsync(answer.CreaterId)) == null)
+            {
+                throw new UserNotExistException(answer.CreaterId ?? 0);
+            }
+            if ((await Context.Questions.FindAsync(answer.QuestionId)) == null)
+            {
+                throw new QuestionNotExistException(answer.QuestionId);
+            }
+            var old = await Context
                 .Answers
                 .Select(a => new
                 {
@@ -63,13 +76,11 @@ namespace Buaa.AIBot.Repository.Implement
                     a.QuestionId
                 })
                 .Where(a => a.QuestionId == answer.QuestionId && a.UserId == answer.CreaterId)
-                .SingleOrDefaultAsync()) != null)
+                .SingleOrDefaultAsync(CancellationToken);
+            CancellationToken.ThrowIfCancellationRequested();
+            if (old != null)
             {
                 throw new UserHasAnswerTheQuestionException((int)answer.CreaterId, answer.QuestionId);
-            }
-            if ((await Context.Questions.FindAsync(answer.QuestionId)) == null)
-            {
-                throw new QuestionNotExistException(answer.QuestionId);
             }
         }
 

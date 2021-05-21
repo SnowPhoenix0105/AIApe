@@ -3,6 +3,7 @@
 //
 // Generated with EmptyBot .NET Template version v4.12.2
 
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
+using Buaa.AIBot.Utils;
 using Buaa.AIBot.Utils.Logging;
 using Buaa.AIBot.Services;
 using Buaa.AIBot.Repository;
@@ -62,7 +64,8 @@ namespace Buaa.AIBot
                 .AddSingleton<IpAddressRecorder>()
                 // Create HttpHeaderRecorder for Middleware UseHttpHeaderRecord.
                 .AddSingleton<HttpHeaderRecorder>()
-                ;
+                .AddScoped<GlobalCancellationTokenSource>();
+            ;
             
             services
                 // Add UserServices
@@ -98,6 +101,9 @@ namespace Buaa.AIBot
 
                 // We use Nginx, So redirection to https is not necessary
                 // .UseHttpsRedirection()
+
+                // set global timeout
+                .UseGlobalTimeout(TimeSpan.FromSeconds(3))
 
                 .UseRouting();
 

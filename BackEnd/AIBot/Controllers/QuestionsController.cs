@@ -129,7 +129,8 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "success",
-                    Message = "new question add successfully"
+                    Message = "new question add successfully",
+                    Qid = qid
                 });
             } catch (QuestionTitleTooLongException) {
                 return Ok(new
@@ -146,7 +147,7 @@ namespace Buaa.AIBot.Controllers
             } catch (TagNotExistException) {
                 return Ok(new
                 {
-                    Status = "ragNotExist",
+                    Status = "tagNotExist",
                     Message = "can not resolve tags"
                 });
             }
@@ -165,7 +166,8 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "success",
-                    Message = "new answer add successfully"
+                    Message = "new answer add successfully",
+                    Aid = aid
                 });
             } catch (UserHasAnswerTheQuestionException) {
                 return Ok(new
@@ -177,7 +179,13 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "userNotExist",
-                    Message = "adding question fail for user problem"
+                    Message = "adding answer fail for user problem"
+                });
+            } catch(QuestionNotExistException) {
+                return Ok(new
+                {
+                    Status = "questionNotExist",
+                    Message = "add answer fail because of missing question"
                 });
             } // TODO: question/answer too long or too short
         }
@@ -194,7 +202,8 @@ namespace Buaa.AIBot.Controllers
                 return Ok(new
                 {
                     Status = "success",
-                    Message = "new tag add successfully"
+                    Message = "new tag add successfully",
+                    Tid = tid
                 });
             } catch (TagNameTooLongException) {
                 return Ok(new
@@ -213,7 +222,7 @@ namespace Buaa.AIBot.Controllers
 
         [Authorize(Policy = "UserAdmin")]
         [HttpPut("modify_question")]
-        public async Task<IActionResult> ModifyQuestion(QuestionBody body)
+        public async Task<IActionResult> ModifyQuestionAsync(QuestionBody body)
         {
             int qid = body.Qid.GetValueOrDefault(-1);
             try
@@ -281,7 +290,7 @@ namespace Buaa.AIBot.Controllers
 
         [Authorize(Policy = "UserAdmin")]
         [HttpPut("modify_answer")]
-        public async Task<IActionResult> ModifyAnswer(QuestionBody body)
+        public async Task<IActionResult> ModifyAnswerAsync(QuestionBody body)
         {
             int aid = body.Aid.GetValueOrDefault(-1);
             try
@@ -321,7 +330,7 @@ namespace Buaa.AIBot.Controllers
 
         [Authorize(Policy = "Admin")]
         [HttpPut("modify_tag")]
-        public async Task<IActionResult> ModifyTag(QuestionBody body)
+        public async Task<IActionResult> ModifyTagAsync(QuestionBody body)
         {
             int tid = body.Tid.GetValueOrDefault(-1);
             string name = (body.Name == null)? "" : body.Name;
@@ -338,7 +347,7 @@ namespace Buaa.AIBot.Controllers
                 return NotFound(new
                 {
                     Status = "tagNotExist",
-                    Messaga = $"tag with tid={tid} dose not exist"
+                    Message = $"tag with tid={tid} dose not exist"
                 });
             } catch (TagNameTooLongException) {
                 return Ok(new
@@ -357,7 +366,7 @@ namespace Buaa.AIBot.Controllers
 
         [Authorize(Policy = "UserAdmin")]
         [HttpDelete("delete_question")]
-        public async Task<IActionResult> DeleteQuestion(QuestionBody body)
+        public async Task<IActionResult> DeleteQuestionAsync(QuestionBody body)
         {
             int qid = body.Qid.GetValueOrDefault(-1);
             try
@@ -395,7 +404,7 @@ namespace Buaa.AIBot.Controllers
 
         [Authorize(Policy = "UserAdmin")]
         [HttpDelete("delete_answer")]
-        public async Task<IActionResult> DeleteAnswer(QuestionBody body)
+        public async Task<IActionResult> DeleteAnswerAsync(QuestionBody body)
         {
             int aid = body.Aid.GetValueOrDefault(-1);
             try
@@ -433,7 +442,7 @@ namespace Buaa.AIBot.Controllers
 
         [Authorize(Policy = "Admin")]
         [HttpDelete("delete_tag")]
-        public async Task<IActionResult> DeleteTag(QuestionBody body)
+        public async Task<IActionResult> DeleteTagAsync(QuestionBody body)
         {
             int tid = body.Tid.GetValueOrDefault(-1);
             try
@@ -448,7 +457,7 @@ namespace Buaa.AIBot.Controllers
                 return NotFound(new
                 {
                     Status = "tagNotExist",
-                    Message = "tag removed"
+                    Message = $"tag with tid={tid} dose not exist"
                 });
             }
         }

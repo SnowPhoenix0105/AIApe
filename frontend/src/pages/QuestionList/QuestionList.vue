@@ -4,7 +4,9 @@
             <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
             <el-link :underline="false" disabled style="cursor: default">|</el-link>
             <el-link :underline="false">注销</el-link>
+            <template v-if="isAdmin">
             <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
+            </template>
         </el-header>
         <el-main class="tag-selector" v-if="showTag">
             <el-tag v-for="(tid, tag_name) in this.$store.state.tagList" :key="tid"
@@ -37,20 +39,45 @@
 </template>
 
 <script>
+import store from "../../vuex/store";
+
 export default {
     data() {
         return {
             questions: [],
             selectedTag: [],
             tagState: {},
-            showTag: true
+            showTag: true,
+            isAdmin: false,
         }
     },
     mounted() {
         this.getQuestions();
         this.initTagState();
+        this.isAdmin = (this.$store.state.auth === 2);
     },
     methods: {
+        // addQuestion() {
+        //     let _this = this;
+        //     let token = store.state.token;
+        //     _this.$axios.post(_this.BASE_URL + '/api/questions/add_question', {
+        //         title: "一个题目",
+        //         remarks: "一个描述",
+        //         tags: [],
+        //     }, {
+        //         headers: {
+        //             Authorization: 'Bearer ' + token,
+        //         },
+        //     })
+        //         .then(function (response) {
+        //             console.log(response);
+        //         })
+        // },
+        // isAdmin() {
+        //     let res = this.$store.state.auth === 2;
+        //     alert(res);
+        //     return res;
+        // },
         getQuestions() {
             let _this = this;
 
