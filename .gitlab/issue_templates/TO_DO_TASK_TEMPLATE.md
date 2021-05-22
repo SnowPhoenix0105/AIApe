@@ -1,7 +1,8 @@
-Developers:
+Assignee: /assign 
 
-Assignee:
+Task: /title <New title>
 
-Task:
+Hour: /estimate <>
 
-Hour:
+/todo
+/milestone %
