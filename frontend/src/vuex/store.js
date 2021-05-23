@@ -5,15 +5,21 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        show: {
+            login: false,
+            questionList: false
+        },
         questionID: 0,
         username: '',
         uid: 0,
         token: '',
         auth: 0,
         timeout: 0,
-        tagList: {},
+        tagList: {'环境' : 1, '代码' : 2, '语言' : 3},
         lastTokenTime: new Date(),
-        logs: [{id: 2, content: '你好，我是AIApe!请先登录！', prompts:[], promptValid: false}]
+        logs: [{id: 2, content: '你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！', prompts:[], promptValid: false},
+            {id: 1, content: '你好，我是William！登录完成！', prompts:[], promptValid: false}],
+        maxZIndex: 1
     },
     mutations: {
         setUsername(state, value) {

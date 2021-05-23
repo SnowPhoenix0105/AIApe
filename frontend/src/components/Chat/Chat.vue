@@ -1,34 +1,40 @@
 <template>
-    <div>
-        <div class="log" ref="words">
-
-            <!-- 根据vue对象中的数组，遍历出对应的标签。 -->
-            <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
-                <span v-html="msg.content">
-                    {{ msg.content }}
-                </span>
-                <br/>
-                <el-button class="prompt" v-for="prompt in msg.prompts"
-                           :key="prompt" v-show="msg.promptValid"
-                           @click="choosePrompt(prompt, msg)">
-                    {{ prompt }}
-                </el-button>
+    <el-container>
+        <el-header height="5vh">
+            AIApe
+        </el-header>
+        <el-main class="log">
+            <div style="width: 60vw; margin-top: 10px">
+                <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
+                    <el-avatar :src="msg.id === 1? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png': bot_avatar" size="medium"></el-avatar>
+                    <span class="chat-content" v-html="msg.content">
+                        {{ msg.content }}
+                    </span>
+<!--                    <el-avatar size="medium"> user </el-avatar>-->
+                    <br/>
+                    <el-button class="prompt" v-for="prompt in msg.prompts"
+                            :key="prompt" v-show="msg.promptValid"
+                            @click="choosePrompt(prompt, msg)">
+                        {{ prompt }}
+                    </el-button>
+                </div>
             </div>
-
-        </div>
-        <div class="send">
-            <el-input type="textarea" resize="none" :autosize="{ minRows: 7.5, maxRows: 7.5}"
-                      v-model="message"></el-input>
-            <el-button class="send-button" type="primary" v-on:click="send">发送</el-button>
-        </div>
-    </div>
+        </el-main>
+        <el-main class="send-area">
+            <div style="width: 60vw; height: 20vh">
+                <el-input class="textarea" type="textarea" resize="none" v-model="message"></el-input>
+                <el-button type="primary">发送</el-button>
+            </div>
+        </el-main>
+    </el-container>
 </template>
 
 <script>
 export default {
     data() {
         return {
-            message: ''
+            message: '',
+            bot_avatar: require('../../assets/bot.jpg')
         }
     },
     computed: {
@@ -226,7 +232,7 @@ export default {
         }
     },
     mounted() {
-        this.getTagList();
+
     },
     created() {
         this.$nextTick(() => {
@@ -238,51 +244,32 @@ export default {
 
 <style scoped>
 
-div {
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    margin: 0;
+.el-container {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .12), 0 0 6px rgba(0, 0, 0, .04);
+    background-color: white;
+    flex: 0 0 60vw;
+    height: 80vh;
+    margin-left: 15vw;
+    border-radius: 5px;
+    align-items: stretch;
+}
+
+.el-header {
+    border-bottom: 1px solid #eaecf1;
+    width: 60vw;
+    align-items: center;
+    padding: 20px;
 }
 
 .log {
-    position: absolute;
-    height: 72%;
-    overflow: scroll;
+    flex-direction: column;
+    background-color: #f5f5f5;
+    flex: 0 0 55vh;
+    user-select: none;
 }
 
-.send {
-    position: absolute;
-    height: 30%;
-    top: 70%;
-}
-
-.send-button {
-    position: absolute;
-    right: 2px;
-    bottom: 4px;
-    padding-top: 10px;
-    height: 35px;
-}
-
-.el-textarea {
-    height: 100%;
-    font-family: "Microsoft YaHei", serif;
-    font-size: 18px;
-}
-
-.content {
-    height: 40px;
-    width: 100%;
-}
-
-.bot span {
-    display: inline-block;
-    background: #409EFF;
-    border-radius: 10px;
-    color: #fff;
-    padding: 5px 10px;
-    left: 10px;
+.send-area {
+    flex: 0 1 20vh;
 }
 
 .user {
@@ -298,20 +285,77 @@ div {
     width: auto;
 }
 
-.user span {
+.bot span.chat-content {
     display: inline-block;
-    background: #ffb449;
-    border-radius: 10px;
+    background: white;
+    color: black;
+    padding: 5px 10px;
+    margin-left: 10px;
+    border-radius: 8px;
+    user-select: text;
+    margin-right: 50px;
+}
+
+.user span.chat-content {
+    display: inline-block;
+    background: #409EFF;
     color: #fff;
     padding: 5px 10px;
-    right: 10px;
+    border-radius: 8px;
+    user-select: text;
+    margin-right: 10px;
+    margin-left: 50px;
 }
 
-a:visited {
-    color: #409EFF;
+.el-textarea {
+    display: flex;
+    height: 15vh;
+
 }
 
-.prompt {
-    margin-top: 10px;
+.el-button {
+    margin-top: 3px;
+    float: right;
+    margin-right: 3px;
 }
+
+.textarea >>> .el-textarea__inner{
+    font-family: "system-ui",serif !important;
+    font-size: 16px !important;
+    color: black;
+}
+
+.el-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 35px;
+    margin-top: 5px;
+}
+
+.el-avatar {
+    cursor: default;
+    display: flex;
+    flex: 0 0 auto;
+    align-self: flex-start;
+}
+
+.content.user {
+    flex-direction: row-reverse;
+}
+
+.content.bot {
+    flex-direction: row;
+}
+
+.content {
+    display: flex;
+    align-items: center;
+}
+
+.chat-content {
+    display: flex;
+    flex: 0 1 auto;
+}
+
 </style>

@@ -1,20 +1,36 @@
 <template>
-    <div>
-        <div class="left">
-            <Chat/>
+    <el-container>
+        <div class="background">
+            <img :src="imgSrc" width="100%" height="100%" alt=""/>
         </div>
-        <div class="right">
-            <router-view/>
-        </div>
-    </div>
+        <SideBar/>
+        <Chat/>
+        <transition name="el-fade-in">
+            <Login v-show="$store.state.show.login"></Login>
+        </transition>
+        <transition name="el-fade-in">
+            <QuestionList v-show="$store.state.show.questionList"></QuestionList>
+        </transition>
+    </el-container>
 </template>
 
 <script>
 import Chat from './components/Chat/Chat.vue'
+import SideBar from "./components/SideBar/SideBar";
+import Login from "./components/Login/Login";
+import QuestionList from "./components/QuestionList/QuestionList";
 
 export default {
+    data () {
+        return {
+            imgSrc: require('./assets/background1.jpg')
+        }
+    },
     components: {
-        Chat
+        SideBar,
+        Chat,
+        Login,
+        QuestionList
     },
     created() {
         //在页面加载时读取localStorage里的状态信息
@@ -33,40 +49,32 @@ export default {
 </script>
 
 <style>
-/*#app {*/
-/*  font-family: 'Avenir', Helvetica, Arial, sans-serif;*/
-/*  -webkit-font-smoothing: antialiased;*/
-/*  -moz-osx-font-smoothing: grayscale;*/
-/*  text-align: center;*/
-/*  color: #2c3e50;*/
-/*  margin-top: 60px;*/
-/*}*/
-
-html, body, #app, .left, .right {
-    height: 100%;
-    width: 100%;
-    padding: 0;
+body {
     margin: 0;
+    overflow: hidden;
 }
 
-.left {
-    position: absolute;
+.background {
     left: 0;
     top: 0;
-    width: 40%;
-    border-right: 1px solid lightgrey;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    position: absolute;
+    user-select: none;
 }
 
-.right {
-    position: absolute;
-    left: 40%;
-    top: 0;
-    width: 60%;
+.el-main, .el-aside, .el-header{
+    display: flex;
+    padding: 0;
+}
+
+.el-container {
+    align-items: center;
 }
 
 ::-webkit-scrollbar {
     width: 5px;
-
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -74,9 +82,20 @@ html, body, #app, .left, .right {
     border-radius: 3px;
 }
 
-.el-popover {
-    height: 100px;
-    width: 500px;
-    overflow: hidden;
+.chat {
+    flex: 1 1 500px auto;
 }
+
+.shell {
+    position: absolute;
+    border: 1px solid lightgrey;
+    left: 35px;
+    top: 20vh;
+    width: 30vw;
+    height: 50vh;
+    background-color: white;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
 </style>

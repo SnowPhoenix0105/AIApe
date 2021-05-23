@@ -9,6 +9,7 @@ import store from "./vuex/store";
 import axios from 'axios';
 import 'github-markdown-css/github-markdown.css';
 import VueAxios from 'vue-axios';
+import directive from "element-ui/packages/popover/src/directive";
 // import global_ from './components/tool/Global'
 // Vue.prototype.GLOBAL = global_
 
@@ -23,8 +24,6 @@ new Vue({
     render: h => h(App),
     router
 })
-
-
 
 axios.interceptors.response.use(response => {
     // 几种不需要刷新token的情况
