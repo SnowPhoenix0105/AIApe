@@ -2,10 +2,10 @@
     <el-container>
         <el-header>
             <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
-<!--            <el-link :underline="false" disabled style="cursor: default">|</el-link>-->
-<!--            <el-link :underline="false">注销</el-link>-->
+            <!--            <el-link :underline="false" disabled style="cursor: default">|</el-link>-->
+            <!--            <el-link :underline="false">注销</el-link>-->
             <template v-if="isAdmin">
-            <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
+                <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
             </template>
         </el-header>
         <el-main class="tag-selector" v-if="showTag">
@@ -25,12 +25,12 @@
                     width="180">
                 </el-table-column>
                 <el-table-column label="问题">
-<!--                    <template slot-scope="scope">-->
+                    <template slot-scope="scope">
 <!--                        <el-popover trigger="hover" placement="top">-->
 <!--                            <markdown-it-vue class="md-body" :content="scope.row.content"/>-->
-                    <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
+                            <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
 <!--                        </el-popover>-->
-<!--                    </template>-->
+                    </template>
                 </el-table-column>
             </el-table>
         </el-main>
