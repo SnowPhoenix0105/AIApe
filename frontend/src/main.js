@@ -13,7 +13,8 @@ import VueAxios from 'vue-axios';
 // Vue.prototype.GLOBAL = global_
 
 Vue.prototype.$axios = axios;
-const BASE_URL = 'https://aiape.snowphoenix.design';
+// const BASE_URL = 'https://aiape.snowphoenix.design';
+const BASE_URL = 'http://test.snowphoenix.design';
 Vue.prototype.BASE_URL = BASE_URL;
 Vue.use(ElementUI);
 Vue.prototype.$store = store;

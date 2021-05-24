@@ -12,7 +12,8 @@ module.exports = {
         assetsPublicPath: '/',
         proxyTable: {
             '/api': {
-                target: 'https://aiape.snowphoenix.design',//后端接口地址
+                // target: 'https://aiape.snowphoenix.design',//后端接口地址
+                target: 'http://test.snowphoenix.design',
                 changeOrigin: true,//是否允许跨越
                 pathRewrite: {
                     '^/api': '/api'   // 这种接口配置出来     http://XX.XX.XX.XX:8083/api/login
@@ -23,7 +24,8 @@ module.exports = {
         },
 
         // Various Dev Server settings
-        host: '10.135.3.142', // can be overwritten by process.env.HOST
+        // host: '10.135.3.142', // can be overwritten by process.env.HOST
+        host: 'localhost',
         port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
         autoOpenBrowser: false,
         errorOverlay: true,
