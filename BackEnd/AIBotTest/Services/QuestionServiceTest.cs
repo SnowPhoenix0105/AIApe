@@ -33,7 +33,6 @@ namespace AIBotTest.Services
                 QuestionId = 1,
                 Title = "title",
                 Remarks = "remarks",
-                BestAnswerId = 3,
                 CreaterId = 1,
                 CreateTime = DateTime.Now - TimeSpan.FromDays(1),
                 ModifyTime = DateTime.Now - TimeSpan.FromHours(1),
@@ -59,7 +58,6 @@ namespace AIBotTest.Services
             Assert.Equal(questionInfo.CreaterId, res.Creator);
             Assert.Equal(questionInfo.CreateTime, res.CreatTime);
             Assert.Equal(questionInfo.ModifyTime, res.ModifyTime);
-            Assert.Equal(questionInfo.BestAnswerId, res.Best);
             Assert.True(answerList.OrderBy(a => a).SequenceEqual(res.Answers.OrderBy(a => a)));
             Assert.True(tagDict.OrderBy(kv => kv.Value).SequenceEqual(res.Tags.OrderBy(kv => kv.Value)));
 
@@ -74,7 +72,6 @@ namespace AIBotTest.Services
                 QuestionId = 1,
                 Title = "title",
                 Remarks = "remarks",
-                BestAnswerId = 3,
                 CreaterId = 1,
                 CreateTime = DateTime.Now - TimeSpan.FromDays(1),
                 ModifyTime = DateTime.Now - TimeSpan.FromHours(1),
@@ -105,7 +102,6 @@ namespace AIBotTest.Services
                 QuestionId = 1,
                 Title = "title",
                 Remarks = "remarks",
-                BestAnswerId = 3,
                 CreaterId = 1,
                 CreateTime = DateTime.Now - TimeSpan.FromDays(1),
                 ModifyTime = DateTime.Now - TimeSpan.FromHours(1),
@@ -136,7 +132,6 @@ namespace AIBotTest.Services
                 QuestionId = 1,
                 Title = "title",
                 Remarks = "remarks",
-                BestAnswerId = 3,
                 CreaterId = 1,
                 CreateTime = DateTime.Now - TimeSpan.FromDays(1),
                 ModifyTime = DateTime.Now - TimeSpan.FromHours(1),
@@ -682,7 +677,6 @@ namespace AIBotTest.Services
             Assert.Equal(qid, res.Value.QuestionId);
             Assert.Equal(item.Title, res.Value.Title);
             Assert.Equal(item.Remarks, res.Value.Remarks);
-            Assert.Equal(item.BestAnswer, res.Value.BestAnswerId);
             Assert.True(item.Tags.OrderBy(t => t).SequenceEqual(res.Value.Tags.OrderBy(t => t)));
         }
 
@@ -771,29 +765,29 @@ namespace AIBotTest.Services
             Assert.Null(res.Value);
         }
 
-        [Fact]
-        public async Task ModifyQuestionAsync_AnswerNotExist()
-        {
-            Result<QuestionWithListTag> res = new Result<QuestionWithListTag>();
-            int qid = 2;
-            int aid = 3;
-            queMock
-                .Setup(qr => qr.UpdateQuestionAsync(It.Is<QuestionWithListTag>(q => q.BestAnswerId == aid)))
-                .ThrowsAsync(new Buaa.AIBot.Repository.Exceptions.AnswerNotExistException(aid));
+        //[Fact]
+        //public async Task ModifyQuestionAsync_AnswerNotExist()
+        //{
+        //    Result<QuestionWithListTag> res = new Result<QuestionWithListTag>();
+        //    int qid = 2;
+        //    int aid = 3;
+        //    queMock
+        //        .Setup(qr => qr.UpdateQuestionAsync(It.Is<QuestionWithListTag>(q => q.BestAnswerId == aid)))
+        //        .ThrowsAsync(new Buaa.AIBot.Repository.Exceptions.AnswerNotExistException(aid));
 
-            var questionService = CreateQuestionService();
+        //    var questionService = CreateQuestionService();
 
-            var item = new QuestionModifyItems()
-            {
-                Title = "title",
-                Remarks = "remarks",
-                BestAnswer = aid,
-                Tags = Enumerable.Range(0, 13).Select(i => i << 2).ToList()
-            };
-            await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.AnswerNotExistException>(async () =>
-                await questionService.ModifyQuestionAsync(qid, item));
-            Assert.Null(res.Value);
-        }
+        //    var item = new QuestionModifyItems()
+        //    {
+        //        Title = "title",
+        //        Remarks = "remarks",
+        //        BestAnswer = aid,
+        //        Tags = Enumerable.Range(0, 13).Select(i => i << 2).ToList()
+        //    };
+        //    await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.AnswerNotExistException>(async () =>
+        //        await questionService.ModifyQuestionAsync(qid, item));
+        //    Assert.Null(res.Value);
+        //}
 
         #endregion
 

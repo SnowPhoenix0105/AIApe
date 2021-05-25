@@ -14,8 +14,10 @@ namespace Buaa.AIBot.Repository.Models
         public DbSet<QuestionData> Questions { get; set; }
         public DbSet<AnswerData> Answers { get; set; }
         public DbSet<TagData> Tags { get; set; }
+        public DbSet<LikeQuestion> LikeQuestions { get; set; }
+        public DbSet<LikeAnswer> LikeAnswers { get; set; }
         public DbSet<QuestionTagRelation> QuestionTagRelations { get; set; }
-        
+
         public string ConnectString { get; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
@@ -25,6 +27,38 @@ namespace Buaa.AIBot.Repository.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            #region User--<n>--LikeAnswer--<n>--Answer
+
+            modelBuilder.Entity<LikeAnswer>()
+                .HasKey(la => new { la.AnswerId, la.UserId });
+
+            modelBuilder.Entity<LikeAnswer>()
+                .HasOne(la => la.Answer)
+                .WithMany(a => a.LikedInfo);
+
+            modelBuilder.Entity<LikeAnswer>()
+                .HasOne(la => la.User)
+                .WithMany(u => u.LikeAnswers);
+
+            #endregion
+
+            #region User--<n>--LikeQuestion--<n>--Question
+
+            modelBuilder.Entity<LikeQuestion>()
+                .HasKey(la => new { la.QuestionId, la.UserId });
+
+            modelBuilder.Entity<LikeQuestion>()
+                .HasOne(lq => lq.Question)
+                .WithMany(q => q.LikedInfo);
+
+            modelBuilder.Entity<LikeQuestion>()
+                .HasOne(lq => lq.User)
+                .WithMany(u => u.LikeQuestions);
+
+            #endregion
+
+            #region Tag--<n>--HasTag--<n>--Question
+
             modelBuilder.Entity<QuestionTagRelation>()
                 .HasKey(qt => new { qt.QuestionId, qt.TagId });
 
@@ -36,12 +70,16 @@ namespace Buaa.AIBot.Repository.Models
                 .HasOne(qt => qt.Tag)
                 .WithMany(t => t.QuestionTagRelation);
 
+            #endregion
+
+            // User--<1?>--Create--<n>--Question
             modelBuilder.Entity<QuestionData>()
                 .HasOne(q => q.User)
                 .WithMany(u => u.Questions)
                 .OnDelete(DeleteBehavior.SetNull)
                 ;
 
+            // User--<1?>--Create--<n>--Answer
             modelBuilder.Entity<AnswerData>()
                 .HasOne(a => a.User)
                 .WithMany(u => u.Answers)
