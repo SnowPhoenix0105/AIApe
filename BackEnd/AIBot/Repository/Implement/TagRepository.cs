@@ -15,11 +15,21 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="ITagRepostory"/></remarks>
     public class TagRepository : RepositoryBase, ITagRepostory
     {
-        public TagRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource)
-            : base(context, globalCancellationTokenSource.Token) { }
+        public TagRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, cachePool, globalCancellationTokenSource.Token) { }
 
         private volatile bool changed = true;
-        private Dictionary<string, int> cache = null;
+        private Dictionary<string, int> cache
+        {
+            get
+            {
+                return CachePool.GetOrDefault<Dictionary<string, int>>(CacheId.Tag);
+            }
+            set
+            {
+                CachePool.Set(CacheId.Tag, value);
+            }
+        }
 
         public async Task<Dictionary<string, int>> SelectAllTagsAsync()
         {
@@ -33,9 +43,10 @@ namespace Buaa.AIBot.Repository.Implement
                  .Select(t => new KeyValuePair<string, int>(t.Name, t.TagId))
                  .ToListAsync(CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
-            cache = new Dictionary<string, int>(query);
+            var res = new Dictionary<string, int>(query);
+            cache = res;
             changed = false;
-            return cache;
+            return res;
         }
 
         public async Task<TagInfo> SelectTagByIdAsync(int tagId)

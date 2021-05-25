@@ -15,8 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IQuestionRepository"/></remarks>
     public class QuestionRepository : RepositoryBase , IQuestionRepository
     {
-        public QuestionRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource)
-            : base(context, globalCancellationTokenSource.Token) { }
+        public QuestionRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, cachePool, globalCancellationTokenSource.Token) { }
 
         public async Task<IEnumerable<int>> SelectAnswersForQuestionByIdAsync(int questionId)
         {
@@ -46,7 +46,6 @@ namespace Buaa.AIBot.Repository.Implement
                 .Select(q => new QuestionInfo()
                 {
                     QuestionId = q.QuestionId,
-                    BestAnswerId = q.BestAnswerId,
                     CreaterId = q.UserId,
                     Title = q.Title,
                     Remarks = q.Remarks,
@@ -220,7 +219,7 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 UserId = question.CreaterId,
                 Title = question.Title,
-                Remarks = question.Remarks
+                Remarks = question.Remarks,
             };
             Context.Questions.Add(target);
             bool success = false;
@@ -266,15 +265,6 @@ namespace Buaa.AIBot.Repository.Implement
             if ((await Context.Questions.FindAsync(question.QuestionId)) == null)
             {
                 throw new QuestionNotExistException(question.QuestionId);
-            }
-            if (question.BestAnswerId != null)
-            {
-                int aid = (int)question.BestAnswerId;
-                var answer = await Context.Answers.FindAsync(aid);
-                if (answer == null || answer.QuestionId != question.QuestionId)
-                {
-                    throw new AnswerNotExistException(aid);
-                }
             }
             if (question.Tags != null)
             {
@@ -334,11 +324,6 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 success = false;
                 target.Remarks = question.Remarks;
-            }
-            if (question.BestAnswerId != null)
-            {
-                success = false;
-                target.BestAnswerId = question.BestAnswerId;
             }
             HashSet<int> tidsAdded = null;
             HashSet<int> tidsRemoved = null;
