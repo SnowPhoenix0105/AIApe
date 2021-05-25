@@ -1,16 +1,21 @@
 <template>
-    <el-container>
-        <div class="background">
-            <img :src="imgSrc" width="100%" height="100%" alt=""/>
-        </div>
-        <SideBar/>
-        <transition
-            name="zoom"
-            enter-active-class="zoomInLeft"
-            leave-active-class="zoomOutLeft">
-            <router-view/>
-        </transition>
-    </el-container>
+    <div v-if="isMobile">
+        <Mobile/>
+    </div>
+    <div v-else>
+        <el-container>
+            <div class="background">
+                <img :src="imgSrc" width="100%" height="100%" alt=""/>
+            </div>
+            <SideBar/>
+            <transition
+                name="zoom"
+                enter-active-class="zoomInLeft"
+                leave-active-class="zoomOutLeft">
+                <router-view/>
+            </transition>
+        </el-container>
+    </div>
 </template>
 
 <script>
@@ -18,6 +23,7 @@ import Chat from './pages/Chat/Chat.vue'
 import SideBar from "./components/SideBar/SideBar";
 import Login from "./components/Login/Login";
 import QuestionList from "./pages/QuestionList/QuestionList";
+import Mobile from "./components/Mobile/Mobile";
 
 export default {
     data() {
@@ -27,10 +33,12 @@ export default {
                 win: false,
                 mac: false,
                 xll: false,
-            }
+            },
+            isMobile: false,
         }
     },
     components: {
+        Mobile,
         SideBar,
         Chat,
         Login,
@@ -41,11 +49,7 @@ export default {
         this.system.win = p.indexOf("Win") == 0;
         this.system.mac = p.indexOf("Mac") == 0;
         this.system.xll = p.indexOf("Xll") == 0;
-        if (this.system.win || this.system.mac || this.system.xll) {
-            alert("电脑端登录");
-        } else {
-            alert("移动端登录");
-        }
+        this.isMobile = !(this.system.win || this.system.mac || this.system.xll);
 
         //在页面加载时读取localStorage里的状态信息
         if (sessionStorage.getItem("store")) {
