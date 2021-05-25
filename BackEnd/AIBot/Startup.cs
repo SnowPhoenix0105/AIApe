@@ -45,7 +45,8 @@ namespace Buaa.AIBot
                 options.AddPolicy(DebugCorsPolicy, builder =>
                 {
                     builder
-                        .WithOrigins(DebugOrigins)
+                        .AllowAnyOrigin()
+                        // .WithOrigins(DebugOrigins)
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
@@ -109,7 +110,8 @@ namespace Buaa.AIBot
 
             if (env.IsDevelopment())
             {
-                Log.Warning("Using Debug CORS policy, which allow these origins:{AllowOrigins}", DebugOrigins);
+                // Log.Warning("Using Debug CORS policy, which allow these origins:{AllowOrigins}", DebugOrigins);
+                Log.Warning("Using Debug CORS policy, which allows all origins");
                 app.UseCors(DebugCorsPolicy);
             }
 
