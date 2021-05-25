@@ -22,6 +22,7 @@
     "vue-draggable-resizable": "^2.3.0",
     "vue-markdown": "^2.2.4",
     "vue-router": "^3.5.1",
+    "vue2-animate": "^2.1.4",
     "vuedraggable": "^2.24.3",
     "vuex": "^3.6.2"
   },

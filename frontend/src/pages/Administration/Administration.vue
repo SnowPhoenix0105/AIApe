@@ -117,7 +117,7 @@
 </template>
 
 <script>
-import Chat from '../../components/Chat/Chat.vue'
+import Chat from '../Chat/Chat.vue'
 import store from "../../vuex/store";
 
 export default {

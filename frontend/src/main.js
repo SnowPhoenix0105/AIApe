@@ -8,10 +8,9 @@ import 'element-ui/lib/theme-chalk/index.css';
 import store from "./vuex/store";
 import axios from 'axios';
 import 'github-markdown-css/github-markdown.css';
+import 'vue2-animate/dist/vue2-animate.min.css';
 import VueAxios from 'vue-axios';
 import directive from "element-ui/packages/popover/src/directive";
-// import global_ from './components/tool/Global'
-// Vue.prototype.GLOBAL = global_
 
 Vue.prototype.$axios = axios;
 const BASE_URL = 'https://aiape.snowphoenix.design';

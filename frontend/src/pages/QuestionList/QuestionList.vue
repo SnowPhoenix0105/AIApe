@@ -1,59 +1,82 @@
 <template>
-    <el-container>
-        <el-header>
-            <el-link :underline="false" @click="goToPersonalCenter">{{ this.$store.state.username }}</el-link>
-<!--            <el-link :underline="false" disabled style="cursor: default">|</el-link>-->
-<!--            <el-link :underline="false">注销</el-link>-->
-            <template v-if="isAdmin">
-            <el-link :underline="false" @click="gotoAdministration">管理员后台</el-link>
-            </template>
-        </el-header>
-        <el-main class="tag-selector" v-if="showTag">
-            <el-tag v-for="(tid, tag_name) in this.$store.state.tagList" :key="tid"
-                    :effect="tagState[tid]? 'dark' : 'light'" @click="tagClick(tid)">{{ tag_name }}
-            </el-tag>
-        </el-main>
-        <el-main class="table">
-            <el-table
-                :data="questions"
-                style="width: 100%"
-                :header-cell-style="{textAlign: 'center'}"
-                :cell-style="{ textAlign: 'center' }">
-                <el-table-column
-                    prop="id"
-                    label="编号"
-                    width="180">
-                </el-table-column>
-                <el-table-column label="问题">
-<!--                    <template slot-scope="scope">-->
-<!--                        <el-popover trigger="hover" placement="top">-->
-<!--                            <markdown-it-vue class="md-body" :content="scope.row.content"/>-->
-                    <el-link @click="goToDetail(scope.row.id)" slot="reference">{{ scope.row.title }}</el-link>
-<!--                        </el-popover>-->
-<!--                    </template>-->
-                </el-table-column>
-            </el-table>
-        </el-main>
+    <el-container class="shell">
+        <el-container class="list">
+            <el-header>
+                AIApe
+            </el-header>
+            <el-main class="selector">
+                <el-button type="text" :class="{'unselected': select === 1}">最新</el-button>
+                <el-button type="text" :class="{'unselected': select === 0}">热门</el-button>
+            </el-main>
+            <el-main class="question-list">
+                <div class="question-body" v-for="question in questionList" :key="question.id">
+                    <div class="recommend">
+                        <i class="el-icon-caret-top"></i>
+                        <span>推荐{{ question.recommend }}</span>
+                    </div>
+                    <div class="content">
+                        <span class="title">{{ question.title }}</span>
+                        <span class="detail">{{ question.detail }}</span>
+                    </div>
+                    <div class="other-info">
+                        <div class="tags">
+                            <el-tag v-for="tag in question.tags" :key="tag">{{ tag }}</el-tag>
+                        </div>
+                        <div class="user-time">
+                            <span>{{ question.user }}</span>
+                            <span>{{ question.date }}</span>
+                        </div>
+                    </div>
+                </div>
+            </el-main>
+        </el-container>
+        <ListSideBar/>
     </el-container>
 </template>
 
 <script>
-import store from "../../vuex/store";
-import VueMarkdown from 'vue-markdown';
 import MarkdownItVue from 'markdown-it-vue'
 import 'markdown-it-vue/dist/markdown-it-vue.css'
+import ListSideBar from "./ListSideBar";
 
 export default {
     components: {
-        MarkdownItVue
+        MarkdownItVue,
+        ListSideBar
     },
     data() {
         return {
-            questions: [],
+            questionList: [{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },{
+                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+            },],
             selectedTag: [],
             tagState: {},
-            showTag: false,
+            showTag: true,
             isAdmin: false,
+            showResearchInput: false,
+            select: 0
         }
     },
     mounted() {
@@ -62,27 +85,9 @@ export default {
         this.isAdmin = (this.$store.state.auth === 2);
     },
     methods: {
-        // addQuestion() {
-        //     let _this = this;
-        //     let token = store.state.token;
-        //     _this.$axios.post(_this.BASE_URL + '/api/questions/add_question', {
-        //         title: "一个题目",
-        //         remarks: "一个描述",
-        //         tags: [],
-        //     }, {
-        //         headers: {
-        //             Authorization: 'Bearer ' + token,
-        //         },
-        //     })
-        //         .then(function (response) {
-        //             console.log(response);
-        //         })
-        // },
-        // isAdmin() {
-        //     let res = this.$store.state.auth === 2;
-        //     alert(res);
-        //     return res;
-        // },
+        handleSelect() {
+
+        },
         getQuestions() {
             let _this = this;
 
@@ -136,8 +141,8 @@ export default {
 
         initTagState() {
             let tagList = this.$store.state.tagList;
-            for (let tagname in tagList) {
-                this.$data.tagState[tagList[tagname]] = false;
+            for (let tagName in tagList) {
+                this.$data.tagState[tagList[tagName]] = false;
             }
         },
         tagClick(tid) {
@@ -154,65 +159,127 @@ export default {
                 this.showTag = true;
             })
             this.getQuestions();
-
+        },
+        close() {
+            this.$store.state.show.questionList = false;
+        },
+        gotoTop() {
+            this.$store.state.maxZIndex += 1
+            this.zIndex = this.$store.state.maxZIndex;
         }
     }
 }
 </script>
 
 <style scoped>
-.outside {
-    height: 100%;
-    overflow: hidden;
+.shell {
+    position: absolute;
+    left: 5vw;
+    top: 0;
+    width: 95vw;
+    height: 100vh;
+    padding-left: 100px;
+    padding-right: 100px;
+    background-color: rgba(246, 246, 246, 1);
 }
 
-.el-container {
-    height: 100%;
-    float: top;
-}
-
-.el-table {
-    -ms-flex: none !important;
-    flex: none !important;
-    overflow: scroll;
-    height: 100%;
-    margin-left: 1px;
-}
-
-
-.el-dropdown {
-    margin: 20px;
-    float: right;
+.list {
+    flex-direction: column;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    height: 95vh;
+    background-color: white;
+    margin-right: 5px;
 }
 
 .el-header {
-    display: flex;
-    justify-content: flex-end;
+    padding-top: 5px;
+    font-size: 30px;
 }
 
-.el-link {
-    margin: 5px;
+.selector {
+    flex: none;
+    align-self: stretch;
+    padding-left: 10px;
+    border-bottom: 1px solid lightgrey;
 }
 
-.el-main {
+.unselected {
+    color: black;
+}
+
+.el-button:hover {
+    color: #409eff;
+}
+
+.question-list {
+    align-self: stretch;
+    flex-direction: column;
+}
+
+.question-body {
+    flex-direction: row;
+    border-bottom: 1px solid lightgrey;
+}
+
+.question-list * {
     display: flex;
+}
+
+.question-body {
+    flex-direction: row;
+    padding: 20px;
+    flex: 1 0 110px;
+}
+
+.question-body > * {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.content {
+    flex-grow: 2;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-left: 20px;
+}
+
+i {
+    color: #409eff;
+    font-size: 60px;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.tags {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.other-info {
+    justify-content: space-around;
+    align-items: flex-end;
+    flex: 0 1 125px;
+}
+
+.user-time {
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .el-tag {
-    cursor: pointer;
-    margin: 5px;
+    height: 25px;
+    line-height: 23px;
+    font-size: 12px;
+    margin-left: 5px;
+    margin-bottom: 5px;
 }
 
-.tag-selector {
-    padding-top: 0;
-}
-
-.table {
-    padding: 0;
-    overflow-x: hidden;
-}
-
-.md-body {
-    text-overflow: ellipsis;
+.recommend {
+    flex-grow: 0;
 }
 </style>

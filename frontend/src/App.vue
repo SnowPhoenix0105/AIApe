@@ -4,24 +4,23 @@
             <img :src="imgSrc" width="100%" height="100%" alt=""/>
         </div>
         <SideBar/>
-        <Chat/>
-        <transition name="el-fade-in">
-            <Login v-show="$store.state.show.login"></Login>
-        </transition>
-        <transition name="el-fade-in">
-            <QuestionList v-show="$store.state.show.questionList"></QuestionList>
+        <transition
+            name="zoom"
+            enter-active-class="zoomInLeft"
+            leave-active-class="zoomOutLeft">
+            <router-view/>
         </transition>
     </el-container>
 </template>
 
 <script>
-import Chat from './components/Chat/Chat.vue'
+import Chat from './pages/Chat/Chat.vue'
 import SideBar from "./components/SideBar/SideBar";
 import Login from "./components/Login/Login";
-import QuestionList from "./components/QuestionList/QuestionList";
+import QuestionList from "./pages/QuestionList/QuestionList";
 
 export default {
-    data () {
+    data() {
         return {
             imgSrc: require('./assets/background1.jpg')
         }
@@ -34,12 +33,12 @@ export default {
     },
     created() {
         //在页面加载时读取localStorage里的状态信息
-        if (sessionStorage.getItem("store") ) {
+        if (sessionStorage.getItem("store")) {
             this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(sessionStorage.getItem("store"))))
         }
 
         //在页面刷新时将vuex里的信息保存到localStorage里
-        window.addEventListener("beforeunload",()=>{
+        window.addEventListener("beforeunload", () => {
             sessionStorage.setItem("store", JSON.stringify(this.$store.state))
         })
 
@@ -64,7 +63,7 @@ body {
     user-select: none;
 }
 
-.el-main, .el-aside, .el-header{
+.el-main, .el-aside, .el-header {
     display: flex;
     padding: 0;
 }
@@ -74,7 +73,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -84,18 +83,6 @@ body {
 
 .chat {
     flex: 1 1 500px auto;
-}
-
-.shell {
-    position: absolute;
-    border: 1px solid lightgrey;
-    left: 35px;
-    top: 20vh;
-    width: 30vw;
-    height: 50vh;
-    background-color: white;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    border-radius: 5px;
 }
 
 </style>

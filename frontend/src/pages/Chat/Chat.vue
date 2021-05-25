@@ -293,7 +293,7 @@ export default {
     margin-left: 10px;
     border-radius: 8px;
     user-select: text;
-    margin-right: 50px;
+    margin-right: 100px;
 }
 
 .user span.chat-content {
@@ -304,7 +304,7 @@ export default {
     border-radius: 8px;
     user-select: text;
     margin-right: 10px;
-    margin-left: 50px;
+    margin-left: 100px;
 }
 
 .el-textarea {
