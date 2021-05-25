@@ -1,7 +1,8 @@
-Developers:
+Assignee: 
 
-Assignee:
+Task: 
 
-Task:
+Hour: 
 
-Hour:
+/todo
+/milestone %
