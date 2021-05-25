@@ -16,6 +16,7 @@ namespace AIBotTest.Repository
     public class TagRepositoryTest
     {
         private static int count = 0;
+        private ICachePool<int> cachePool = new CachePool<int>();
         private Buaa.AIBot.Utils.GlobalCancellationTokenSource globalCancellation = new Buaa.AIBot.Utils.GlobalCancellationTokenSource();
 
         private DbContextOptions<DatabaseContext> CreateUniqueOptions()
@@ -45,7 +46,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 foreach (var tid in await context.Tags.Select(t => t.TagId).ToListAsync())
                 {
                     var tagInfo = await tagRepostory.SelectTagByIdAsync(tid);
@@ -76,7 +77,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var res = await tagRepostory.SelectAllTagsAsync();
 
                 HashSet<int> tags = new HashSet<int>();
@@ -112,7 +113,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var res1 = await tagRepostory.SelectAllTagsAsync();
                 Assert.Equal(tagNum, res1.Count);
 
@@ -154,7 +155,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var res1 = await tagRepostory.SelectAllTagsAsync();
                 var tid = res1.Values.First();
 
@@ -182,7 +183,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var newTag = new TagInfo()
                 {
                     Name = "Tag0",
@@ -203,7 +204,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var newTag = new TagInfo()
                 {
                     Name = null,
@@ -223,7 +224,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var newTag = new TagInfo()
                 {
                     Name = "Tag0",
@@ -248,7 +249,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var maxLengthNameTag = new TagInfo()
                 {
                     Name = nameBuilder.ToString(),
@@ -280,7 +281,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var firstTag = new TagInfo()
                 {
                     Name = name,
@@ -322,7 +323,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var newTag = new TagInfo()
                 {
                     TagId = originTag.TagId,
@@ -355,7 +356,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var newTag = new TagInfo()
                 {
                     TagId = originTag.TagId,
@@ -388,7 +389,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var newTag = new TagInfo()
                 {
                     TagId = originTag.TagId,
@@ -426,7 +427,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var maxLengthTag = new TagInfo()
                 {
                     TagId = originTag.TagId,
@@ -459,7 +460,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var firstTag = new TagInfo()
                 {
                     Name = "Tag0",
@@ -497,7 +498,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
 
                 var newInfo = new TagInfo()
                 {
@@ -522,7 +523,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                ITagRepostory tagRepostory = new TagRepository(context, globalCancellation);
+                ITagRepostory tagRepostory = new TagRepository(context, cachePool, globalCancellation);
                 var firstTag = new TagInfo()
                 {
                     Name = "Tag0",

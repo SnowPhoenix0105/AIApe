@@ -16,6 +16,7 @@ namespace AIBotTest.Repository
     public class QuestionRepositoryTest
     {
         private static int count = 0;
+        private ICachePool<int> cachePool = new CachePool<int>();
         private Buaa.AIBot.Utils.GlobalCancellationTokenSource globalCancellation = new Buaa.AIBot.Utils.GlobalCancellationTokenSource();
 
         private DbContextOptions<DatabaseContext> CreateUniqueOptions()
@@ -94,7 +95,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res1 = await questionRepository.SelectQuestionsByTagsAsync(tidsForQuestion);
                 Assert.Single(res1);
@@ -103,7 +104,7 @@ namespace AIBotTest.Repository
             // Wrong with SQLite.InMemory but correct with MySQL ?
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 int tidNotForQuestion = tids.Where(t => !tidsForQuestion.Contains(t)).First();
                 var res2 = await questionRepository.SelectQuestionsByTagsAsync(
@@ -112,7 +113,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res3 = await questionRepository.SelectQuestionsByTagsAsync(
                     tidsForQuestion.Take(tagNum / 4));
@@ -122,7 +123,7 @@ namespace AIBotTest.Repository
             // Wrong with SQLite.InMemory but correct with MySQL ?
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 int tidNotExist = tids.Max() + 1;
                 var res4 = await questionRepository.SelectQuestionsByTagsAsync(
@@ -177,7 +178,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res1 = await questionRepository.SelectQuestionByIdAsync(qid1);
                 Assert.Equal(qid1, res1.QuestionId);
@@ -187,7 +188,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res2 = await questionRepository.SelectQuestionByIdAsync(qid2);
                 Assert.Equal(qid2, res2.QuestionId);
@@ -197,7 +198,7 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 int qidNotExist = Math.Max(qid1, qid2) + 1;
                 var res3 = await questionRepository.SelectQuestionByIdAsync(qidNotExist);
@@ -281,7 +282,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res1 = await questionRepository.SelectAnswersForQuestionByIdAsync(qid1);
                 Assert.Equal(2, res1.Count());
@@ -290,14 +291,14 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res2 = await questionRepository.SelectAnswersForQuestionByIdAsync(qid2);
                 Assert.Empty(res2);
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res3 = await questionRepository.SelectAnswersForQuestionByIdAsync(Math.Max(qid1, qid2) + 1);
                 Assert.Null(res3);
@@ -361,7 +362,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res1 = await questionRepository.SelectTagsForQuestionByIdAsync(qid1);
                 Assert.Equal(tidsForQuestion.Count, res1.Count());
@@ -371,14 +372,14 @@ namespace AIBotTest.Repository
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res2 = await questionRepository.SelectTagsForQuestionByIdAsync(qid2);
                 Assert.Empty(res2);
             }
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 var res3 = await questionRepository.SelectTagsForQuestionByIdAsync(Math.Max(qid1, qid2) + 1);
                 Assert.Null(res3);
@@ -398,7 +399,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -434,7 +435,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -470,7 +471,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string remarks = "remarks";
@@ -511,7 +512,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -541,7 +542,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 string title = "title";
@@ -575,7 +576,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -619,7 +620,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -663,7 +664,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -698,87 +699,87 @@ namespace AIBotTest.Repository
             }
         }
 
-        [Fact]
-        public async Task UpdateQuestionAsync_BestAnswerOnly()
-        {
+        //[Fact]
+        //public async Task UpdateQuestionAsync_BestAnswerOnly()
+        //{
 
-            var options = CreateUniqueOptions();
+        //    var options = CreateUniqueOptions();
 
-            string title1 = "Question1";
-            string remarks1 = "This is question No.1";
-            int qid1;
-            int uid1;
-            int uid2;
-            int aid1;
-            int aid2;
-            using (var context = new DatabaseContext(options))
-            {
-                var user1 = new UserData()
-                {
-                    Name = "user1",
-                    Email = "user1@buaa",
-                    Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
-                };
-                context.Add(user1);
-                var user2 = new UserData()
-                {
-                    Name = "user2",
-                    Email = "user2@buaa",
-                    Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
-                };
-                context.Add(user2);
-                await context.SaveChangesAsync();
-                uid1 = user1.UserId;
-                uid2 = user2.UserId;
+        //    string title1 = "Question1";
+        //    string remarks1 = "This is question No.1";
+        //    int qid1;
+        //    int uid1;
+        //    int uid2;
+        //    int aid1;
+        //    int aid2;
+        //    using (var context = new DatabaseContext(options))
+        //    {
+        //        var user1 = new UserData()
+        //        {
+        //            Name = "user1",
+        //            Email = "user1@buaa",
+        //            Bcrypt = "bcrypt",
+        //            Auth = AuthLevel.User
+        //        };
+        //        context.Add(user1);
+        //        var user2 = new UserData()
+        //        {
+        //            Name = "user2",
+        //            Email = "user2@buaa",
+        //            Bcrypt = "bcrypt",
+        //            Auth = AuthLevel.User
+        //        };
+        //        context.Add(user2);
+        //        await context.SaveChangesAsync();
+        //        uid1 = user1.UserId;
+        //        uid2 = user2.UserId;
 
-                var question1 = new QuestionData()
-                {
-                    Title = title1,
-                    Remarks = remarks1,
-                    UserId = uid1
-                };
-                context.Add(question1);
-                await context.SaveChangesAsync();
-                qid1 = question1.QuestionId;
+        //        var question1 = new QuestionData()
+        //        {
+        //            Title = title1,
+        //            Remarks = remarks1,
+        //            UserId = uid1
+        //        };
+        //        context.Add(question1);
+        //        await context.SaveChangesAsync();
+        //        qid1 = question1.QuestionId;
 
-                var answer1 = new AnswerData()
-                {
-                    Content = $"answer No.1 for question1 by user1",
-                    UserId = uid1,
-                    QuestionId = qid1
-                };
-                var answer2 = new AnswerData()
-                {
-                    Content = $"answer No.2 for question1 by user2",
-                    UserId = uid2,
-                    QuestionId = qid1
-                };
-                context.Add(answer1);
-                context.Add(answer2);
-                await context.SaveChangesAsync();
-                aid1 = answer1.AnswerId;
-                aid2 = answer2.AnswerId;
-            }
+        //        var answer1 = new AnswerData()
+        //        {
+        //            Content = $"answer No.1 for question1 by user1",
+        //            UserId = uid1,
+        //            QuestionId = qid1
+        //        };
+        //        var answer2 = new AnswerData()
+        //        {
+        //            Content = $"answer No.2 for question1 by user2",
+        //            UserId = uid2,
+        //            QuestionId = qid1
+        //        };
+        //        context.Add(answer1);
+        //        context.Add(answer2);
+        //        await context.SaveChangesAsync();
+        //        aid1 = answer1.AnswerId;
+        //        aid2 = answer2.AnswerId;
+        //    }
 
-            using (var context = new DatabaseContext(options))
-            {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+        //    using (var context = new DatabaseContext(options))
+        //    {
+        //        IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
-                var question = new QuestionWithListTag()
-                {
-                    QuestionId = qid1,
-                    BestAnswerId = aid1
-                };
-                await questionRepository.UpdateQuestionAsync(question);
+        //        var question = new QuestionWithListTag()
+        //        {
+        //            QuestionId = qid1,
+        //            BestAnswerId = aid1
+        //        };
+        //        await questionRepository.UpdateQuestionAsync(question);
 
-                var res = await questionRepository.SelectQuestionByIdAsync(qid1);
-                Assert.Equal(aid1, res.BestAnswerId);
-                Assert.Equal(title1, res.Title);
-                Assert.Equal(remarks1, res.Remarks);
-            }
-        }
+        //        var res = await questionRepository.SelectQuestionByIdAsync(qid1);
+        //        Assert.Equal(aid1, res.BestAnswerId);
+        //        Assert.Equal(title1, res.Title);
+        //        Assert.Equal(remarks1, res.Remarks);
+        //    }
+        //}
 
         [Fact]
         public async Task UpdateQuestionAsync_UpdateAll()
@@ -791,7 +792,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -839,7 +840,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -882,7 +883,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -929,115 +930,115 @@ namespace AIBotTest.Repository
             }
         }
 
-        [Fact]
-        public async Task UpdateQuestionAsync_AnswerNotExist()
-        {
-            var options = CreateUniqueOptions();
+        //[Fact]
+        //public async Task UpdateQuestionAsync_AnswerNotExist()
+        //{
+        //    var options = CreateUniqueOptions();
 
-            string title1 = "Question1";
-            string remarks1 = "This is question No.1";
-            string title2 = "Question2";
-            string remarks2 = "This is question No.2";
-            int qid1;
-            int qid2;
-            int uid1;
-            int uid2;
-            int aid1;
-            int aid2;
-            using (var context = new DatabaseContext(options))
-            {
-                var user1 = new UserData()
-                {
-                    Name = "user1",
-                    Email = "user1@buaa",
-                    Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
-                };
-                context.Add(user1);
-                var user2 = new UserData()
-                {
-                    Name = "user2",
-                    Email = "user2@buaa",
-                    Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
-                };
-                context.Add(user2);
-                await context.SaveChangesAsync();
-                uid1 = user1.UserId;
-                uid2 = user2.UserId;
+        //    string title1 = "Question1";
+        //    string remarks1 = "This is question No.1";
+        //    string title2 = "Question2";
+        //    string remarks2 = "This is question No.2";
+        //    int qid1;
+        //    int qid2;
+        //    int uid1;
+        //    int uid2;
+        //    int aid1;
+        //    int aid2;
+        //    using (var context = new DatabaseContext(options))
+        //    {
+        //        var user1 = new UserData()
+        //        {
+        //            Name = "user1",
+        //            Email = "user1@buaa",
+        //            Bcrypt = "bcrypt",
+        //            Auth = AuthLevel.User
+        //        };
+        //        context.Add(user1);
+        //        var user2 = new UserData()
+        //        {
+        //            Name = "user2",
+        //            Email = "user2@buaa",
+        //            Bcrypt = "bcrypt",
+        //            Auth = AuthLevel.User
+        //        };
+        //        context.Add(user2);
+        //        await context.SaveChangesAsync();
+        //        uid1 = user1.UserId;
+        //        uid2 = user2.UserId;
 
-                var question1 = new QuestionData()
-                {
-                    Title = title1,
-                    Remarks = remarks1,
-                    UserId = uid1
-                };
-                context.Add(question1);
-                var question2 = new QuestionData()
-                {
-                    Title = title2,
-                    Remarks = remarks2,
-                    UserId = uid1
-                };
-                context.Add(question2);
-                await context.SaveChangesAsync();
-                qid1 = question1.QuestionId;
-                qid2 = question2.QuestionId;
+        //        var question1 = new QuestionData()
+        //        {
+        //            Title = title1,
+        //            Remarks = remarks1,
+        //            UserId = uid1
+        //        };
+        //        context.Add(question1);
+        //        var question2 = new QuestionData()
+        //        {
+        //            Title = title2,
+        //            Remarks = remarks2,
+        //            UserId = uid1
+        //        };
+        //        context.Add(question2);
+        //        await context.SaveChangesAsync();
+        //        qid1 = question1.QuestionId;
+        //        qid2 = question2.QuestionId;
 
-                var answer1 = new AnswerData()
-                {
-                    Content = $"answer No.1 for question1 by user1",
-                    UserId = uid1,
-                    QuestionId = qid1
-                };
-                var answer2 = new AnswerData()
-                {
-                    Content = $"answer No.2 for question1 by user2",
-                    UserId = uid2,
-                    QuestionId = qid1
-                };
-                context.Add(answer1);
-                context.Add(answer2);
-                await context.SaveChangesAsync();
-                aid1 = answer1.AnswerId;
-                aid2 = answer2.AnswerId;
-            }
+        //        var answer1 = new AnswerData()
+        //        {
+        //            Content = $"answer No.1 for question1 by user1",
+        //            UserId = uid1,
+        //            QuestionId = qid1
+        //        };
+        //        var answer2 = new AnswerData()
+        //        {
+        //            Content = $"answer No.2 for question1 by user2",
+        //            UserId = uid2,
+        //            QuestionId = qid1
+        //        };
+        //        context.Add(answer1);
+        //        context.Add(answer2);
+        //        await context.SaveChangesAsync();
+        //        aid1 = answer1.AnswerId;
+        //        aid2 = answer2.AnswerId;
+        //    }
 
-            using (var context = new DatabaseContext(options))
-            {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+        //    using (var context = new DatabaseContext(options))
+        //    {
+        //        IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
-                var question = new QuestionWithListTag()
-                {
-                    QuestionId = qid1,
-                    BestAnswerId = Math.Max(aid1, aid2) + 1
-                };
-                await Assert.ThrowsAsync<AnswerNotExistException>(async () =>
-                    await questionRepository.UpdateQuestionAsync(question));
+        //        var question = new QuestionWithListTag()
+        //        {
+        //            QuestionId = qid1,
+        //            BestAnswerId = Math.Max(aid1, aid2) + 1
+        //        };
+        //        await Assert.ThrowsAsync<AnswerNotExistException>(async () =>
+        //            await questionRepository.UpdateQuestionAsync(question));
 
-                var res = await questionRepository.SelectQuestionByIdAsync(qid1);
-                Assert.Null(res.BestAnswerId);
-                Assert.Equal(title1, res.Title);
-                Assert.Equal(remarks1, res.Remarks);
-            }
-            using (var context = new DatabaseContext(options))
-            {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+        //        var res = await questionRepository.SelectQuestionByIdAsync(qid1);
+        //        Assert.Null(res.BestAnswerId);
+        //        Assert.Equal(title1, res.Title);
+        //        Assert.Equal(remarks1, res.Remarks);
+        //    }
+        //    using (var context = new DatabaseContext(options))
+        //    {
+        //        IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
-                var question = new QuestionWithListTag()
-                {
-                    QuestionId = qid2,
-                    BestAnswerId = aid1
-                };
-                await Assert.ThrowsAsync<AnswerNotExistException>(async () =>
-                    await questionRepository.UpdateQuestionAsync(question));
+        //        var question = new QuestionWithListTag()
+        //        {
+        //            QuestionId = qid2,
+        //            BestAnswerId = aid1
+        //        };
+        //        await Assert.ThrowsAsync<AnswerNotExistException>(async () =>
+        //            await questionRepository.UpdateQuestionAsync(question));
 
-                var res = await questionRepository.SelectQuestionByIdAsync(qid2);
-                Assert.Null(res.BestAnswerId);
-                Assert.Equal(title2, res.Title);
-                Assert.Equal(remarks2, res.Remarks);
-            }
-        }
+        //        var res = await questionRepository.SelectQuestionByIdAsync(qid2);
+        //        Assert.Null(res.BestAnswerId);
+        //        Assert.Equal(title2, res.Title);
+        //        Assert.Equal(remarks2, res.Remarks);
+        //    }
+        //}
 
         [Fact]
         public async Task UpdateQuestionAsync_TagNotExist()
@@ -1050,7 +1051,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()
@@ -1095,7 +1096,7 @@ namespace AIBotTest.Repository
 
             using (var context = new DatabaseContext(options))
             {
-                IQuestionRepository questionRepository = new QuestionRepository(context, globalCancellation);
+                IQuestionRepository questionRepository = new QuestionRepository(context, cachePool, globalCancellation);
 
                 List<int> tidsForQuestion = tids.Take(tagNum / 2).ToList();
                 var origin = new QuestionWithListTag()

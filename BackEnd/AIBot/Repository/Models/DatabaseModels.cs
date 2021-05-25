@@ -31,6 +31,8 @@ namespace Buaa.AIBot.Repository.Models
         // relation references
         public List<QuestionData> Questions { get; set; }
         public List<AnswerData> Answers { get; set; }
+        public List<LikeAnswer> LikeAnswers { get; set; }
+        public List<LikeQuestion> LikeQuestions { get; set; }
     }
 
     public class QuestionData
@@ -57,6 +59,7 @@ namespace Buaa.AIBot.Repository.Models
         public UserData User { get; set; }
         public List<AnswerData> Answers { get; set; }
         public List<QuestionTagRelation> QuestionTagRelation { get; set; }
+        public List<LikeQuestion> LikedInfo { get; set; }
     }
 
     public class AnswerData
@@ -79,6 +82,7 @@ namespace Buaa.AIBot.Repository.Models
         // relation references
         public UserData User { get; set; }
         public QuestionData Question { get; set; }
+        public List<LikeAnswer> LikedInfo { get; set; }
     }
 
     public class TagData
@@ -116,6 +120,50 @@ namespace Buaa.AIBot.Repository.Models
         public override int GetHashCode()
         {
             return HashCode.Combine(TagId, QuestionId);
+        }
+    }
+
+    public class LikeAnswer
+    {
+        public int UserId { get; set; }
+        public int AnswerId { get; set; }
+
+        // relation references
+        public AnswerData Answer { get; set; }
+        public UserData User { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is LikeAnswer relation &&
+                   UserId == relation.UserId &&
+                   AnswerId == relation.AnswerId;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(UserId, AnswerId);
+        }
+    }
+
+    public class LikeQuestion
+    {
+        public int UserId { get; set; }
+        public int QuestionId { get; set; }
+
+        // relation references
+        public QuestionData Question { get; set; }
+        public UserData User { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return obj is LikeQuestion relation &&
+                   UserId == relation.UserId &&
+                   QuestionId == relation.QuestionId;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(UserId, QuestionId);
         }
     }
 }

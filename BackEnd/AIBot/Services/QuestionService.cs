@@ -50,7 +50,6 @@ namespace Buaa.AIBot.Services
                 Title = question.Title,
                 Remarks = question.Remarks,
                 Creator = question.CreaterId,
-                Best = question.BestAnswerId,
                 CreatTime = question.CreateTime,
                 ModifyTime = question.ModifyTime,
                 Tags = new Dictionary<string, int>(tags),
@@ -210,7 +209,6 @@ namespace Buaa.AIBot.Services
                     QuestionId = qid,
                     Title = modifyItems.Title,
                     Remarks = modifyItems.Remarks,
-                    BestAnswerId = modifyItems.BestAnswer,
                     Tags = modifyItems.Tags
                 });
             }

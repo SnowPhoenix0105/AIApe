@@ -15,8 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IUserRepository"/></remarks>
     public class UserRepository : RepositoryBase, IUserRepository
     {
-        public UserRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource)
-            : base(context, globalCancellationTokenSource.Token) { }
+        public UserRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, cachePool, globalCancellationTokenSource.Token) { }
 
         public async Task<UserInfo> SelectUserByIdAsync(int userId)
         {

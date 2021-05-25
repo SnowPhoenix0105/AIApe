@@ -14,10 +14,13 @@ namespace Buaa.AIBot.Repository.Implement
 
         protected CancellationToken CancellationToken { get; }
 
-        public RepositoryBase(DatabaseContext context, CancellationToken cancellationToken)
+        protected ICachePool<int> CachePool { get; }
+
+        public RepositoryBase(DatabaseContext context, ICachePool<int> cachePool, CancellationToken cancellationToken)
         {
             Context = context;
             CancellationToken = cancellationToken;
+            CachePool = cachePool;
         }
 
         protected async Task SaveChangesAgainAndAgainAsync()
