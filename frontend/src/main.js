@@ -13,7 +13,8 @@ import VueAxios from 'vue-axios';
 import directive from "element-ui/packages/popover/src/directive";
 
 Vue.prototype.$axios = axios;
-const BASE_URL = 'https://aiape.snowphoenix.design';
+// const BASE_URL = 'https://aiape.snowphoenix.design';
+const BASE_URL = 'http://test.snowphoenix.design';
 Vue.prototype.BASE_URL = BASE_URL;
 Vue.use(ElementUI);
 Vue.prototype.$store = store;

@@ -22,7 +22,12 @@ import QuestionList from "./pages/QuestionList/QuestionList";
 export default {
     data() {
         return {
-            imgSrc: require('./assets/background1.jpg')
+            imgSrc: require('./assets/background1.jpg'),
+            system: {
+                win: false,
+                mac: false,
+                xll: false,
+            }
         }
     },
     components: {
@@ -32,6 +37,16 @@ export default {
         QuestionList
     },
     created() {
+        var p = navigator.platform;
+        this.system.win = p.indexOf("Win") == 0;
+        this.system.mac = p.indexOf("Mac") == 0;
+        this.system.xll = p.indexOf("Xll") == 0;
+        if (this.system.win || this.system.mac || this.system.xll) {
+            alert("电脑端登录");
+        } else {
+            alert("移动端登录");
+        }
+
         //在页面加载时读取localStorage里的状态信息
         if (sessionStorage.getItem("store")) {
             this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(sessionStorage.getItem("store"))))
