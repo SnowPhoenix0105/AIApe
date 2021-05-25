@@ -2,13 +2,14 @@
     <div>
         <MobileLogin v-if="this.$store.state.mobileStatus === 'login'"/>
         <MobileChat v-if="this.$store.state.mobileStatus === 'chat'"/>
+        <MobileRegister v-if="this.$store.state.mobileStatus === 'register'"/>
     </div>
 </template>
 
 <script>
 import MobileLogin from "./MobileLogin";
 import MobileChat from "./MobileChat";
-// import global from './Global'
+import MobileRegister from "../../pages/QuestionList/MobileRegister";
 
 export default {
     name: "Mobile",
@@ -20,7 +21,7 @@ export default {
     components: {
         MobileLogin,
         MobileChat,
-        // global
+        MobileRegister,
     },
     beforeCreate() {
     }

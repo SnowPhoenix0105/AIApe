@@ -20,7 +20,7 @@ export default new Vuex.Store({
         logs: [{id: 2, content: '你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！', prompts:[], promptValid: false},
             {id: 1, content: '你好，我是William！登录完成！', prompts:[], promptValid: false}],
         maxZIndex: 1,
-        mobileStatus: 'chat',
+        mobileStatus: 'login',
     },
     mutations: {
         setUsername(state, value) {
