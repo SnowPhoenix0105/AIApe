@@ -10,48 +10,17 @@
 ## Logs
 *.log
 
-# BackEnd
-
-## Builds and Auto-Generations
-
-[Bb]in/
-[Oo]bj/
-[Ll]ib/
-[Pp]ackages/
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-[Mm]igrations/
-Documents/BackEnd_API_Doxygen/Docs/
-BackEnd/AIBot/GccWorkDir/
-__pycache__/
-
-*.exe
-*.lib
-*.dll
-*.obj
 
 ## Tests and Logs
 [Tt]est[Rr]esult*/
 [Ll]og/
 [Bb]uild[Ll]og.*
+Documents/BackEnd_API_Doxygen/Docs/
 
 
 
 ## IDE and Tools
+.[Ii]dea/
 .[Vv]s/
 .[Vv]scode/
 
-
-## user profiles
-*.csproj.user
-
-## script generation
-Scripts/95/
-Scripts/after_process/
-Scripts/cache
-Scripts/question_list_dump
-Scripts/csdn_data.json
-Scripts/questions_to_add.json
-Scripts/*.json
