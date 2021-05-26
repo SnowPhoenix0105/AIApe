@@ -386,9 +386,9 @@ namespace Buaa.AIBot.Services
                 {
                     ret.Status = LikeProduceResult.ResultStatus.questionNotExist;
                 }
-                catch (Repository.Exceptions.UserHasLikedTargetException)
+                catch (Repository.Exceptions.UserNotLikedTargetException)
                 {
-                    ret.Status = LikeProduceResult.ResultStatus.alreadyLiked;
+                    ret.Status = LikeProduceResult.ResultStatus.notLiked;
                 }
             }
             ret.UserLiked = await likeRepository.UserLikedQuestionAsync(uid, qid);
@@ -426,9 +426,9 @@ namespace Buaa.AIBot.Services
                 {
                     ret.Status = LikeProduceResult.ResultStatus.answerNotExist;
                 }
-                catch (Repository.Exceptions.UserHasLikedTargetException)
+                catch (Repository.Exceptions.UserNotLikedTargetException)
                 {
-                    ret.Status = LikeProduceResult.ResultStatus.alreadyLiked;
+                    ret.Status = LikeProduceResult.ResultStatus.notLiked;
                 }
             }
             ret.UserLiked = await likeRepository.UserLikedAnswerAsync(uid, aid);
