@@ -16,6 +16,7 @@
     "highlight.js": "^10.7.2",
     "jwchat": "^0.3.8",
     "markdown-it-vue": "^1.1.6",
+    "mavon-editor": "^2.9.1",
     "qs": "^6.10.1",
     "vue": "^2.5.2",
     "vue-axios": "^3.2.4",
