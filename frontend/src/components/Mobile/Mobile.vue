@@ -9,7 +9,7 @@
 <script>
 import MobileLogin from "./MobileLogin";
 import MobileChat from "./MobileChat";
-import MobileRegister from "../../pages/QuestionList/MobileRegister";
+import MobileRegister from "./MobileRegister";
 
 export default {
     name: "Mobile",

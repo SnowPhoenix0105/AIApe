@@ -11,14 +11,15 @@
                     <el-input prefix-icon="el-icon-message" v-model="loginForm.email"></el-input>
                 </el-form-item>
                 <el-form-item label="密码">
-                    <el-input type="password" show-password prefix-icon="el-icon-lock" v-model="loginForm.password"></el-input>
+                    <el-input type="password" show-password prefix-icon="el-icon-lock"
+                              v-model="loginForm.password"></el-input>
                 </el-form-item>
             </el-form>
         </div>
         <div align="center">
             <el-button type="primary" v-on:click="submit">登录</el-button>
         </div>
-        <div align="center" class = gtr>
+        <div align="center" class=gtr>
             <el-link :underline="true" target="_blank" v-on:click="goToRegister">没有账号？点我注册</el-link>
         </div>
     </div>
@@ -38,9 +39,47 @@ export default {
     },
     methods: {
         submit() {
-            alert(this.loginForm.email);
-            alert(this.loginForm.password);
-            this.$store.state.mobileStatus = 'chat';
+            // alert(this.loginForm.email);
+            // alert(this.loginForm.password);
+            // this.$store.state.mobileStatus = 'chat';
+            let _this = this;
+            this.$axios.post(this.BASE_URL + "/api/user/login", {
+                email: _this.$data.loginForm.email,
+                password: _this.$data.loginForm.password
+            })
+                .then(function (response) {
+                    if (response.data.status === "fail") {
+                        _this.$message({
+                            message: '邮箱或密码错误!',
+                            type: 'error'
+                        });
+                    } else {
+                        _this.$message({
+                            message: '登录成功!',
+                            type: 'success'
+                        });
+                        _this.$store.commit('refreshToken', {
+                            token: response.data.token,
+                            time: new Date(),
+                            timeout: response.data.timeout
+                        });
+                        _this.$store.commit('setAuth', response.data.auth);
+                        _this.$axios.get(_this.BASE_URL + '/api/user/internal_info', {
+                            headers: {
+                                Authorization: 'Bearer ' + response.data.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
+                            .then(function (response) {
+                                _this.$store.commit('setUsername', response.data.name);
+                                _this.$store.commit('setUid', response.data.uid);
+                            })
+                            .catch(function (error) {
+                                console.log(error);
+                            });
+                        // alert(_this.$store.state.token);
+                    }
+                })
         },
         goToRegister() {
             this.$store.state.mobileStatus = 'register';

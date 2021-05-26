@@ -14,8 +14,8 @@
                               show-password v-model="registerForm.password"></el-input>
                 </el-form-item>
                 <el-form-item label="确认密码">
-                    <el-input type="password" prefix-icon="el-icon-unlock"
-                              show-password v-model="registerForm.password2"></el-input>
+                    <el-input type="password" prefix-icon="el-icon-unlock" show-password
+                              v-model="registerForm.rePassword"></el-input>
                 </el-form-item>
             </el-form>
         </div>
@@ -23,7 +23,7 @@
             <el-button type="primary" v-on:click="register">注册</el-button>
         </div>
 
-        <div align="center" class = gtl>
+        <div align="center" class=gtl>
             <el-link :underline="true" target="_blank" v-on:click="goToLogin">返回登陆</el-link>
         </div>
     </div>
@@ -38,8 +38,9 @@ export default {
                 nickName: '',
                 email: '',
                 password: '',
-                password2: '',
-            }
+                rePassword: '',
+            },
+            rePasswordError: false,
         }
     },
     methods: {
@@ -48,6 +49,9 @@ export default {
         },
         goToLogin() {
             this.$store.state.mobileStatus = 'login';
+        },
+        checkPassword() {
+            this.$data.rePasswordError = this.$data.registerForm.password !== this.$data.registerForm.rePassword;
         }
     }
 }
