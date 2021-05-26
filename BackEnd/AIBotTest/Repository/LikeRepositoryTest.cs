@@ -1222,5 +1222,477 @@ namespace AIBotTest.Repository
 
         #endregion
 
+        #region DeleteLikeForQuestionAsync
+
+        [Fact]
+        public async Task DeleteLikeForQuestionAsync_Basic()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeQuestion()
+                {
+                    User = user[0],
+                    Question = question
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+
+                Assert.True(await likeRepository.UserLikedQuestionAsync(uids[0], qid));
+                await likeRepository.DeleteLikeForQuestionAsync(uids[0], qid);
+                Assert.False(await likeRepository.UserLikedQuestionAsync(uids[0], qid));
+            }
+        }
+
+        [Fact]
+        public async Task DeleteLikeForQuestionAsync_UserNotExist()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeQuestion()
+                {
+                    User = user[0],
+                    Question = question
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+                await Assert.ThrowsAsync<UserNotExistException>(async () =>
+                    await likeRepository.DeleteLikeForQuestionAsync(uids.Max() + 1, qid));
+                Assert.Equal(1, await likeRepository.SelectLikesCountForQuestionAsync(qid));
+            }
+        }
+
+        [Fact]
+        public async Task DeleteLikeForQuestionAsync_QuestionNotExist()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeQuestion()
+                {
+                    User = user[0],
+                    Question = question
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+                await Assert.ThrowsAsync<QuestionNotExistException>(async () =>
+                    await likeRepository.DeleteLikeForQuestionAsync(uids[0], qid + 1));
+                Assert.Equal(1, await likeRepository.SelectLikesCountForQuestionAsync(qid));
+            }
+        }
+
+        [Fact]
+        public async Task DeleteLikeForQuestionAsync_NotLike()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeQuestion()
+                {
+                    User = user[0],
+                    Question = question
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+                await Assert.ThrowsAsync<UserNotLikedTargetException>(async () =>
+                    await likeRepository.DeleteLikeForQuestionAsync(uids[1], qid));
+                Assert.Equal(1, await likeRepository.SelectLikesCountForQuestionAsync(qid));
+            }
+        }
+
+        #endregion
+
+        #region DeleteLikeFroAnswerAsync
+
+        [Fact]
+        public async Task DeleteLikeFroAnswerAsync_Basic()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeAnswer()
+                {
+                    User = user[0],
+                    Answer = answer
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+
+                Assert.True(await likeRepository.UserLikedAnswerAsync(uids[0], aid));
+                await likeRepository.DeleteLikeFroAnswerAsync(uids[0], aid);
+                Assert.False(await likeRepository.UserLikedAnswerAsync(uids[0], aid));
+            }
+        }
+
+        [Fact]
+        public async Task DeleteLikeFroAnswerAsync_UserNotExist()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeAnswer()
+                {
+                    User = user[0],
+                    Answer = answer
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+                await Assert.ThrowsAsync<UserNotExistException>(async () =>
+                    await likeRepository.DeleteLikeFroAnswerAsync(uids.Max() + 1, aid));
+                Assert.Equal(1, await likeRepository.SelectLikesCountForAnswerAsync(aid));
+            }
+        }
+
+        [Fact]
+        public async Task DeleteLikeFroAnswerAsync_QuestionNotExist()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeAnswer()
+                {
+                    User = user[0],
+                    Answer = answer
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+                await Assert.ThrowsAsync<AnswerNotExistException>(async () =>
+                    await likeRepository.DeleteLikeFroAnswerAsync(uids[0], aid + 1));
+                Assert.Equal(1, await likeRepository.SelectLikesCountForAnswerAsync(aid));
+            }
+        }
+
+        [Fact]
+        public async Task DeleteLikeFroAnswerAsync_NotLike()
+        {
+            var options = CreateUniqueOptions();
+
+            int[] uids;
+            int qid;
+            int aid;
+            int userCount = 3;
+            using (var context = new DatabaseContext(options))
+            {
+                var user = Enumerable.Range(0, userCount).Select(i => new UserData()
+                {
+                    Name = $"user{i}",
+                    Email = $"user{i}@buaa",
+                    Bcrypt = "bcrypt",
+                    Auth = AuthLevel.User
+                }).ToArray();
+                context.AddRange(user);
+
+                var question = new QuestionData()
+                {
+                    User = user.First(),
+                    Title = "title",
+                    Remarks = "remarks",
+                };
+                context.Add(question);
+
+                var answer = new AnswerData()
+                {
+                    User = user.Last(),
+                    Question = question,
+                    Content = "content",
+                };
+                context.Add(answer);
+
+                context.Add(new LikeAnswer()
+                {
+                    User = user[0],
+                    Answer = answer
+                });
+
+                await context.SaveChangesAsync();
+                qid = question.QuestionId;
+                uids = user.Select(u => u.UserId).ToArray();
+                aid = answer.AnswerId;
+            }
+
+            using (var context = new DatabaseContext(options))
+            {
+                ILikeRepository likeRepository = new LikeRepository(context, cachePool, globalCancellation);
+
+                await Assert.ThrowsAsync<UserNotLikedTargetException>(async () =>
+                    await likeRepository.DeleteLikeFroAnswerAsync(uids[1], aid));
+                Assert.Equal(1, await likeRepository.SelectLikesCountForAnswerAsync(qid));
+            }
+        }
+        #endregion
     }
 }

@@ -267,7 +267,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyQuestionAsync_QuestionNotExist1()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new QuestionNotExistException(0));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 
@@ -282,7 +282,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyQuestionAsync_LackofAuthority()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -304,7 +304,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyQuestionAsync_Success()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -325,7 +325,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyQuestionAsync_QuestionNotExist2()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -346,7 +346,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyQuestionAsync_QuestionTitleTooLong()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -367,7 +367,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyQuestionAsync_TagNotExist()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -388,7 +388,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyQuestionAsync_AnswerNotExist()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -409,7 +409,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyAnswerAsync_AnswerNotExist1()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new AnswerNotExistException(0));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 
@@ -424,7 +424,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyAnswerAsync_LackofAuthority()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new AnswerInformation
             {
                 Creator = 0
@@ -445,7 +445,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyAnswerAsync_Success()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new AnswerInformation
             {
                 Creator = 0
@@ -465,7 +465,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyAnswerAsync_AnswerNotExist2()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new AnswerInformation
             {
                 Creator = 0
@@ -542,7 +542,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteQuestionAsync_QuestionNotExist1()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new QuestionNotExistException(0));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 
@@ -557,7 +557,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteQuestionAsync_LackofAuthority()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -579,7 +579,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteQuestionAsync_Success()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -599,7 +599,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteQuestionAsync_QuestionNotExist2()
         {
-            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new QuestionInformation
             {
                 Creator = 0
@@ -621,7 +621,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteAnswerAsync_AnswerNotExist1()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new AnswerNotExistException(0));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 
@@ -635,7 +635,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteAnswerAsync_LackofAuthority()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new AnswerInformation
             {
                 Creator = 0
@@ -656,7 +656,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteAnswerAsync_Success()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new AnswerInformation
             {
                 Creator = 0
@@ -676,7 +676,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task DeleteAnswerAsync_AnswerNotExist2()
         {
-            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>()))
+            mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ReturnsAsync(new AnswerInformation
             {
                 Creator = 0

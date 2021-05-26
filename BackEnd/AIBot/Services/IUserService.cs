@@ -42,6 +42,7 @@ namespace Buaa.AIBot.Services
         /// Get UserId from token in request headers.
         /// </summary>
         int GetUidFromToken(HttpRequest request);
+        bool TryGetUidFromToken(HttpRequest request, out int uid);
 
         /// <summary> 
         /// Get UserId from parameters.
@@ -226,6 +227,25 @@ namespace Buaa.AIBot.Services
             }
             result = null;
             return true;
+        }
+
+        public bool TryGetUidFromToken(HttpRequest request, out int uid)
+        {
+            var jwtHandler = new JwtSecurityTokenHandler();
+            string token_content = request.Headers["Authorization"].ToString();
+            if (token_content.Length <= 7)
+            {
+                uid = default;
+                return false;
+            }
+            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(token_content.Substring(7));
+            if (jwtToken.Payload.TryGetValue(ClaimTypes.Sid, out Object ret))
+            {
+                uid = int.Parse(ret.ToString());
+                return true;
+            }
+            uid = default;
+            return false;
         }
 
         public int GetUidFromToken(HttpRequest request)

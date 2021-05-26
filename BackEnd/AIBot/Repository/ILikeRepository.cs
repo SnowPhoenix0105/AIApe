@@ -82,7 +82,7 @@ namespace Buaa.AIBot.Repository
         /// </remarks>
         /// <exception cref="UserNotExistException">given uid matches no User.</exception>
         /// <exception cref="QuestionNotExistException">given qid matches no Question.</exception>
-        /// <exception cref="UserHasLikedTargetException"><see cref="UserLikedQuestion(int, int)"/> return false before call.</exception>
+        /// <exception cref="UserNotLikedTargetException"><see cref="UserLikedQuestion(int, int)"/> return false before call.</exception>
         /// <param name="uid"></param>
         /// <param name="qid"></param>
         /// <returns></returns>
@@ -108,7 +108,9 @@ namespace Buaa.AIBot.Repository
         /// After call, <see cref="UserLikedAnswer(int, int)"/> returns false when using same params.
         /// and the result of <see cref="SelectLikesCountForAnswer(int)"/> decreased.
         /// </remarks>
-        /// <exception cref="UserHasLikedTargetException"><see cref="UserLikedAnswer(int, int)"/> return false before call.</exception>
+        /// <exception cref="UserNotExistException">given uid matches no User.</exception>
+        /// <exception cref="AnswerNotExistException">given qid matches no Question.</exception>
+        /// <exception cref="UserNotLikedTargetException"><see cref="UserLikedAnswer(int, int)"/> return false before call.</exception>
         /// <param name="uid"></param>
         /// <param name="aid"></param>
         /// <returns></returns>
