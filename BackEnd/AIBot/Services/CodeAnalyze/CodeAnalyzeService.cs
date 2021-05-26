@@ -41,9 +41,20 @@ namespace Buaa.AIBot.Services.CodeAnalyze
             this.globalCancellationTokenSource = globalCancellationTokenSource;
         }
 
-        private string GetDescription(CppCheckResult cppCheckResult)
+        private static readonly IReadOnlySet<string> ignoredCategories = new HashSet<string>()
         {
-            return CppCheckResultTanslation.Translate(cppCheckResult);
+            "missingIncludeSystem"
+        };
+
+        private bool TryGetDescription(CppCheckResult cppCheckResult, out string res)
+        {
+            if (ignoredCategories.Contains(cppCheckResult.Category))
+            {
+                res = null;
+                return false;
+            }
+            res = CppCheckResultTanslation.Translate(cppCheckResult);
+            return true;
         }
 
         public async Task<CodeAnalyzeResult> AnalyzeAsync(string code)
@@ -55,16 +66,31 @@ namespace Buaa.AIBot.Services.CodeAnalyze
                 var res = await cppcheck.CppCheckAnalyzeAsync();
                 var fmtCode = await cppcheck.ReadFileAsync();
                 await cppcheck.CleanUpAsync();
+                var messages = new List<CodeAnalyzeResult.CodeAnalyzeMessage>();
+                foreach (var message in res)
+                {
+                    if (TryGetDescription(message, out var desc))
+                    {
+                        int line = -1;
+                        int column = -1;
+                        if (message.Location != null)
+                        {
+                            line = message.Location.Line;
+                            column = message.Location.Column;
+                        }
+                        messages.Add(new CodeAnalyzeResult.CodeAnalyzeMessage()
+                        {
+                            Level = message.Level,
+                            Desc = desc,
+                            Line = line,
+                            Column = column
+                        });
+                    }
+                }
                 var ret = new CodeAnalyzeResult()
                 {
                     SourceCode = fmtCode,
-                    Messages = res.Select(m => new CodeAnalyzeResult.CodeAnalyzeMessage()
-                    {
-                        Level = m.Level,
-                        Desc = GetDescription(m),
-                        Line = m.Location == null ? -1 : m.Location.Line,
-                        Column = m.Location == null ? -1 : m.Location.Column
-                    }).ToList()
+                    Messages = messages
                 };
                 // logger.LogInformation(JsonSerializer.Serialize(ret));
 
