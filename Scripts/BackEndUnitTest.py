@@ -54,6 +54,14 @@ def generate_report(guid: str):
             "-reporttypes:Html"
     exec(command)
 
+def package(guid: str):
+    log("打包覆盖报表")
+    result_path = pcat(Path.AIBotTest_TestResults, guid)
+    xml_path = pcat(result_path, "coverage.cobertura.xml")
+    report_path = pcat(result_path, "coverage_report")
+    command = "zip -j -r report.zip " + result_path
+    exec(command)
+
 def print_cli_message(guid: str):
     result_path = pcat(Path.AIBotTest_TestResults, guid)
     xml_path = pcat(result_path, "coverage.cobertura.xml")
@@ -70,6 +78,8 @@ def print_cli_message(guid: str):
     log("line-coverage:\t{:.2f} % ({:d}/{:d})".format(line_rate * 100, lines_covered, lines_valid))
     log("branch-coverage:\t{:.2f} % ({:d}/{:d})".format(branch_rate * 100, branches_covered, branches_valid))
 
+
+    
     
 def main() -> int:
     try:
@@ -79,6 +89,7 @@ def main() -> int:
         try:
             install_tool_ReportGenerator()
             generate_report(guid)
+            package(guid)
             return 0
         finally:
             print_cli_message(guid)

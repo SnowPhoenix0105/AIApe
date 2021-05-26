@@ -6,35 +6,22 @@ variables:
   MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe'
 
 stages:
-  - test_dotNet
-  - build
-  - test
-#  - deploy
-
-#build_job:
-#  stage: build
-#  only:
-#    - tags  # the build process will only be started by git tag commits
-#  script:
-#    - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
-#    - '& "$env:MSBUILD_PATH" /p:Configuration=Release'  # build the project
-
-
-test_dotNet_job:
-  stage: test_dotNet
-  script:
-    - dotnet -h
-
-build_job:
-  stage: build
-  script:
-    - dotnet restore ./BackEnd/BackEnd.sln
-    - dotnet build --no-restore ./BackEnd/BackEnd.sln
+  - backend_unittest
 
 test_job:
-  stage: test
+  stage: backend_unittest
   script:
-    - dotnet test --no-build --collect:"XPlat Code Coverage" ./BackEnd/BackEnd.sln
-    - dotnet test --no-build --logger "console;verbosity=detailed" ./BackEnd/BackEnd.sln
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - apt-get update
+    - apt-get install python3 -y
+    - apt-get install zip -y
+    - python3 --version
+    - dotnet --version
+    - python3 ./Scripts/BackEndUnitTest.py
+  artifacts:
+    name: test_report
+    paths:
+      - report.zip
+    expire_in: 1 week
     
     
