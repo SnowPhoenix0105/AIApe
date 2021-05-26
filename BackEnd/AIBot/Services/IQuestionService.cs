@@ -12,18 +12,26 @@ namespace Buaa.AIBot.Services
         /// <summary>
         /// 
         /// </summary>
+        /// <remarks>
+        /// <see cref="QuestionInformation.Like"/> will be set if uid is not null and legal.
+        /// </remarks>
         /// <exception cref="QuestionNotExistException"></exception>
         /// <param name="qid"></param>
+        /// <param name="uid"></param>
         /// <returns></returns>
-        Task<QuestionInformation> GetQuestionAsync(int qid);
+        Task<QuestionInformation> GetQuestionAsync(int qid, int? uid=null);
 
         /// <summary>
         /// 
         /// </summary>
+        /// <remarks>
+        /// <see cref="QuestionInformation.Like"/> will be set if uid is not null and legal.
+        /// </remarks>
         /// <exception cref="AnswerNotExistException"></exception>
         /// <param name="aid"></param>
+        /// <param name="uid"></param>
         /// <returns></returns>
-        Task<AnswerInformation> GetAnswerAsync(int aid);
+        Task<AnswerInformation> GetAnswerAsync(int aid, int? uid=null);
 
         /// <summary>
         /// 
@@ -135,5 +143,39 @@ namespace Buaa.AIBot.Services
         /// <param name="tid"></param>
         /// <returns></returns>
         Task DeleteTagAsync(int tid);
+
+        /// <summary>
+        /// for a User, mark a Question as Like or unmark.
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="qid"></param>
+        /// <param name="target">true if want to mark, or false.</param>
+        /// <returns></returns>
+        Task<LikeProduceResult> LikeQuestionAsync(int uid, int qid, bool target);
+
+        /// <summary>
+        /// for a User, mark a Answer as Like or unmark.
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="aid"></param>
+        /// <param name="target">true if want to mark, or false.</param>
+        /// <returns></returns>
+        Task<LikeProduceResult> LikeAnswerAsync(int uid, int aid, bool target);
+    }
+
+    public class LikeProduceResult
+    {
+        public enum ResultStatus
+        {
+            success,
+            alreadyLiked,
+            notLiked,
+            questionNotExist,
+            answerNotExist,
+        }
+
+        public ResultStatus Status { get; set; }
+        public bool UserLiked { get; set; }
+        public int LikeNum { get; set; }
     }
 }
