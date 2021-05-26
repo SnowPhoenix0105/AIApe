@@ -3,24 +3,30 @@
         <h1 class="title">AIAPE-注册</h1>
         <div class="form">
             <el-form label-position="left" label-width="25%" :model="registerForm">
-                <el-form-item label="呢称">
+                <el-form-item label="昵称">
                     <el-input prefix-icon="el-icon-user" v-model="registerForm.nickName"></el-input>
                 </el-form-item>
                 <el-form-item label="邮箱">
                     <el-input prefix-icon="el-icon-message" v-model="registerForm.email"></el-input>
                 </el-form-item>
                 <el-form-item label="密码">
-                    <el-input type="password" prefix-icon="el-icon-lock"
-                              show-password v-model="registerForm.password"></el-input>
+                    <el-input type="password" prefix-icon="el-icon-lock" show-password
+                              v-model="registerForm.password" @keyup.native="checkPswLength"></el-input>
+                    <p v-if="pswLengthError" class="warning">密码长度不足8位</p>
                 </el-form-item>
                 <el-form-item label="确认密码">
                     <el-input type="password" prefix-icon="el-icon-unlock" show-password
-                              v-model="registerForm.rePassword"></el-input>
+                              v-model="registerForm.rePassword" @keyup.native="checkPassword"></el-input>
+                    <p v-if="rePasswordError" class="warning">两次密码不一致</p>
                 </el-form-item>
             </el-form>
         </div>
         <div align="center">
-            <el-button type="primary" v-on:click="register">注册</el-button>
+            <el-button type="primary" v-on:click="register"
+                       :disabled="pswLengthError || rePasswordError || registerForm.nickName === ''
+                       || registerForm.password === '' || registerForm.email === ''
+                       || registerForm.rePassword === ''">注册
+            </el-button>
         </div>
 
         <div align="center" class=gtl>
@@ -41,16 +47,51 @@ export default {
                 rePassword: '',
             },
             rePasswordError: false,
+            pswLengthError: false,
         }
     },
     methods: {
         register() {
-
+            alert('here!')
+            let _this = this;
+            _this.$axios.post(_this.BASE_URL + "/api/user/signup", {
+                name: _this.$data.registerForm.nickName,
+                email: _this.$data.registerForm.email,
+                password: _this.$data.registerForm.password
+            })
+                .then(function (response) {
+                    let status = response.data.status;
+                    alert(status);
+                    if (status === 'success') {
+                        _this.$message({
+                            message: '注册成功!即将跳转至登录页面...',
+                            type: 'success'
+                        });
+                        setTimeout(() => {
+                            _this.$store.state.mobileStatus = "login";
+                        }, 2000);
+                    } else if (status === 'nameInvalid') {
+                        alert("昵称格式不合法");
+                    } else if (status === 'nameExisted') {
+                        alert("昵称已存在");
+                    } else if (status === 'emailExisted') {
+                        alert("邮箱已被注册");
+                    } else if (status === 'emailInvalid') {
+                        alert("邮箱格式错误");
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                })
         },
         goToLogin() {
             this.$store.state.mobileStatus = 'login';
         },
         checkPassword() {
+            this.$data.rePasswordError = this.$data.registerForm.password !== this.$data.registerForm.rePassword;
+        },
+        checkPswLength() {
+            this.$data.pswLengthError = this.$data.registerForm.password.length < 8;
             this.$data.rePasswordError = this.$data.registerForm.password !== this.$data.registerForm.rePassword;
         }
     }
@@ -71,6 +112,12 @@ export default {
 
 .gtl {
     margin-top: 10%;
+}
+
+.warning {
+    margin-top: -5px;
+    margin-bottom: -20px;
+    color: red;
 }
 
 </style>

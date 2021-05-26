@@ -17,7 +17,9 @@
             </el-form>
         </div>
         <div align="center">
-            <el-button type="primary" v-on:click="submit">登录</el-button>
+            <el-button type="primary" v-on:click="submit"
+                       :disabled="loginForm.password === '' || loginForm.email === ''">登录
+            </el-button>
         </div>
         <div align="center" class=gtr>
             <el-link :underline="true" target="_blank" v-on:click="goToRegister">没有账号？点我注册</el-link>
