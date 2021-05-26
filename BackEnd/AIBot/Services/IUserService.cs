@@ -232,7 +232,13 @@ namespace Buaa.AIBot.Services
         public bool TryGetUidFromToken(HttpRequest request, out int uid)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(request.Headers["Authorization"].ToString().Substring(7));
+            string token_content = request.Headers["Authorization"].ToString();
+            if (token_content.Length <= 7)
+            {
+                uid = default;
+                return false;
+            }
+            JwtSecurityToken jwtToken = jwtHandler.ReadJwtToken(token_content.Substring(7));
             if (jwtToken.Payload.TryGetValue(ClaimTypes.Sid, out Object ret))
             {
                 uid = int.Parse(ret.ToString());
