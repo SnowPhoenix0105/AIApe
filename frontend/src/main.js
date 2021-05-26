@@ -9,6 +9,8 @@ import store from "./vuex/store";
 import axios from 'axios';
 import 'github-markdown-css/github-markdown.css';
 import 'vue2-animate/dist/vue2-animate.min.css';
+import mavonEditor from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css';
 import VueAxios from 'vue-axios';
 import directive from "element-ui/packages/popover/src/directive";
 
@@ -17,6 +19,7 @@ Vue.prototype.$axios = axios;
 const BASE_URL = 'http://test.snowphoenix.design';
 Vue.prototype.BASE_URL = BASE_URL;
 Vue.use(ElementUI);
+Vue.use(mavonEditor);
 Vue.prototype.$store = store;
 
 new Vue({
