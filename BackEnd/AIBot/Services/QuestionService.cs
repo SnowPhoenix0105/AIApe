@@ -20,15 +20,17 @@ namespace Buaa.AIBot.Services
         private readonly IQuestionRepository questionRepository;
         private readonly IAnswerRepository answerRepository;
         private readonly ITagRepostory tagRepostory;
+        private readonly ILikeRepository likeRepository;
 
-        public QuestionService(IQuestionRepository question, IAnswerRepository answerRepository, ITagRepostory tagRepostory)
+        public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository)
         {
-            this.questionRepository = question;
+            this.questionRepository = questionRepository;
             this.answerRepository = answerRepository;
             this.tagRepostory = tagRepostory;
+            this.likeRepository = likeRepository;
         }
 
-        public async Task<QuestionInformation> GetQuestionAsync(int qid)
+        public async Task<QuestionInformation> GetQuestionAsync(int qid, int? uid=null)
         {
             var question = await questionRepository.SelectQuestionByIdAsync(qid);
             if (question == null)
@@ -45,11 +47,35 @@ namespace Buaa.AIBot.Services
             {
                 throw new Exceptions.QuestionNotExistException(qid);
             }
+            bool? like = null;
+            int likeNum;
+            try
+            {
+                if (uid != null)
+                {
+                    try
+                    {
+                        bool res = await likeRepository.UserLikedQuestionAsync((int)uid, qid);
+                        like = res;
+                    }
+                    catch (Repository.Exceptions.UserNotExistException)
+                    {
+                        like = null;
+                    }
+                }
+                likeNum = await likeRepository.SelectLikesCountForQuestionAsync(qid);
+            }
+            catch (Repository.Exceptions.QuestionNotExistException e)
+            {
+                throw new Exceptions.QuestionNotExistException(qid, e);
+            }
             return new QuestionInformation()
             {
                 Title = question.Title,
                 Remarks = question.Remarks,
                 Creator = question.CreaterId,
+                Like = like,
+                LikeNum = likeNum,
                 CreatTime = question.CreateTime,
                 ModifyTime = question.ModifyTime,
                 Tags = new Dictionary<string, int>(tags),
@@ -57,17 +83,41 @@ namespace Buaa.AIBot.Services
             };
         }
 
-        public async Task<AnswerInformation> GetAnswerAsync(int aid)
+        public async Task<AnswerInformation> GetAnswerAsync(int aid, int? uid=null)
         {
             var answer = await answerRepository.SelectAnswerByIdAsync(aid);
             if (answer == null)
             {
                 throw new Exceptions.AnswerNotExistException(aid);
             }
+            bool? like = null;
+            int likeNum;
+            try
+            {
+                if (uid != null)
+                {
+                    try
+                    {
+                        bool res = await likeRepository.UserLikedAnswerAsync((int)uid, aid);
+                        like = res;
+                    }
+                    catch (Repository.Exceptions.UserNotExistException)
+                    {
+                        like = null;
+                    }
+                }
+                likeNum = await likeRepository.SelectLikesCountForAnswerAsync(aid);
+            }
+            catch (Repository.Exceptions.AnswerNotExistException e)
+            {
+                throw new Exceptions.AnswerNotExistException(aid, e);
+            }
             return new AnswerInformation()
             {
                 Content = answer.Content,
                 Creator = answer.CreaterId,
+                Like = like,
+                LikeNum = likeNum,
                 CreateTime = answer.CreateTime,
                 ModifyTime = answer.ModifyTime
             };
@@ -220,14 +270,14 @@ namespace Buaa.AIBot.Services
             {
                 throw new Exceptions.QuestionNotExistException(qid, e);
             }
-            catch (Repository.Exceptions.AnswerNotExistException e)
-            {
-                if (modifyItems.BestAnswer != null)
-                {
-                    throw new Exceptions.AnswerNotExistException((int)modifyItems.BestAnswer, e);
-                }
-                throw;
-            }
+            //catch (Repository.Exceptions.AnswerNotExistException e)
+            //{
+            //    if (modifyItems.BestAnswer != null)
+            //    {
+            //        throw new Exceptions.AnswerNotExistException((int)modifyItems.BestAnswer, e);
+            //    }
+            //    throw;
+            //}
         }
 
         public async Task ModifyAnswerAsync(int aid, string content)
@@ -304,6 +354,86 @@ namespace Buaa.AIBot.Services
                 throw new Exceptions.TagNotExistException(tid);
             }
             await tagRepostory.DeleteTagAsync(tid);
+        }
+
+        public async Task<LikeProduceResult> LikeQuestionAsync(int uid, int qid, bool target)
+        {
+            var ret = new LikeProduceResult();
+            if (target)
+            {
+                try
+                {
+                    await likeRepository.InsertLikeForQuestionAsync(uid, qid);
+                    ret.Status = LikeProduceResult.ResultStatus.success;
+                }
+                catch (Repository.Exceptions.QuestionNotExistException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.questionNotExist;
+                }
+                catch (Repository.Exceptions.UserHasLikedTargetException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.alreadyLiked;
+                }
+            }
+            else
+            {
+                try
+                {
+                    await likeRepository.DeleteLikeForQuestionAsync(uid, qid);
+                    ret.Status = LikeProduceResult.ResultStatus.success;
+                }
+                catch (Repository.Exceptions.QuestionNotExistException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.questionNotExist;
+                }
+                catch (Repository.Exceptions.UserNotLikedTargetException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.notLiked;
+                }
+            }
+            ret.UserLiked = await likeRepository.UserLikedQuestionAsync(uid, qid);
+            ret.LikeNum = await likeRepository.SelectLikesCountForQuestionAsync(qid);
+            return ret;
+        }
+
+        public async Task<LikeProduceResult> LikeAnswerAsync(int uid, int aid, bool target)
+        {
+            var ret = new LikeProduceResult();
+            if (target)
+            {
+                try
+                {
+                    await likeRepository.InsertLikeForAnswerAsync(uid, aid);
+                    ret.Status = LikeProduceResult.ResultStatus.success;
+                }
+                catch (Repository.Exceptions.QuestionNotExistException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.answerNotExist;
+                }
+                catch (Repository.Exceptions.UserHasLikedTargetException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.alreadyLiked;
+                }
+            }
+            else
+            {
+                try
+                {
+                    await likeRepository.DeleteLikeFroAnswerAsync(uid, aid);
+                    ret.Status = LikeProduceResult.ResultStatus.success;
+                }
+                catch (Repository.Exceptions.AnswerNotExistException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.answerNotExist;
+                }
+                catch (Repository.Exceptions.UserNotLikedTargetException)
+                {
+                    ret.Status = LikeProduceResult.ResultStatus.notLiked;
+                }
+            }
+            ret.UserLiked = await likeRepository.UserLikedAnswerAsync(uid, aid);
+            ret.LikeNum = await likeRepository.SelectLikesCountForAnswerAsync(aid);
+            return ret;
         }
     }
 }

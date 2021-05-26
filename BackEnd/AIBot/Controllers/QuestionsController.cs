@@ -26,14 +26,85 @@ namespace Buaa.AIBot.Controllers
             this.userService = userService;
         }
 
+        [Authorize(Policy = "UserAdmin")]
+        [HttpPost("like_answer")]
+        public async Task<IActionResult> LikeAnswerAsync(LikeAnswerBody body)
+        {
+            int uid = userService.GetUidFromToken(Request);
+            var ret = await questionService.LikeAnswerAsync(uid, body.Aid, body.MarkAsLike);
+            string message;
+            string mark = body.MarkAsLike ? "mark" : "unmark";
+            switch (ret.Status)
+            {
+                case LikeProduceResult.ResultStatus.success:
+                    message = $"success to {mark} answer as like.";
+                    break;
+                case LikeProduceResult.ResultStatus.alreadyLiked:
+                    message = $"fail to mark answer as like because user has already like the answer.";
+                    break;
+                case LikeProduceResult.ResultStatus.notLiked:
+                    message = $"fail to unmark answer as like because user has not liked the answer yet.";
+                    break;
+                case LikeProduceResult.ResultStatus.answerNotExist:
+                    message = $"fail to {mark} answer as like because the answer not exists.";
+                    break;
+                default:
+                    message = $"unknown error: {ret.Status}.";
+                    break;
+            }
+            return Ok(new
+            {
+                Status = ret.Status.ToString(),
+                Message = message,
+                Like = ret.UserLiked,
+                LikeNum = ret.LikeNum
+            });
+        }
+
+        [Authorize(Policy = "UserAdmin")]
+        [HttpPost("like_question")]
+        public async Task<IActionResult> LikeQuestionAsync(LikeQuestionBody body)
+        {
+            int uid = userService.GetUidFromToken(Request);
+            var ret = await questionService.LikeQuestionAsync(uid, body.Qid, body.MarkAsLike);
+            string message;
+            string mark = body.MarkAsLike ? "mark" : "unmark";
+            switch (ret.Status)
+            {
+                case LikeProduceResult.ResultStatus.success:
+                    message = $"success to {mark} question as like.";
+                    break;
+                case LikeProduceResult.ResultStatus.alreadyLiked:
+                    message = $"fail to mark question as like because user has already like the question.";
+                    break;
+                case LikeProduceResult.ResultStatus.notLiked:
+                    message = $"fail to unmark question as like because user has not liked the question yet.";
+                    break;
+                case LikeProduceResult.ResultStatus.answerNotExist:
+                    message = $"fail to {mark} question as like because the answer not exists.";
+                    break;
+                default:
+                    message = $"unknown error: {ret.Status}.";
+                    break;
+            }
+            return Ok(new
+            {
+                Status = ret.Status.ToString(),
+                Message = message,
+                Like = ret.UserLiked,
+                LikeNum = ret.LikeNum
+            });
+        }
+
         [AllowAnonymous]
         [HttpGet("question")]
         public async Task<IActionResult> QuestionAsync()
         {
             int qid = int.Parse(Request.Query["qid"]);
+            int? uid = userService.TryGetUidFromToken(Request, out int res) ? res : null;
             try
             {
-                QuestionInformation question = await questionService.GetQuestionAsync(qid);
+                QuestionInformation question =  await questionService.GetQuestionAsync(qid, uid);
                 return Ok(new
                 {
                     Status = "success",
@@ -55,9 +126,10 @@ namespace Buaa.AIBot.Controllers
         public async Task<IActionResult> AnswerAsync()
         {
             int aid = int.Parse(Request.Query["aid"]);
+            int? uid = userService.TryGetUidFromToken(Request, out int res) ? res : null;
             try
             {
-                AnswerInformation answer = await questionService.GetAnswerAsync(aid);
+                AnswerInformation answer = await questionService.GetAnswerAsync(aid, uid);
                 return Ok(new
                 {
                     Status = "success",
