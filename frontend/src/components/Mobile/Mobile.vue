@@ -1,8 +1,17 @@
 <template>
     <div>
-        <MobileLogin v-if="this.$store.state.mobileStatus === 'login'"/>
-        <MobileChat v-if="this.$store.state.mobileStatus === 'chat'"/>
-        <MobileRegister v-if="this.$store.state.mobileStatus === 'register'"/>
+        <div class="footer">
+            <MobileTopBar v-if="this.$store.state.mobileStatus !== 'login'
+            && this.$store.state.mobileStatus !== 'register'"/>
+        </div>
+        <div class="main">
+            <MobileLogin v-if="this.$store.state.mobileStatus === 'login'"/>
+            <MobileChat v-if="this.$store.state.mobileStatus === 'chat'"/>
+            <MobileRegister v-if="this.$store.state.mobileStatus === 'register'"/>
+            <MobileQuestionList v-if="this.$store.state.mobileStatus === 'questionList'"/>
+            <MobileRaiseQuestion v-if="this.$store.state.mobileStatus === 'raiseQuestion'"/>
+        </div>
+
     </div>
 </template>
 
@@ -10,6 +19,9 @@
 import MobileLogin from "./MobileLogin";
 import MobileChat from "./MobileChat";
 import MobileRegister from "./MobileRegister";
+import MobileTopBar from "./MobileTopBar";
+import MobileQuestionList from "./MobileQuestionList";
+import MobileRaiseQuestion from "./MobileRaiseQuestion";
 
 export default {
     name: "Mobile",
@@ -22,6 +34,9 @@ export default {
         MobileLogin,
         MobileChat,
         MobileRegister,
+        MobileTopBar,
+        MobileQuestionList,
+        MobileRaiseQuestion,
     },
     beforeCreate() {
     }
@@ -29,5 +44,12 @@ export default {
 </script>
 
 <style scoped>
+/*.main {*/
+/*    height: calc(100vh - 200px);*/
+/*}*/
+
+/*.footer {*/
+/*    !*margin-top: 50px;*!*/
+/*}*/
 
 </style>
