@@ -73,7 +73,9 @@ namespace Buaa.AIBot
                 .AddUserServices(Configuration)
 
                 .AddTransient<IQuestionService, QuestionService>()
-                
+
+                .AddCodeAnalyze(Configuration)
+
                 .AddRepository(Configuration.GetConnectionString("MySQL"))
                 ;
 
