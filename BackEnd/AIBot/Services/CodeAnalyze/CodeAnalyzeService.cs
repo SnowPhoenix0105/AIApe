@@ -33,12 +33,14 @@ namespace Buaa.AIBot.Services.CodeAnalyze
         private ICppCheckCallerFactory cppCheckCallerFactory;
         private ILogger<CodeAnalyzeService> logger;
         private Utils.GlobalCancellationTokenSource globalCancellationTokenSource;
+        private CppCheckResultTanslation tanslation;
 
-        public CodeAnalyzeService(ICppCheckCallerFactory cppCheckCallerFactory, ILogger<CodeAnalyzeService> logger, GlobalCancellationTokenSource globalCancellationTokenSource)
+        public CodeAnalyzeService(ICppCheckCallerFactory cppCheckCallerFactory, ILogger<CodeAnalyzeService> logger, GlobalCancellationTokenSource globalCancellationTokenSource, CppCheckResultTanslation tanslation)
         {
             this.cppCheckCallerFactory = cppCheckCallerFactory;
             this.logger = logger;
             this.globalCancellationTokenSource = globalCancellationTokenSource;
+            this.tanslation = tanslation;
         }
 
         private static readonly IReadOnlySet<string> ignoredCategories = new HashSet<string>()
@@ -53,7 +55,7 @@ namespace Buaa.AIBot.Services.CodeAnalyze
                 res = null;
                 return false;
             }
-            res = CppCheckResultTanslation.Translate(cppCheckResult);
+            res = tanslation.Translate(cppCheckResult);
             return true;
         }
 
@@ -92,6 +94,7 @@ namespace Buaa.AIBot.Services.CodeAnalyze
                     SourceCode = fmtCode,
                     Messages = messages
                 };
+                logger.LogInformation('\n' + fmtCode);
                 // logger.LogInformation(JsonSerializer.Serialize(ret));
 
                 return ret;

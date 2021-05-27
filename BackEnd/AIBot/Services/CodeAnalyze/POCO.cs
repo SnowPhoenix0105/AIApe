@@ -20,13 +20,14 @@ namespace Buaa.AIBot.Services.CodeAnalyze
         public string Category { get; set; }
         public InfoLevel Level { get; set; }
         public Location Location { get; set; }
-
+        public string Symbol { get; set; }
         public string Message { get; set; }
 
         public override string ToString()
         {
             var location = Location == null ? "null" : Location.ToString();
-            return $"CppCheckResult{{category={Category}, level={Level.ToString()}, location={location}}}";
+            var symbol = Symbol == null ? "null" : Symbol;
+            return $"CppCheckResult{{category={Category}, level={Level.ToString()}, Symbol={symbol}, location={location}}}";
         }
     }
 

@@ -16,6 +16,7 @@ namespace Buaa.AIBot.Services
             string cppcheckWorkDir = config.GetSection("Path").GetValue<string>("CppCheckWorkDir");
             services
                 .AddTransient<ICodeAnalyzeService, CodeAnalyzeService>()
+                .AddSingleton<CppCheckResultTanslation>()
                 .AddSingleton<ICppCheckCallerFactory>(provider =>
                     new CppCheckCallerFactory(cppcheckWorkDir, provider.GetRequiredService<ILogger<CppCheckCallerFactory>>()))
                 ;

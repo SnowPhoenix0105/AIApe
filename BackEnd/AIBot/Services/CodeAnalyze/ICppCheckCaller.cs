@@ -87,6 +87,7 @@ namespace Buaa.AIBot.Services.CodeAnalyze
         {
             public string BasePath => Path.Combine(factory.WorkDir, Name.ToString());
             public string SourcePath => BasePath + ".c";
+            public string SourcePathOrig => BasePath + ".c.orig";
             public int Name { get; }
             private CppCheckCallerFactory factory;
             private CancellationToken ct;
@@ -105,11 +106,25 @@ namespace Buaa.AIBot.Services.CodeAnalyze
 
             public async Task FormatAsync()
             {
+                var argumentBuilder = new StringBuilder();
+                argumentBuilder
+                    .Append(SourcePath).Append(' ')     // target file.
+                    .Append("--style=allman ")          // basic style.
+                    .Append("--indent=spaces=4 ")       // using spaces4 instead of tab.
+                    .Append("--pad-oper ")              // add spaces around operators.
+                    .Append("--pad-comma ")             // add space after comma.
+                    .Append("--pad-header ")            // add space after header-keywords such as if, while, for.
+                    .Append("--unpad-paren ")           // remove space arount paren.
+                    .Append("--align-pointer=name ")    // make 'int* ptr' to 'int *ptr'.
+                    .Append("--break-one-line-headers ")// expand one-line statements like 'if (a == b) { return a; }' into multi-lines.
+                    .Append("--add-braces ")            // add brances for no-braces statements after headers.
+                    ;
+
                 var info = new ProcessStartInfo("astyle");
                 info.UseShellExecute = false;
                 info.RedirectStandardOutput = true;
                 info.RedirectStandardError = true;
-                info.Arguments = $"{SourcePath}";
+                info.Arguments = argumentBuilder.ToString();
                 var process = Process.Start(info);
                 while (!process.HasExited)
                 {
@@ -178,11 +193,13 @@ namespace Buaa.AIBot.Services.CodeAnalyze
                             FileName = location.Attributes["file"].Value
                         };
                     }
+                    var sym = item.SelectSingleNode("symbol");
                     var info = new CppCheckResult()
                     {
                         Category = item.Attributes["id"].Value,
                         Level = Enum.Parse<InfoLevel>(item.Attributes["severity"].Value),
                         Message = item.Attributes["verbose"].Value,
+                        Symbol = sym?.InnerText,
                         Location = locationInfo
                     };
                     ret.Add(info);
@@ -208,6 +225,10 @@ namespace Buaa.AIBot.Services.CodeAnalyze
                 if (File.Exists(SourcePath))
                 { 
                     File.Delete(SourcePath);
+                }
+                if (File.Exists(SourcePathOrig))
+                {
+                    File.Delete(SourcePathOrig);
                 }
                 return Task.CompletedTask;
             }
