@@ -52,7 +52,7 @@ export default {
     },
     methods: {
         register() {
-            alert('here!')
+            // alert('here!')
             let _this = this;
             _this.$axios.post(_this.BASE_URL + "/api/user/signup", {
                 name: _this.$data.registerForm.nickName,
@@ -61,7 +61,7 @@ export default {
             })
                 .then(function (response) {
                     let status = response.data.status;
-                    alert(status);
+                    // alert(status);
                     if (status === 'success') {
                         _this.$message({
                             message: '注册成功!即将跳转至登录页面...',

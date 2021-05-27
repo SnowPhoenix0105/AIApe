@@ -51,10 +51,7 @@ export default {
             })
                 .then(function (response) {
                     if (response.data.status === "fail") {
-                        _this.$message({
-                            message: '邮箱或密码错误!',
-                            type: 'error'
-                        });
+                        alert("账号或密码错误");
                     } else {
                         _this.$message({
                             message: '登录成功!',
@@ -66,6 +63,7 @@ export default {
                             timeout: response.data.timeout
                         });
                         _this.$store.commit('setAuth', response.data.auth);
+                        _this.$store.state.mobileStatus = "chat";
                         _this.$axios.get(_this.BASE_URL + '/api/user/internal_info', {
                             headers: {
                                 Authorization: 'Bearer ' + response.data.token,
