@@ -71,13 +71,25 @@ export default {
                             _this.$store.state.mobileStatus = "login";
                         }, 2000);
                     } else if (status === 'nameInvalid') {
-                        alert("昵称格式不合法");
+                        _this.$message({
+                            message: "昵称格式不合法",
+                            type: 'error'
+                        });
                     } else if (status === 'nameExisted') {
-                        alert("昵称已存在");
+                        _this.$message({
+                            message: "昵称已存在",
+                            type: 'error'
+                        });
                     } else if (status === 'emailExisted') {
-                        alert("邮箱已被注册");
+                        _this.$message({
+                            message: "邮箱已注册",
+                            type: 'error'
+                        });
                     } else if (status === 'emailInvalid') {
-                        alert("邮箱格式错误");
+                        _this.$message({
+                            message: "邮箱格式错误",
+                            type: 'error'
+                        });
                     }
                 })
                 .catch(function (error) {
