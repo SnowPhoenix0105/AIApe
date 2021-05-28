@@ -23,12 +23,15 @@ namespace AIBotTest.Controller
 
         private Mock<IUserService> mockUser;
 
+        private Mock<IHotListService> mockHotList;
+
         private QuestionBody body;
 
         public QuestionsControllerTest()
         {
             mockQues = new Mock<IQuestionService>();
             mockUser = new Mock<IUserService>();
+            mockHotList = new Mock<IHotListService>();
             body = new QuestionBody();
         }
 
@@ -47,7 +50,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task QuestionlistAsyncTest()
         {
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.QuestionlistAsync(body);
             Assert.IsType<OkObjectResult>(ret);
@@ -56,7 +59,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task TaglistAsyncTest()
         {
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.TaglistAsync();
             Assert.IsType<OkObjectResult>(ret);
@@ -67,7 +70,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddQuestionAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()))
             .ThrowsAsync(new QuestionTitleTooLongException(0, 0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var res = await controller.AddQuestionAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -81,7 +84,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddQuestionAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()))
             .ThrowsAsync(new UserNotExistException(-1));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var res = await controller.AddQuestionAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -95,7 +98,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddQuestionAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()))
             .ThrowsAsync(new TagNotExistException(-1));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var res = await controller.AddQuestionAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -109,7 +112,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddQuestionAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<int>>()))
             .ReturnsAsync(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var res = await controller.AddQuestionAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -123,7 +126,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddAnswerAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
             .ReturnsAsync(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var res = await controller.AddAnswerAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -137,7 +140,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddAnswerAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
             .ThrowsAsync(new UserHasAnswerTheQuestionException(0, 0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var res = await controller.AddAnswerAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -151,7 +154,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddAnswerAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
             .ThrowsAsync(new UserNotExistException(0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             var res = await controller.AddAnswerAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
             var resRet = statRes.Value;
@@ -165,7 +168,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var res = await controller.AddTagAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -179,7 +182,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameTooLongException(0, 0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var res = await controller.AddTagAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -193,7 +196,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameExistException(""));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var res = await controller.AddTagAsync(body);
             var statRes = Assert.IsType<OkObjectResult>(res);
@@ -269,7 +272,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new QuestionNotExistException(0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyQuestionAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -291,7 +294,7 @@ namespace AIBotTest.Controller
             .Returns(-1);
             mockUser.Setup(user => user.GetAuthLevelFromToken(It.IsAny<HttpRequest>()))
             .Returns(AuthLevel.None);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.ModifyQuestionAsync(body);
             var statRet = Assert.IsType<UnauthorizedObjectResult>(ret);
@@ -312,7 +315,7 @@ namespace AIBotTest.Controller
             mockQues.Setup(ques => ques.ModifyQuestionAsync(It.IsAny<int>(), It.IsAny<QuestionModifyItems>()));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.ModifyQuestionAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -334,7 +337,7 @@ namespace AIBotTest.Controller
             .ThrowsAsync(new QuestionNotExistException(0));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.ModifyQuestionAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -355,7 +358,7 @@ namespace AIBotTest.Controller
             .ThrowsAsync(new QuestionTitleTooLongException(0, 0));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.ModifyQuestionAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -376,7 +379,7 @@ namespace AIBotTest.Controller
             .ThrowsAsync(new TagNotExistException(0));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.ModifyQuestionAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -397,7 +400,7 @@ namespace AIBotTest.Controller
             .ThrowsAsync(new AnswerNotExistException(0));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.ModifyQuestionAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -411,7 +414,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new AnswerNotExistException(0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyAnswerAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -433,7 +436,7 @@ namespace AIBotTest.Controller
             .Returns(-1);
             mockUser.Setup(user => user.GetAuthLevelFromToken(It.IsAny<HttpRequest>()))
             .Returns(AuthLevel.None);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyAnswerAsync(body);
             var statRet = Assert.IsType<UnauthorizedObjectResult>(ret);
@@ -453,7 +456,7 @@ namespace AIBotTest.Controller
             mockQues.Setup(ques => ques.ModifyAnswerAsync(It.IsAny<int>(), It.IsAny<string>()));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyAnswerAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -474,7 +477,7 @@ namespace AIBotTest.Controller
             .ThrowsAsync(new AnswerNotExistException(0));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyAnswerAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -487,7 +490,7 @@ namespace AIBotTest.Controller
         public async Task ModifyTagAsync_Success()
         {
             mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyTagAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -501,7 +504,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNotExistException(0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyTagAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -516,7 +519,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameTooLongException(0, 0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyTagAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -530,7 +533,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameExistException(""));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.ModifyTagAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -544,7 +547,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.GetQuestionAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new QuestionNotExistException(0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.DeleteQuestionAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -566,7 +569,7 @@ namespace AIBotTest.Controller
             .Returns(-1);
             mockUser.Setup(user => user.GetAuthLevelFromToken(It.IsAny<HttpRequest>()))
             .Returns(AuthLevel.None);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.DeleteQuestionAsync(body);
             var statRet = Assert.IsType<UnauthorizedObjectResult>(ret);
@@ -587,7 +590,7 @@ namespace AIBotTest.Controller
             mockQues.Setup(ques => ques.DeleteQuestionAsync(It.IsAny<int>()));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.DeleteQuestionAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -608,7 +611,7 @@ namespace AIBotTest.Controller
             .ThrowsAsync(new QuestionNotExistException(0));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
             
             var ret = await controller.DeleteQuestionAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -623,7 +626,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.GetAnswerAsync(It.IsAny<int>(), null))
             .ThrowsAsync(new AnswerNotExistException(0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.DeleteAnswerAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -644,7 +647,7 @@ namespace AIBotTest.Controller
             .Returns(-1);
             mockUser.Setup(user => user.GetAuthLevelFromToken(It.IsAny<HttpRequest>()))
             .Returns(AuthLevel.None);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.DeleteAnswerAsync(body);
             var statRet = Assert.IsType<UnauthorizedObjectResult>(ret);
@@ -664,7 +667,7 @@ namespace AIBotTest.Controller
             mockQues.Setup(ques => ques.DeleteAnswerAsync(It.IsAny<int>()));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.DeleteAnswerAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -685,7 +688,7 @@ namespace AIBotTest.Controller
             .ThrowsAsync(new AnswerNotExistException(0));
             mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>()))
             .Returns(0);
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.DeleteAnswerAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);
@@ -699,7 +702,7 @@ namespace AIBotTest.Controller
         public async Task DeleteTagAsync_Success()
         {
             mockQues.Setup(ques => ques.DeleteTagAsync(It.IsAny<int>()));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.DeleteTagAsync(body);
             var statRet = Assert.IsType<OkObjectResult>(ret);
@@ -713,7 +716,7 @@ namespace AIBotTest.Controller
         {
             mockQues.Setup(ques => ques.DeleteTagAsync(It.IsAny<int>()))
             .ThrowsAsync(new TagNotExistException(0));
-            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
+            QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
 
             var ret = await controller.DeleteTagAsync(body);
             var statRet = Assert.IsType<NotFoundObjectResult>(ret);

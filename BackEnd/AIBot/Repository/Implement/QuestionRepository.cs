@@ -70,6 +70,7 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 var hot = await Context
                     .QuestionHotDatas
+                    .Where(qh => qh.QuestionId == questionId)
                     .SingleOrDefaultAsync();
                 if (hot != null)
                 {
@@ -78,7 +79,10 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 else
                 {
-                    logger.LogWarning("question is not null, but hot info is null");
+                    if (logger != null)
+                    {
+                        logger.LogWarning("question is not null, but hot info is null");
+                    }
                 }
             }
             return question;

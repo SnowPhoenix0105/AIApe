@@ -76,7 +76,9 @@ namespace Buaa.AIBot.Services
                 Creator = question.CreaterId,
                 Like = like,
                 LikeNum = likeNum,
+                HotValue = question.HotValue,
                 CreatTime = question.CreateTime,
+                HotFreshTime = question.HotFreshTime,
                 ModifyTime = question.ModifyTime,
                 Tags = new Dictionary<string, int>(tags),
                 Answers = answers
@@ -233,7 +235,11 @@ namespace Buaa.AIBot.Services
             }
             if (!Enum.TryParse<TagCategory>(category, out var tagCategory))
             {
-                throw new Exceptions.UnknownTagCategoryException(category);
+                category = category.Substring(0, 1).ToUpper() + category.Substring(1);
+                if (!Enum.TryParse(category, out tagCategory))
+                {
+                    throw new UnknownTagCategoryException(category);
+                }
             }
             if (tagCategory == TagCategory.None)
             {
@@ -322,7 +328,11 @@ namespace Buaa.AIBot.Services
             {
                 if (!Enum.TryParse<TagCategory>(category, out tagCategory))
                 {
-                    throw new Exceptions.UnknownTagCategoryException(category);
+                    category = category.Substring(0, 1).ToUpper() + category.Substring(1);
+                    if (!Enum.TryParse(category, out tagCategory))
+                    {
+                        throw new UnknownTagCategoryException(category);
+                    }
                 }
                 if (tagCategory == TagCategory.None)
                 {

@@ -205,10 +205,12 @@ namespace Buaa.AIBot.Services
                     }
                     catch (AnswerNotExistException) { }
                 }
+                questionLikeCount++;
                 int decreaseTimes = (DateTime.Now - oldHot.ModifyTime).Minutes;
-                int newBase = (int)(oldHot.HotValue * Math.Pow(0.9995, decreaseTimes)); // 0.9995^(24 * 60) = 0.48
-                int newHots = answerCount * questionLikeCount + answerLikeCount;
-                return newBase + newHots;
+                double newBase = oldHot.HotValue * Math.Pow(0.9995, decreaseTimes); // 0.9995^(24 * 60) = 0.48
+                double newHots = (answerCount * questionLikeCount * 0.5 / Math.Log10(questionLikeCount) + answerLikeCount) * 100000;
+                double ret = newBase + newHots;
+                return ret > int.MaxValue ? int.MaxValue : (int)ret;
             }
             catch (OperationCanceledException)
             {
