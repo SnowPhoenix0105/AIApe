@@ -11,7 +11,7 @@
             <el-main class="question-list">
                 <div class="question-body" v-for="question in questionList" :key="question.id">
                     <div class="recommend">
-                        <i class="el-icon-caret-top"></i>
+                        <i class="el-icon-circle-plus-outline"></i>
                         <span>推荐{{ question.recommend }}</span>
                     </div>
                     <div class="content">
@@ -48,7 +48,7 @@ export default {
         return {
             questionList: [{
                 id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
+                recommend: 776, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
             },{
                 id: 1, title: '这是问题标题', detail: '这是问题详情',
                 recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
@@ -193,7 +193,7 @@ export default {
 }
 
 .el-header {
-    padding-top: 5px;
+    padding-top: 10px;
     font-size: 30px;
 }
 
@@ -206,6 +206,10 @@ export default {
 
 .unselected {
     color: black;
+}
+
+.el-button {
+    font-size: 20px;
 }
 
 .el-button:hover {
@@ -247,7 +251,11 @@ export default {
 
 i {
     color: #409eff;
-    font-size: 60px;
+    font-size: 30px;
+}
+
+.i:hover{
+    color: #6dfff3;
 }
 
 .title {

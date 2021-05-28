@@ -67,9 +67,12 @@ export default {
 </script>
 
 <style>
+@import "./common/font/font.css";
+
 body {
     margin: 0;
     overflow: hidden;
+    font-family: msyh, Georgia;
 }
 
 .background {
