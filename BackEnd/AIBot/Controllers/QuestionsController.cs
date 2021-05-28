@@ -20,10 +20,13 @@ namespace Buaa.AIBot.Controllers
 
         private readonly IUserService userService;
 
-        public QuestionsController(IQuestionService questionService, IUserService userService)
+        private readonly IHotListService hotListService;
+
+        public QuestionsController(IQuestionService questionService, IUserService userService, IHotListService hotListService)
         {
             this.questionService = questionService;
             this.userService = userService;
+            this.hotListService = hotListService;
         }
 
         [Authorize(Policy = "UserAdmin")]
@@ -181,6 +184,13 @@ namespace Buaa.AIBot.Controllers
         }
 
         [AllowAnonymous]
+        [HttpGet("hotlist")]
+        public async Task<IActionResult> HotlistAsync()
+        {
+            return Ok(await hotListService.GetHotListAsync());
+        }
+
+        [AllowAnonymous]
         [HttpGet("taglist")]
         public async Task<IActionResult> TaglistAsync()
         {
@@ -268,9 +278,10 @@ namespace Buaa.AIBot.Controllers
         {
             string name = (body.Name == null)? "" : body.Name;
             string desc = (body.Desc == null)? "" : body.Desc;
+            string category = (body.Category == null) ? "" : body.Category;
             try
             {
-                int tid = await questionService.AddTagAsync(name, desc);
+                int tid = await questionService.AddTagAsync(name, desc, category);
                 return Ok(new
                 {
                     Status = "success",
@@ -288,6 +299,13 @@ namespace Buaa.AIBot.Controllers
                 {
                     Status = "nameHasExists",
                     Message = "tag with this name has already existed"
+                });
+            } catch (UnknownTagCategoryException)
+            {
+                return Ok(new
+                {
+                    Status = "unknownCategory",
+                    Message = $"no tag-category named {category}"
                 });
             }
         }
@@ -407,9 +425,10 @@ namespace Buaa.AIBot.Controllers
             int tid = body.Tid.GetValueOrDefault(-1);
             string name = (body.Name == null)? "" : body.Name;
             string desc = (body.Desc == null)? "" : body.Desc;
+            string category = (body.Category == null) ? "" : body.Category;
             try
             {
-                await questionService.ModifyTagAsync(tid, name, desc);
+                await questionService.ModifyTagAsync(tid, name, desc, category);
                 return Ok(new
                 {
                     Status = "success",
@@ -433,6 +452,13 @@ namespace Buaa.AIBot.Controllers
                     Status = "nameHasExist",
                     Message = "name has already been used"
                 });
+            } catch (UnknownTagCategoryException)
+            {
+                return Ok(new
+                {
+                    Status = "unknownCategory",
+                    Message = $"no tag-category named {category}"
+                });
             }
         }
 
@@ -444,6 +470,7 @@ namespace Buaa.AIBot.Controllers
             try
             {
                 await checkQidAsync(qid);
+                await hotListService.FreshHotListAsync();
             } catch (QuestionNotExistException) {
                 return NotFound(new
                 {

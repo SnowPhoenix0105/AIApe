@@ -104,7 +104,29 @@ namespace Buaa.AIBot.Repository.Implement
         {
             await CheckQuestionExistAsync(qid);
             var res = await Context.LikeQuestions
-                .Where(la => la.QuestionId == qid)
+                .Where(lq => lq.QuestionId == qid)
+                .CountAsync();
+            CancellationToken.ThrowIfCancellationRequested();
+            return res;
+        }
+
+        public async Task<int> SelectLikesCountForAnswerAfterTimeAsync(int aid, DateTime start)
+        {
+            await CheckAnswerExistAsync(aid);
+            var res = await Context.LikeAnswers
+                .Where(la => la.AnswerId == aid)
+                .Where(la => la.CreateTime >= start)
+                .CountAsync();
+            CancellationToken.ThrowIfCancellationRequested();
+            return res;
+        }
+
+        public async Task<int> SelectLikesCountForQuestionAfterTimeAsync(int qid, DateTime start)
+        {
+            await CheckQuestionExistAsync(qid);
+            var res = await Context.LikeQuestions
+                .Where(lq => lq.QuestionId == qid)
+                .Where(lq => lq.CreateTime >= start)
                 .CountAsync();
             CancellationToken.ThrowIfCancellationRequested();
             return res;

@@ -60,6 +60,19 @@ namespace Buaa.AIBot.Repository.Models
         public List<AnswerData> Answers { get; set; }
         public List<QuestionTagRelation> QuestionTagRelation { get; set; }
         public List<LikeQuestion> LikedInfo { get; set; }
+        public QuestionHotData HotData { get; set; }
+    }
+
+    public class QuestionHotData
+    {
+        [Key]
+        public int QuestionId { get; set; }
+        public int HotValue { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        public DateTime ModifyTime { get; set; }
+
+        public QuestionData Question { get; set; }
     }
 
     public class AnswerData
@@ -89,6 +102,8 @@ namespace Buaa.AIBot.Repository.Models
     {
         [Key]
         public int TagId { get; set; }
+
+        public int Category { get; set; }
 
         [Required]
         [Column(TypeName = "varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci UNIQUE")]
@@ -128,6 +143,9 @@ namespace Buaa.AIBot.Repository.Models
         public int UserId { get; set; }
         public int AnswerId { get; set; }
 
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreateTime { get; set; }
+
         // relation references
         public AnswerData Answer { get; set; }
         public UserData User { get; set; }
@@ -149,6 +167,9 @@ namespace Buaa.AIBot.Repository.Models
     {
         public int UserId { get; set; }
         public int QuestionId { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public DateTime CreateTime { get; set; }
 
         // relation references
         public QuestionData Question { get; set; }

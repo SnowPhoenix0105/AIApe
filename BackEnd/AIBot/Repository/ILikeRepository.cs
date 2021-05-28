@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Repository
 {
-    public interface ILikeRepository
+    public interface ILikeRepository : IRepositoryBase
     {
         /// <summary>
         /// 
@@ -37,6 +38,22 @@ namespace Buaa.AIBot.Repository
         /// <param name="aid"></param>
         /// <returns></returns>
         Task<int> SelectLikesCountForAnswerAsync(int aid);
+
+        /// <summary>
+        /// Get the count for users liking the question.
+        /// </summary>
+        /// <exception cref="QuestionNotExistException">given qid matches no Question. </exception>
+        /// <param name="qid"></param>
+        /// <returns></returns>
+        Task<int> SelectLikesCountForQuestionAfterTimeAsync(int qid, DateTime start);
+
+        /// <summary>
+        /// Get the count for users liking the answer.
+        /// </summary>
+        /// <exception cref="AnswerNotExistException">given aid matches no Answer.</exception>
+        /// <param name="aid"></param>
+        /// <returns></returns>
+        Task<int> SelectLikesCountForAnswerAfterTimeAsync(int aid, DateTime start);
 
         /// <summary>
         /// Get weather the user liked this question.

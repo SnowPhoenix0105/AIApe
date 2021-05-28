@@ -31,6 +31,8 @@ namespace Buaa.AIBot.Repository.Models
         public int? CreaterId { get; set; }
         public string Title { get; set; }
         public string Remarks { get; set; }
+        public int HotValue { get; set; }
+        public DateTime HotFreshTime { get; set; }
         public DateTime CreateTime { get; set; }
         public DateTime ModifyTime { get; set; }
     }
@@ -38,6 +40,12 @@ namespace Buaa.AIBot.Repository.Models
     public class QuestionWithListTag : QuestionInfo
     {
         public IEnumerable<int> Tags { get; set; }
+    }
+
+    public class QuestionHotInfo
+    {
+        public int HotValue { get; set; }
+        public DateTime ModifyTime { get; set; }
     }
 
     public class AnswerInfo
@@ -54,9 +62,18 @@ namespace Buaa.AIBot.Repository.Models
         public DateTime ModifyTime { get; set; }
     }
 
+    public enum TagCategory
+    {
+        None = default,
+        Lang = 1,
+        Env = 2,
+        Other = 3
+    }
+
     public class TagInfo
     {
         public int TagId { get; set; }
+        public TagCategory Category { get; set; }
         public string Name { get; set; }
         public string Desc { get; set; }
     }

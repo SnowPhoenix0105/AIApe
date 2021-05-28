@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
 using Buaa.AIBot.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace Buaa.AIBot.Repository.Implement
 {
@@ -15,8 +16,18 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IQuestionRepository"/></remarks>
     public class QuestionRepository : RepositoryBase , IQuestionRepository
     {
+        private ILogger<QuestionRepository> logger;
+
         public QuestionRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
-            : base(context, cachePool, globalCancellationTokenSource.Token) { }
+            : base(context, cachePool, globalCancellationTokenSource.Token)
+        {
+        }
+
+        public QuestionRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource, ILogger<QuestionRepository> logger)
+            : base(context, cachePool, globalCancellationTokenSource.Token) 
+        {
+            this.logger = logger;
+        }
 
         public async Task<IEnumerable<int>> SelectAnswersForQuestionByIdAsync(int questionId)
         {
@@ -55,6 +66,25 @@ namespace Buaa.AIBot.Repository.Implement
                 .Where(q => q.QuestionId == questionId)
                 .SingleOrDefaultAsync(CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
+            if (question != null)
+            {
+                var hot = await Context
+                    .QuestionHotDatas
+                    .Where(qh => qh.QuestionId == questionId)
+                    .SingleOrDefaultAsync();
+                if (hot != null)
+                {
+                    question.HotValue = hot.HotValue;
+                    question.HotFreshTime = hot.ModifyTime;
+                }
+                else
+                {
+                    if (logger != null)
+                    {
+                        logger.LogWarning("question is not null, but hot info is null");
+                    }
+                }
+            }
             return question;
         }
 
@@ -219,9 +249,15 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 UserId = question.CreaterId,
                 Title = question.Title,
-                Remarks = question.Remarks,
+                Remarks = question.Remarks
+            };
+            var hotData = new QuestionHotData()
+            {
+                Question = target,
+                HotValue = 0
             };
             Context.Questions.Add(target);
+            Context.QuestionHotDatas.Add(hotData);
             bool success = false;
             while (!success)
             {
@@ -392,6 +428,42 @@ namespace Buaa.AIBot.Repository.Implement
                 Context.Remove(target);
                 await SaveChangesAgainAndAgainAsync();
             }
+        }
+
+        public async Task<QuestionHotInfo> SelectHotInfoByIdAsync(int questionId)
+        {
+            return await Context.QuestionHotDatas
+                .Where(qh => qh.QuestionId == questionId)
+                .Select(qh => new QuestionHotInfo()
+                {
+                    HotValue = qh.HotValue,
+                    ModifyTime = qh.ModifyTime
+                })
+                .SingleOrDefaultAsync(CancellationToken);
+        }
+
+        public async Task UpdateHotInfoAsync(int questionId, int hotValue)
+        {
+            bool success = false;
+            while (!success)
+            {
+                var target = await Context.QuestionHotDatas.Where(q => q.QuestionId == questionId).SingleOrDefaultAsync(CancellationToken);
+                if (target == null)
+                {
+                    throw new QuestionNotExistException(questionId);
+                }
+                target.HotValue = hotValue;
+                success = await TrySaveChangesAgainAndAgainAsync();
+            }
+        }
+
+        public async Task<IEnumerable<int>> SelectQuestionsHotValueAsync(int count)
+        {
+            return await Context.QuestionHotDatas
+                .OrderByDescending(qh => qh.HotValue)
+                .Select(qh => qh.QuestionId)
+                .Take(count)
+                .ToListAsync();
         }
     }
 }

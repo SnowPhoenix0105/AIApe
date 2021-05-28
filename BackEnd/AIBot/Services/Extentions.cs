@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Buaa.AIBot.Services.CodeAnalyze;
+using Buaa.AIBot.Repository;
 
 namespace Buaa.AIBot.Services
 {
@@ -19,6 +20,26 @@ namespace Buaa.AIBot.Services
                 .AddSingleton<CppCheckResultTanslation>()
                 .AddSingleton<ICppCheckCallerFactory>(provider =>
                     new CppCheckCallerFactory(cppcheckWorkDir, provider.GetRequiredService<ILogger<CppCheckCallerFactory>>()))
+                ;
+            return services;
+        }
+
+        public static IServiceCollection AddHotList(this IServiceCollection services, IConfiguration config)
+        {
+            var hotConfig = config.GetSection("HotList");
+            TimeSpan valueInterval = TimeSpan.Parse(hotConfig.GetValue<string>("ValueInterval"));
+            TimeSpan listInterval = TimeSpan.Parse(hotConfig.GetValue<string>("ListInterval"));
+            int length = hotConfig.GetValue<int>("Length");
+            services
+                .AddTransient<IHotListService>(provider =>
+                    new HotListService(
+                        questionRepository: provider.GetRequiredService<IQuestionRepository>(),
+                        hotValueFreshInterval: valueInterval,
+                        hotListFreshInterval: listInterval,
+                        logger: provider.GetRequiredService<ILogger<HotListService>>(),
+                        serviceProvider: provider,
+                        length: length
+                        ))
                 ;
             return services;
         }

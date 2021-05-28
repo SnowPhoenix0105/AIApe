@@ -29,5 +29,7 @@ namespace Buaa.AIBot.Controllers.Models
         public int? Aid { get; set; }
 
         public int? Tid { get; set; }
+
+        public string Category { get; set; }
     }
 }
