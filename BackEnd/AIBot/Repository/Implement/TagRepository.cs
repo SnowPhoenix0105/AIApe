@@ -56,6 +56,7 @@ namespace Buaa.AIBot.Repository.Implement
                 .Select(t => new TagInfo()
                 {
                     TagId = t.TagId,
+                    Category = (TagCategory)t.Category,
                     Name = t.Name,
                     Desc = t.Desc
                 })
@@ -89,12 +90,17 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new ArgumentNullException(nameof(tag.Desc));
             }
+            if (tag.Category == TagCategory.None)
+            {
+                throw new ArgumentNullException(nameof(tag.Category));
+            }
             if (tag.Name.Length > Constants.TagNameMaxLength)
             {
                 throw new TagNameTooLongException(tag.Name.Length, Constants.TagNameMaxLength);
             }
             var target = new TagData()
             {
+                Category = (int)tag.Category,
                 Name = tag.Name,
                 Desc = tag.Desc
             };
@@ -135,6 +141,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 success = false;
                 target.Desc = tag.Desc;
+            }
+            if (tag.Category != TagCategory.None)
+            {
+                target.Category = (int)tag.Category;
             }
             await CheckTagName(tag.Name);
             while (!success)

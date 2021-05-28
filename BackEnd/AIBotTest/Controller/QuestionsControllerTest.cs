@@ -163,7 +163,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task AddTagAsync_Success()
         {
-            mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>()))
+            mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(0);
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
             
@@ -177,7 +177,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task AddTagAsync_TagNameTooLong()
         {
-            mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>()))
+            mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameTooLongException(0, 0));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
             
@@ -191,7 +191,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task AddTagAsync_TagNameExist()
         {
-            mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>()))
+            mockQues.Setup(ques => ques.AddTagAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameExistException(""));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
             
@@ -486,7 +486,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyTagAsync_Success()
         {
-            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()));
+            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 
             var ret = await controller.ModifyTagAsync(body);
@@ -499,7 +499,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyTagAsync_TagNotExist()
         {
-            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNotExistException(0));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 
@@ -514,7 +514,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyTagAsync_TagNameTooLong()
         {
-            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameTooLongException(0, 0));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 
@@ -528,7 +528,7 @@ namespace AIBotTest.Controller
         [Fact]
         public async Task ModifyTagAsync_TagNameExist()
         {
-            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
+            mockQues.Setup(ques => ques.ModifyTagAsync(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new TagNameExistException(""));
             QuestionsController controller = new QuestionsController(mockQues.Object, mockUser.Object);
 

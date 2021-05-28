@@ -5,9 +5,29 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.Extensions.Logging;
 
 namespace Buaa.AIBot.Repository.Models
 {
+    public class IndependentDatabaseContext : DatabaseContext
+    {
+        public static string ConnectingString { get; set; }
+        private ILogger<IndependentDatabaseContext> logger;
+
+        public IndependentDatabaseContext(ILogger<IndependentDatabaseContext> logger)
+        {
+            this.logger = logger;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder
+                .UseMySQL(ConnectingString)
+                .LogTo(s => logger.LogWarning(s), LogLevel.Warning)
+                ;
+        }
+    }
+
     public class DatabaseContext : DbContext
     {
         public DbSet<UserData> Users { get; set; }
@@ -17,8 +37,11 @@ namespace Buaa.AIBot.Repository.Models
         public DbSet<LikeQuestion> LikeQuestions { get; set; }
         public DbSet<LikeAnswer> LikeAnswers { get; set; }
         public DbSet<QuestionTagRelation> QuestionTagRelations { get; set; }
+        public DbSet<QuestionHotData> QuestionHotDatas { get; set; }
 
-        public string ConnectString { get; }
+        // public string ConnectString { get; }
+
+        protected DatabaseContext() { }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
@@ -84,6 +107,13 @@ namespace Buaa.AIBot.Repository.Models
                 .HasOne(a => a.User)
                 .WithMany(u => u.Answers)
                 .OnDelete(DeleteBehavior.SetNull)
+                ;
+
+            // Question --<1>--hot--<1> QuestionHot
+            modelBuilder.Entity<QuestionHotData>()
+                .HasOne(qh => qh.Question)
+                .WithOne(q => q.HotData)
+                .OnDelete(DeleteBehavior.Cascade)
                 ;
 
             modelBuilder.Entity<UserData>()

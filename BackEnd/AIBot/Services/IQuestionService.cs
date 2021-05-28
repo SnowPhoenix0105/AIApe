@@ -85,7 +85,7 @@ namespace Buaa.AIBot.Services
         /// <param name="name"></param>
         /// <param name="content"></param>
         /// <returns>tid</returns>
-        Task<int> AddTagAsync(string name, string desc);
+        Task<int> AddTagAsync(string name, string desc, string category);
 
         /// <summary>
         /// qid is required. For other params, null mean no change.
@@ -118,7 +118,7 @@ namespace Buaa.AIBot.Services
         /// <param name="name"></param>
         /// <param name="desc"></param>
         /// <returns></returns>
-        Task ModifyTagAsync(int tid, string name, string desc);
+        Task ModifyTagAsync(int tid, string name, string desc, string category);
 
         /// <summary>
         /// 

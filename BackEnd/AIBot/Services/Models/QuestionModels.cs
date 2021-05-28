@@ -37,6 +37,8 @@ namespace Buaa.AIBot.Services.Models
 
     public class TagInformation
     {
+        [JsonConverter(typeof(EnumJsonConverter<Repository.Models.TagCategory>))]
+        public Repository.Models.TagCategory Category { get; set; }
         public string Name { get; set; }
         public string Desc { get; set; }
     }

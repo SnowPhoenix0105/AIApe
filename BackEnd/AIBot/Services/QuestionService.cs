@@ -132,6 +132,7 @@ namespace Buaa.AIBot.Services
             }
             return new TagInformation()
             {
+                Category = tag.Category,
                 Name = tag.Name,
                 Desc = tag.Desc
             };
@@ -224,16 +225,25 @@ namespace Buaa.AIBot.Services
             }
         }
 
-        public async Task<int> AddTagAsync(string name, string desc)
+        public async Task<int> AddTagAsync(string name, string desc, string category)
         {
             if (name.Length > Constants.TagNameMaxLength)
             {
                 throw new Exceptions.TagNameTooLongException(name.Length, Constants.TagNameMaxLength);
             }
+            if (!Enum.TryParse<TagCategory>(category, out var tagCategory))
+            {
+                throw new Exceptions.UnknownTagCategoryException(category);
+            }
+            if (tagCategory == TagCategory.None)
+            {
+                tagCategory = TagCategory.Other;
+            }
             try
             {
                 int tid = await tagRepostory.InsertTagAsync(new TagInfo()
-                {
+                { 
+                    Category = tagCategory,
                     Name = name,
                     Desc = desc
                 });
@@ -296,7 +306,7 @@ namespace Buaa.AIBot.Services
             }
         }
 
-        public async Task ModifyTagAsync(int tid, string name, string desc)
+        public async Task ModifyTagAsync(int tid, string name, string desc, string category)
         {
             if (name != null)
             {
@@ -307,11 +317,24 @@ namespace Buaa.AIBot.Services
                     throw new Exceptions.TagNameTooLongException(actual, max);
                 }
             }
+            TagCategory tagCategory = TagCategory.None;
+            if (category != null)
+            {
+                if (!Enum.TryParse<TagCategory>(category, out tagCategory))
+                {
+                    throw new Exceptions.UnknownTagCategoryException(category);
+                }
+                if (tagCategory == TagCategory.None)
+                {
+                    tagCategory = TagCategory.Other;
+                }
+            }
             try
             {
                 await tagRepostory.UpdateTagAsync(new TagInfo()
                 {
                     TagId = tid,
+                    Category = tagCategory,
                     Name = name,
                     Desc = desc
                 });
