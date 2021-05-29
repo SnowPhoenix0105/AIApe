@@ -12,30 +12,36 @@ import RaiseQuestion from "../pages/RaiseQuestion/RaiseQuestion";
 Vue.use(Router)
 
 export default new Router({
+    scrollBehavior (to, from) {
+        if (from.name === 'questionList') {
+            from.meta.savedPosition = document.getElementById('scroll-body').scrollTop;
+        }
+        if (to.name === 'questionList' && to.meta.savedPosition) {
+            document.getElementById('scroll-body').scrollTop = to.meta.savedPosition;
+        }
+    },
     routes: [
         {
-            path: '/register',
-            component: Register
-        },
-        {
-            path: '/login',
-            component: Login
-        },
-        {
             path: '/',
-            redirect: 'chat'
+            redirect: 'chat',
         },
         {
             path: '/questionList',
-            component: QuestionList
+            component: QuestionList,
+            meta: {keepAlive: true},
+            name: 'questionList'
         },
         {
             path: '/questionDetail',
-            component: QuestionDetail
+            component: QuestionDetail,
+            meta: {keepAlive: false},
+            name: 'questionDetail'
         },
         {
             path: '/raiseQuestion',
-            component: RaiseQuestion
+            component: RaiseQuestion,
+            meta: {keepAlive: true},
+            name: 'raiseQuestion'
         },
         {
             path: '/personalCenter',
@@ -47,7 +53,9 @@ export default new Router({
         },
         {
             path: '/chat',
-            component: Chat
+            component: Chat,
+            meta: {keepAlive: true},
+            name: 'chat'
         }
     ]
 })

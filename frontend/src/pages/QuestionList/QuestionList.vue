@@ -8,7 +8,7 @@
                 <el-button type="text" :class="{'unselected': select === 'hot'}" @click="handleSelect('new')">最新</el-button>
                 <el-button type="text" :class="{'unselected': select === 'new'}" @click="handleSelect('hot')">热门</el-button>
             </el-main>
-            <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" @scroll="loadMore">
+            <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body" @scroll="loadMore">
                 <el-main class="question-list">
                     <div class="question-body" v-for="question in questionList" :key="question.id" v-if="select==='new'">
                         <div class="user">
@@ -140,8 +140,8 @@ export default {
 
         },
         goToDetail(qid) {
-            this.$router.replace('questionDetail');
             this.$store.commit('setQuestionID', qid);
+            this.$router.replace('questionDetail');
         },
         goToPersonalCenter() {
             this.$router.replace('PersonalCenter');
@@ -196,7 +196,7 @@ export default {
         getHot() {
 
         }
-    }
+    },
 }
 </script>
 
@@ -250,10 +250,6 @@ export default {
     flex-direction: column;
 }
 
-.question-body {
-
-}
-
 .user {
     align-self: flex-start;
     flex-direction: row;
@@ -297,7 +293,7 @@ i {
     font-size: 30px;
 }
 
-.i:hover{
+i:hover{
     color: #6dfff3;
 }
 
@@ -306,10 +302,10 @@ i {
     font-weight: bold;
     margin-top: 10px;
     margin-left: 30px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
+    /*white-space: nowrap;*/
+    /*overflow: hidden;*/
+    /*text-overflow: ellipsis;*/
+    /*display: block;*/
     margin-right: 20px;
 }
 
@@ -326,7 +322,7 @@ i {
 
 .recommend-time {
     flex-direction: row;
-    align-items: flex-end;
+    align-items: center;
 }
 
 .el-tag {
