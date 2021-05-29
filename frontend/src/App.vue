@@ -28,6 +28,17 @@ import Login from "./components/Login/Login";
 import QuestionList from "./pages/QuestionList/QuestionList";
 import Mobile from "./components/Mobile/Mobile";
 
+window.onload = function() {
+    document.addEventListener('touchstart', function(event) {
+        if (event.touches.length > 1) {
+            event.preventDefault()
+        }
+    })
+    document.addEventListener('gesturestart', function(event) {
+        event.preventDefault()
+    })
+}
+
 export default {
     data() {
         return {
@@ -70,9 +81,12 @@ export default {
 </script>
 
 <style>
+@import "./common/font/font.css";
+
 body {
     margin: 0;
     overflow: hidden;
+    font-family: msyh, Georgia;
 }
 
 .background {

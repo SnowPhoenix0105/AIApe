@@ -184,7 +184,7 @@ export default {
 }
 
 .el-header {
-    padding-top: 5px;
+    padding-top: 10px;
     font-size: 30px;
 }
 
@@ -197,6 +197,10 @@ export default {
 
 .unselected {
     color: black;
+}
+
+.el-button {
+    font-size: 20px;
 }
 
 .el-button:hover {
@@ -243,7 +247,11 @@ export default {
 
 i {
     color: #409eff;
-    font-size: 60px;
+    font-size: 30px;
+}
+
+.i:hover{
+    color: #6dfff3;
 }
 
 .title {
@@ -276,7 +284,7 @@ i {
 }
 
 .recommend {
-    flex-grow: 0;
+    flex-grow: 1;
 }
 
 .detail {
