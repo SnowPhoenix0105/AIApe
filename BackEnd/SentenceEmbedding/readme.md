@@ -1,4 +1,6 @@
-# 目录结构
+# 序
+
+## 目录结构
 
 ```
 /
@@ -10,6 +12,13 @@
 |---EmbeddingModel.py
 |---readme.md
 ```
+
+## 依赖包
+
+* pytorch
+* transformers
+* sentence-transformers
+* flask
 
 # 句子特征获取微服务
 
