@@ -8,7 +8,7 @@
                 <el-button type="text" :class="{'unselected': select === 1}">最新</el-button>
                 <el-button type="text" :class="{'unselected': select === 0}">热门</el-button>
             </el-main>
-            <el-main class="question-list">
+            <el-main class="question-list" id="accordion">
                 <div class="question-body" v-for="question in questionList" :key="question.id">
                     <div class="recommend">
                         <i class="el-icon-circle-plus-outline"></i>
@@ -34,10 +34,13 @@
     </el-container>
 </template>
 
+
+
 <script>
 import MarkdownItVue from 'markdown-it-vue'
 import 'markdown-it-vue/dist/markdown-it-vue.css'
 import ListSideBar from "./ListSideBar";
+
 
 export default {
     components: {
@@ -47,7 +50,8 @@ export default {
     data() {
         return {
             questionList: [{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
+                id: 1, title: '这是问题标题aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', detail: '这是问题详情aaaaaaaaaaa\
+                aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
                 recommend: 776, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
             },{
                 id: 1, title: '这是问题标题', detail: '这是问题详情',
@@ -261,6 +265,19 @@ i {
 .title {
     font-size: 20px;
     font-weight: bold;
+    width:100px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    word-break: break-all;
+}
+
+.detail {
+    width:300px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    word-break: break-all;
 }
 
 .tags {
@@ -289,5 +306,15 @@ i {
 
 .recommend {
     flex-grow: 0;
+}
+
+.sub-comments-leave-active,.sub-comments-enter-active {
+    transition: max-height 0.3s;
+}
+.sub-comments-enter,.sub-comments-leave-to {
+    max-height:0 ;
+}
+.sub-comments-enter-to,.sub-comments-leave {
+    max-height: 4rem ;
 }
 </style>
