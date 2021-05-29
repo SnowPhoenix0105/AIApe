@@ -8,75 +8,52 @@
                 <el-button type="text" :class="{'unselected': select === 1}">最新</el-button>
                 <el-button type="text" :class="{'unselected': select === 0}">热门</el-button>
             </el-main>
-            <el-main class="question-list">
-                <div class="question-body" v-for="question in questionList" :key="question.id">
-                    <div class="recommend">
-                        <i class="el-icon-caret-top"></i>
-                        <span>推荐{{ question.recommend }}</span>
-                    </div>
-                    <div class="content">
-                        <span class="title">{{ question.title }}</span>
-                        <span class="detail">{{ question.detail }}</span>
-                    </div>
-                    <div class="other-info">
-                        <div class="tags">
-                            <el-tag v-for="tag in question.tags" :key="tag">{{ tag }}</el-tag>
+            <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" @scroll="loadMore">
+                <el-main class="question-list">
+                    <div class="question-body" v-for="question in questionList" :key="question.id">
+                        <div class="recommend">
+                            <i class="el-icon-caret-top"></i>
+                            <span>推荐{{ question.recommend }}</span>
                         </div>
-                        <div class="user-time">
-                            <span>{{ question.user }}</span>
-                            <span>{{ question.date }}</span>
+                        <div class="content">
+                            {{ question.content }}
+                        </div>
+                        <div class="other-info">
+                            <div class="tags">
+                                <el-tag v-for="tag in question.tags" :key="tag">{{ tag }}</el-tag>
+                            </div>
+                            <div class="user-time">
+                                <span>{{ question.user }}</span>
+                                <span>{{ question.date }}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </el-main>
+                </el-main>
+            </div>
         </el-container>
         <ListSideBar/>
     </el-container>
 </template>
 
 <script>
-import MarkdownItVue from 'markdown-it-vue'
-import 'markdown-it-vue/dist/markdown-it-vue.css'
 import ListSideBar from "./ListSideBar";
 
 export default {
     components: {
-        MarkdownItVue,
         ListSideBar
     },
     data() {
         return {
-            questionList: [{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },{
-                id: 1, title: '这是问题标题', detail: '这是问题详情',
-                recommend: 777, user: 'william', date: '2021-5-24', tags: ['Linux', 'Python', 'Windows']
-            },],
+            questionList: [],
+            last_index: 0,
             selectedTag: [],
             tagState: {},
             showTag: true,
             isAdmin: false,
             showResearchInput: false,
-            select: 0
+            select: 0,
+            loading: false,
+            no_more: false
         }
     },
     mounted() {
@@ -88,32 +65,37 @@ export default {
         handleSelect() {
 
         },
-        getQuestions() {
+        getQuestions(pt) {
+            // console.log("getQuestions!");
             let _this = this;
 
-            _this.$axios.post(_this.BASE_URL + '/api/questions/questionlist', {
-                number: 16,
-                tags: _this.$data.selectedTag
-
-            })
-                .then(function (response) {
+            let post_data = {
+                number: 64,
+                tags: _this.selectedTag,
+            }
+            if (pt > 0) {
+                post_data['pt'] = pt;
+            }
+            _this.$axios.post(_this.BASE_URL + '/api/questions/questionlist', post_data)
+                .then(async function (response) {
                     let questionIdList = response.data;
-                    questionIdList.sort();
-
-                    let questions = [];
+                    _this.last_index = questionIdList[questionIdList.length - 1];
+                    if (questionIdList.length < 64) {
+                        _this.no_more = true;
+                    }
+                    // let questions = [];
                     for (let qid of questionIdList) {
-                        _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
                             .then(function (response) {
-                                questions.push({
+                                _this.questionList.push({
                                     id: qid,
                                     title: response.data.question.title,
                                     content: response.data.question.remarks
                                 });
-                                _this.$data.questions = questions;
-                                questions.sort((a, b) => a.id - b.id);
+                                // _this.$data.questionList = questions;
+                                // questions.sort((a, b) => a.id - b.id);
                             });
                     }
-
                 })
                 .catch(function (error) {
                     _this.questions = [];
@@ -166,6 +148,15 @@ export default {
         gotoTop() {
             this.$store.state.maxZIndex += 1
             this.zIndex = this.$store.state.maxZIndex;
+        },
+        loadMore() {
+
+            let e = this.$refs['scroll-body'];
+            if (e.scrollTop + e.offsetHeight > e.scrollHeight - 1 && !this.loading && !this.no_more) {
+                this.loading = true;
+                this.getQuestions(this.last_index);
+                this.loading = false;
+            }
         }
     }
 }
@@ -180,7 +171,7 @@ export default {
     height: 100vh;
     padding-left: 100px;
     padding-right: 100px;
-    background-color: rgba(246, 246, 246, 1);
+    background-color: rgba(246, 246, 246, 0.5);
 }
 
 .list {
@@ -243,6 +234,11 @@ export default {
     justify-content: flex-start;
     align-items: flex-start;
     margin-left: 20px;
+    height: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
 }
 
 i {
@@ -281,5 +277,9 @@ i {
 
 .recommend {
     flex-grow: 0;
+}
+
+.detail {
+    text-overflow: ellipsis;
 }
 </style>

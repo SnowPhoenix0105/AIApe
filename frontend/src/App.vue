@@ -7,12 +7,15 @@
             <div class="background">
                 <img :src="imgSrc" width="100%" height="100%" alt=""/>
             </div>
+            <Login v-show="this.$store.state.show.login"></Login>
             <SideBar/>
             <transition
                 name="zoom"
                 enter-active-class="zoomInLeft"
                 leave-active-class="zoomOutLeft">
-                <router-view/>
+                <keep-alive>
+                    <router-view/>
+                </keep-alive>
             </transition>
         </el-container>
     </div>
@@ -100,8 +103,7 @@ body {
     border-radius: 3px;
 }
 
-.chat {
-    flex: 1 1 500px auto;
+.v-show-content {
+    background-color: white !important;
 }
-
 </style>
