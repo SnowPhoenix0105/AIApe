@@ -5,6 +5,8 @@
 |---Demo/
 |---Models/
 |---.gitignore
+|---const.py
+|---EmbeddingApp.py
 |---EmbeddingModel.py
 |---readme.md
 ```
