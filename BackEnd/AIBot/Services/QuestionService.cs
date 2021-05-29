@@ -77,7 +77,7 @@ namespace Buaa.AIBot.Services
                 Like = like,
                 LikeNum = likeNum,
                 HotValue = question.HotValue,
-                CreatTime = question.CreateTime,
+                CreateTime = question.CreateTime,
                 HotFreshTime = question.HotFreshTime,
                 ModifyTime = question.ModifyTime,
                 Tags = new Dictionary<string, int>(tags),

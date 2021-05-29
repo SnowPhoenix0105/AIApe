@@ -19,7 +19,7 @@ namespace Buaa.AIBot.Services.Models
         [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime HotFreshTime { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]
-        public DateTime CreatTime { get; set; }
+        public DateTime CreateTime { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime ModifyTime { get; set; }
         public Dictionary<string, int> Tags { get; set; }
