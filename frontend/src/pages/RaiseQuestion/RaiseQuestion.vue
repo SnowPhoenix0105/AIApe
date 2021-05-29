@@ -16,12 +16,12 @@
                     <el-input v-show="step === 1" v-model="title"></el-input>
                     <el-button v-show="step === 1" @click="submitTitle">提交</el-button>
                 </div>
-                <transition name="slide" enter-active-class="slideInUp">
+                <transition name="fade">
                     <div class="title" v-show="step > 1">
                         <h1>{{ title }}</h1>
                     </div>
                 </transition>
-                <transition name="slide" enter-active-class="slideInUp" leave-active-class="slideOutUp">
+                <transition name="slide" enter-active-class="slideInUp" leave-active-class="none">
                     <div class="select-tag" v-show="step === 2">
                         <div v-for="(ls, type) in tags" class="tag-type">
                             <span>{{ type }}</span>
@@ -30,7 +30,7 @@
                         <el-button type="primary" @click="submitTags">完成</el-button>
                     </div>
                 </transition>
-                <transition name="slide" enter-active-class="slideInUp">
+                <transition name="fade">
                     <div class="tag" v-show="step > 2">
                         <el-tag v-for="tag in selectTags" :key="tag">{{ tag }}</el-tag>
                     </div>
@@ -41,7 +41,6 @@
                                       :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"
                                       :toolbarsFlag="prop.toolbarsFlag" :editable="prop.editable"
                                       :scrollStyle="prop.scrollStyle" :boxShadow="prop.boxShadow"
-                                      style="min-height: 50vh; max-height: 0"
                                       placeholder="详细描述你的问题...">
 
                         </mavon-editor>
@@ -98,7 +97,7 @@ export default {
                 aligncenter: true, // 居中
                 alignright: true, // 右对齐
                 /* 2.2.1 */
-                subfield: true, // 单双栏模式
+                subfield: false, // 单双栏模式
                 preview: true // 预览
             }
         }
@@ -213,4 +212,13 @@ h1 {
     margin-top: 40px;
 }
 
+.markdown-body {
+    min-height: 50vh;
+    max-height: 50vh;
+}
+
+.fullscreen {
+    min-height: 100vh;
+    max-height: 100vh;
+}
 </style>
