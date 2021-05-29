@@ -311,7 +311,6 @@ i:hover{
 
 .tags {
     flex-direction: row;
-    flex-wrap: wrap;
 }
 
 .other-info {

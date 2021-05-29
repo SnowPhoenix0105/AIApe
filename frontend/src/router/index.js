@@ -8,6 +8,7 @@ import PersonalCenter from "../pages/PersonalCenter/PersonalCenter";
 import Administration from "../pages/Administration/Administration";
 import Chat from "../pages/Chat/Chat";
 import RaiseQuestion from "../pages/RaiseQuestion/RaiseQuestion";
+import SearchResult from "../pages/SearchResult/SearchResult";
 
 Vue.use(Router)
 
@@ -56,6 +57,11 @@ export default new Router({
             component: Chat,
             meta: {keepAlive: true},
             name: 'chat'
+        },
+        {
+            path: '/searchResult',
+            component: SearchResult,
+            name: 'searchResult'
         }
     ]
 })
