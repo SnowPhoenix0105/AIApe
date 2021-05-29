@@ -22,9 +22,6 @@ Vue.use(ElementUI);
 Vue.use(mavonEditor);
 Vue.prototype.$store = store;
 
-import infiniteScroll from 'vue-infinite-scroll'
-Vue.use(infiniteScroll);
-
 new Vue({
     el: '#app',
     render: h => h(App),

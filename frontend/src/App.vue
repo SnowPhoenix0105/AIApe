@@ -59,6 +59,7 @@ export default {
         QuestionList
     },
     created() {
+        let _this = this;
         var p = navigator.platform;
         this.system.win = p.indexOf("Win") == 0;
         this.system.mac = p.indexOf("Mac") == 0;
@@ -76,6 +77,11 @@ export default {
         })
 
         this.$store.state.lastTokenTime = new Date();
+
+        this.$axios.get(this.BASE_URL + '/api/questions/taglist')
+        .then(function (response) {
+            _this.$store.state.tagList = response.data;
+        })
     }
 }
 </script>
@@ -120,4 +126,5 @@ body {
 .v-show-content {
     background-color: white !important;
 }
+
 </style>

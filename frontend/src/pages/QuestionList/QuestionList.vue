@@ -5,25 +5,47 @@
                 AIApe
             </el-header>
             <el-main class="selector">
-                <el-button type="text" :class="{'unselected': select === 1}">最新</el-button>
-                <el-button type="text" :class="{'unselected': select === 0}">热门</el-button>
+                <el-button type="text" :class="{'unselected': select === 'hot'}" @click="handleSelect('new')">最新</el-button>
+                <el-button type="text" :class="{'unselected': select === 'new'}" @click="handleSelect('hot')">热门</el-button>
             </el-main>
             <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" @scroll="loadMore">
                 <el-main class="question-list">
-                    <div class="question-body" v-for="question in questionList" :key="question.id">
-                        <div class="recommend">
-                            <i class="el-icon-caret-top"></i>
-                            <span>推荐{{ question.recommend }}</span>
+                    <div class="question-body" v-for="question in questionList" :key="question.id" v-if="select==='new'">
+                        <div class="user">
+                             <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                        size="small" style="margin-right: 10px"></el-avatar>
+                             {{ question.creator }}
                         </div>
+                        <el-link class='title' @click="goToDetail(question.id)" :underline="false">{{ question.title}}</el-link>
                         <div class="content">
                             {{ question.content }}
                         </div>
                         <div class="other-info">
                             <div class="tags">
-                                <el-tag v-for="tag in question.tags" :key="tag">{{ tag }}</el-tag>
+                                <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
                             </div>
-                            <div class="user-time">
-                                <span>{{ question.user }}</span>
+                            <div class="recommend-time">
+                                <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
+                                <span>{{ question.date }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="question-body" v-for="question in hots" :key="question.id" v-else="select==='hot'">
+                        <div class="user">
+                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                       size="small" style="margin-right: 10px"></el-avatar>
+                            {{ question.creator }}
+                        </div>
+                        <el-link class='title' @click="goToDetail(question.id)" :underline="false">{{ question.title}}</el-link>
+                        <div class="content">
+                            {{ question.content }}
+                        </div>
+                        <div class="other-info">
+                            <div class="tags">
+                                <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
+                            </div>
+                            <div class="recommend-time">
+                                <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
                                 <span>{{ question.date }}</span>
                             </div>
                         </div>
@@ -44,6 +66,7 @@ export default {
     },
     data() {
         return {
+            hots: [],
             questionList: [],
             last_index: 0,
             selectedTag: [],
@@ -51,7 +74,7 @@ export default {
             showTag: true,
             isAdmin: false,
             showResearchInput: false,
-            select: 0,
+            select: 'new',
             loading: false,
             no_more: false
         }
@@ -62,8 +85,16 @@ export default {
         this.isAdmin = (this.$store.state.auth === 2);
     },
     methods: {
-        handleSelect() {
-
+        handleSelect(selector) {
+            if (selector === this.select) {
+                return;
+            }
+            if (selector === 'new') {
+                this.select = 'new';
+            }
+            else {
+                this.select = 'hot';
+            }
         },
         getQuestions(pt) {
             // console.log("getQuestions!");
@@ -83,22 +114,28 @@ export default {
                     if (questionIdList.length < 64) {
                         _this.no_more = true;
                     }
-                    // let questions = [];
                     for (let qid of questionIdList) {
                         await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
-                            .then(function (response) {
-                                _this.questionList.push({
+                            .then(async function (response) {
+                                let question = {
                                     id: qid,
                                     title: response.data.question.title,
-                                    content: response.data.question.remarks
-                                });
-                                // _this.$data.questionList = questions;
-                                // questions.sort((a, b) => a.id - b.id);
+                                    content: response.data.question.remarks,
+                                    tags: response.data.question.tags,
+                                    date: response.data.question.createTime
+                                };
+                                let uid = response.data.question.creator;
+                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
+                                    .then(function (response) {
+                                        question.creator = response.data.name;
+                                    })
+                                _this.questionList.push(question);
                             });
+
                     }
                 })
                 .catch(function (error) {
-                    _this.questions = [];
+
                 });
 
         },
@@ -120,7 +157,6 @@ export default {
                 this.gotoAdministration();
             }
         },
-
         initTagState() {
             let tagList = this.$store.state.tagList;
             for (let tagName in tagList) {
@@ -150,13 +186,15 @@ export default {
             this.zIndex = this.$store.state.maxZIndex;
         },
         loadMore() {
-
             let e = this.$refs['scroll-body'];
             if (e.scrollTop + e.offsetHeight > e.scrollHeight - 1 && !this.loading && !this.no_more) {
                 this.loading = true;
                 this.getQuestions(this.last_index);
                 this.loading = false;
             }
+        },
+        getHot() {
+
         }
     }
 }
@@ -213,36 +251,45 @@ export default {
 }
 
 .question-body {
-    flex-direction: row;
-    border-bottom: 1px solid lightgrey;
+
 }
 
+.user {
+    align-self: flex-start;
+    flex-direction: row;
+    align-items: center;
+}
+
+.el-link {
+    justify-content: flex-start;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    flex-grow: 0;
+}
 .question-list * {
     display: flex;
 }
 
 .question-body {
-    flex-direction: row;
-    padding: 20px;
-    flex: 1 0 110px;
-}
-
-.question-body > * {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    padding: 10px;
+    flex: 1 0 110px;
+    border-bottom: 1px solid lightgrey;
 }
 
 .content {
     flex-grow: 2;
     justify-content: flex-start;
     align-items: flex-start;
-    margin-left: 20px;
-    height: 110px;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    line-height: 20px;
+    height: 60px;
+    margin: 10px 30px;
 }
 
 i {
@@ -257,6 +304,13 @@ i {
 .title {
     font-size: 20px;
     font-weight: bold;
+    margin-top: 10px;
+    margin-left: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    margin-right: 20px;
 }
 
 .tags {
@@ -265,13 +319,13 @@ i {
 }
 
 .other-info {
-    justify-content: space-around;
-    align-items: flex-end;
-    flex: 0 1 125px;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 25px;
 }
 
-.user-time {
-    flex-direction: column;
+.recommend-time {
+    flex-direction: row;
     align-items: flex-end;
 }
 
@@ -284,10 +338,16 @@ i {
 }
 
 .recommend {
-    flex-grow: 1;
+    height: 20px;
+    font-size: 10px;
+    line-height: 20px;
+    padding: 3px 3px;
+    margin-right: 20px;
+    align-items: center;
 }
 
 .detail {
     text-overflow: ellipsis;
 }
+
 </style>
