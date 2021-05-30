@@ -27,6 +27,7 @@ export default new Vuex.Store({
             {id: 1, content: '你好，我是William！登录完成!', prompts:[], promptValid: false}],
         maxZIndex: 1,
         mobileStatus: 'chat',
+        searchResult: []
     },
     mutations: {
         setUsername(state, value) {

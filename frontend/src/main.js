@@ -13,6 +13,7 @@ import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
 import VueAxios from 'vue-axios';
 import directive from "element-ui/packages/popover/src/directive";
+import Meta from 'vue-meta';
 
 Vue.prototype.$axios = axios;
 // const BASE_URL = 'https://aiape.snowphoenix.design';
@@ -20,10 +21,8 @@ const BASE_URL = 'http://test.snowphoenix.design';
 Vue.prototype.BASE_URL = BASE_URL;
 Vue.use(ElementUI);
 Vue.use(mavonEditor);
+Vue.use(Meta);
 Vue.prototype.$store = store;
-
-import infiniteScroll from 'vue-infinite-scroll'
-Vue.use(infiniteScroll);
 
 new Vue({
     el: '#app',

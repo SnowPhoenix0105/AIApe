@@ -6,6 +6,7 @@
         <i class="el-icon-edit" :class="(this.index === 1)? 'selected' : 'unselected'" @click="showRaiseQuestion"></i>
         <i class="el-icon-notebook-2" :class="(this.index === 2)? 'selected' : 'unselected'" @click="showQuestionList"></i>
         <i class="el-icon-paperclip" :class="(this.index === 3)? 'selected' : 'unselected'" @click="showQuestionDetail"></i>
+        <i class="el-icon-search" @click="showSearchResult"></i>
     </el-aside>
 </template>
 
@@ -36,6 +37,9 @@ export default {
         showQuestionDetail() {
             this.$router.replace('/questionDetail');
             this.index = 3;
+        },
+        showSearchResult() {
+            this.$router.replace('/searchResult');
         }
     }
 }
