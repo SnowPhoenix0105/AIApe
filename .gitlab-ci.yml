@@ -1,31 +1,27 @@
 #image: python:latest
-#image: mcr.microsoft.com/dotnet/sdk:5.0
+image: mcr.microsoft.com/dotnet/sdk:5.0
 
 variables:
   NUGET_PATH: 'C:\NuGet\nuget.exe'
   MSBUILD_PATH: 'C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe'
 
 stages:
-  - build
-  - test
-#  - deploy
-
-#build_job:
-#  stage: build
-#  only:
-#    - tags  # the build process will only be started by git tag commits
-#  script:
-#    - '& "$env:NUGET_PATH" restore'  # restore Nuget dependencies
-#    - '& "$env:MSBUILD_PATH" /p:Configuration=Release'  # build the project
-
-build_job:
-  stage: build
-  script:
-    - docker pull mcr.microsoft.com/dotnet/sdk:5.0
-    - docker pull python
+  - backend_unittest
 
 test_job:
-  stage: test
+  stage: backend_unittest
   script:
-    - python ./Scripts/BackEndUnitTest.py
-
+    - export PATH="$PATH:/root/.dotnet/tools"
+    - apt-get update
+    - apt-get install python3 -y
+    - apt-get install zip -y
+    - python3 --version
+    - dotnet --version
+    - python3 ./Scripts/BackEndUnitTest.py
+  artifacts:
+    name: test_report
+    paths:
+      - report.zip
+    expire_in: 1 week
+    
+    

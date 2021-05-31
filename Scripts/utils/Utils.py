@@ -3,6 +3,7 @@
 import enum
 import time
 import os
+import sys
 
 class LogLevel(enum.Enum):
     DBG = 0
@@ -27,6 +28,7 @@ class StopException(Exception):
 
 def exec(command: str, ensure_success: bool=True) -> int:
     log("executing command: {}".format(command))
+    sys.stdout.flush()
     ret = os.system(command)
     log("executed command with exit-code={}".format(ret))
     if ensure_success and ret != 0:

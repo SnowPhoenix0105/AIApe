@@ -15,8 +15,8 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="IAnswerRepository"/></remarks>
     public class AnswerRepository : RepositoryBase, IAnswerRepository
     {
-        public AnswerRepository(DatabaseContext context, GlobalCancellationTokenSource globalCancellationTokenSource) 
-            : base(context, globalCancellationTokenSource.Token) { }
+        public AnswerRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource) 
+            : base(context, cachePool, globalCancellationTokenSource.Token) { }
 
         public async Task<AnswerInfo> SelectAnswerByIdAsync(int answerId)
         {

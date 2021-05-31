@@ -49,8 +49,7 @@ namespace Buaa.AIBot.Repository
         /// Insert a new question. QuestionId, CreateTime, and ModifyTime will be generated automatically.
         /// </summary>
         /// <remarks>
-        /// CreaterId is required
-        /// BestAnswerId will be ignore.
+        /// CreaterId is required.
         /// No operation if any exception occurs.
         /// </remarks>
         /// <exception cref="ArgumentNullException">CreaterId is null</exception>
@@ -72,7 +71,6 @@ namespace Buaa.AIBot.Repository
         /// </remarks>
         /// <exception cref="QuestionNotExistException">There is no question with given qid.</exception>
         /// <exception cref="QuestionTitleTooLongException">Title Length greater than limits.</exception>
-        /// <exception cref="AnswerNotExistException">BestAnswerId was given but no answer of this question has aid equals to it.</exception>
         /// <exception cref="TagNotExistException">There is a tid in <paramref name="question"/>.Tags, but no Tag has the same. </exception>
         /// <param name="question">the new info for the question</param>
         /// <returns></returns>

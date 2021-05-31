@@ -94,4 +94,18 @@ namespace Buaa.AIBot.Repository.Exceptions
         public TagNameTooLongException(int actual, int max)
             : base($"Tag name has max length={max}, but {actual} get.") { }
     }
+
+    public class UserHasLikedTargetException : RepositoryException
+    {
+        public UserHasLikedTargetException(int uid, int target)
+            : base($"User with uid={uid} has already liked target with id={target}.")
+        { }
+    }
+
+    public class UserNotLikedTargetException : RepositoryException
+    {
+        public UserNotLikedTargetException(int uid, int target)
+            : base($"User with uid={uid} has not liked target with id={target} yet.")
+        { }
+    }
 }

@@ -13,7 +13,8 @@ namespace Buaa.AIBot.Services.Models
         public string Title { get; set; }
         public string Remarks { get; set; }
         public int? Creator { get; set; }
-        public int? Best { get; set; }
+        public bool? Like { get; set; }
+        public int LikeNum { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime CreatTime { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]
@@ -26,6 +27,8 @@ namespace Buaa.AIBot.Services.Models
     {
         public string Content { get; set; }
         public int? Creator { get; set; }
+        public bool? Like { get; set; }
+        public int LikeNum { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime CreateTime { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]

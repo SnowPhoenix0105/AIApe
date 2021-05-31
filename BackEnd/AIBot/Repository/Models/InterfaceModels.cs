@@ -26,11 +26,6 @@ namespace Buaa.AIBot.Repository.Models
         public int QuestionId { get; set; }
 
         /// <summary>
-        /// The best answer of this question. null means no answer has been marked as best.
-        /// </summary>
-        public int? BestAnswerId { get; set; }
-
-        /// <summary>
         /// The creater of this question. null means the creater has been removed.
         /// </summary>
         public int? CreaterId { get; set; }
