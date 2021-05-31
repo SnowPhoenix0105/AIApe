@@ -1,9 +1,6 @@
 <template>
     <div>
-        <div class="footer">
-            <MobileTopBar v-if="this.$store.state.mobileStatus !== 'login'
-            && this.$store.state.mobileStatus !== 'register'"/>
-        </div>
+
         <div class="main">
             <MobileLogin v-if="this.$store.state.mobileStatus === 'login'"/>
             <MobileChat v-if="this.$store.state.mobileStatus === 'chat'"/>
@@ -13,6 +10,10 @@
             <MobileQuestionDetail v-if="this.$store.state.mobileStatus === 'questionDetail'"/>
         </div>
 
+        <div class="footer">
+            <MobileTopBar v-if="this.$store.state.mobileStatus !== 'login'
+            && this.$store.state.mobileStatus !== 'register'"/>
+        </div>
     </div>
 </template>
 
@@ -51,8 +52,11 @@ export default {
 /*    height: calc(100vh - 200px);*/
 /*}*/
 
-/*.footer {*/
-/*    !*margin-top: 50px;*!*/
-/*}*/
+.footer {
+    /*margin-top: 50px;*/
+    width: 100vw;
+    position: fixed;
+    bottom: 0;
+}
 
 </style>
