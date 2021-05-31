@@ -3,6 +3,13 @@
         <el-header height="5vh">
             AIApe
         </el-header>
+        <el-footer>
+            <el-steps direction="horizontal" :active="step" align-center="true">
+                <el-step title="问题标题"></el-step>
+                <el-step title="选择标签"></el-step>
+                <el-step title="问题详情"></el-step>
+            </el-steps>
+        </el-footer>
         <el-container class="main-body">
             <!--                                    <el-aside width="100px">-->
             <!--                                        <el-steps direction="vertical" :active="step">-->
@@ -54,13 +61,13 @@
             </el-main>
 
         </el-container>
-        <el-footer>
-            <el-steps direction="horizontal" :active="step" align-center="true">
-                <el-step title="问题标题"></el-step>
-                <el-step title="选择标签"></el-step>
-                <el-step title="问题详情"></el-step>
-            </el-steps>
-        </el-footer>
+<!--        <el-footer>-->
+<!--            <el-steps direction="horizontal" :active="step" align-center="true">-->
+<!--                <el-step title="问题标题"></el-step>-->
+<!--                <el-step title="选择标签"></el-step>-->
+<!--                <el-step title="问题详情"></el-step>-->
+<!--            </el-steps>-->
+<!--        </el-footer>-->
     </el-container>
 </template>
 
@@ -233,8 +240,8 @@ h1 {
 }
 
 .el-footer {
-    position: absolute;
-    margin-top: 65vh;
+    /*position: absolute;*/
+    margin-top: 2vh;
     width: 100vw;
 }
 
