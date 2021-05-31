@@ -25,7 +25,7 @@
                                 <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
                             </div>
                             <div class="recommend-time">
-                                <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
+                                <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
                                 <span>{{ question.date }}</span>
                             </div>
                         </div>
@@ -245,6 +245,10 @@ export default {
     color: #409eff;
 }
 
+.recommand el-button:hover{
+    color: rgb(39, 214, 214);
+}
+
 .question-list {
     align-self: stretch;
     flex-direction: column;
@@ -341,6 +345,8 @@ i {
     height: 20px;
     font-size: 10px;
     line-height: 20px;
+    background-color: darkgrey;
+    border-color: darkgrey;
     padding: 3px 3px;
     margin-right: 20px;
     align-items: center;
