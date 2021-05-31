@@ -30,7 +30,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="question-body" v-for="question in hots" :key="question.id" v-else="select==='hot'">
+                    <div class="question-body" v-for="question in hots" :key="question.id" v-else>
                         <div class="user">
                             <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                                        size="small" style="margin-right: 10px"></el-avatar>
@@ -141,7 +141,7 @@ export default {
         },
         goToDetail(qid) {
             this.$store.commit('setQuestionID', qid);
-            this.$router.replace('questionDetail');
+            this.$changePage(3);
         },
         goToPersonalCenter() {
             this.$router.replace('PersonalCenter');
@@ -185,11 +185,11 @@ export default {
             this.$store.state.maxZIndex += 1
             this.zIndex = this.$store.state.maxZIndex;
         },
-        loadMore() {
+        async loadMore() {
             let e = this.$refs['scroll-body'];
             if (e.scrollTop + e.offsetHeight > e.scrollHeight - 1 && !this.loading && !this.no_more) {
                 this.loading = true;
-                this.getQuestions(this.last_index);
+                await this.getQuestions(this.last_index);
                 this.loading = false;
             }
         },

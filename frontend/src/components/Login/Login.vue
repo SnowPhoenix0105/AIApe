@@ -1,5 +1,5 @@
 <template>
-    <div class="shell" :style="'z-index:' + zIndex" v-drag @click="gotoTop">
+    <div class="shell" style="z-index: 100" v-drag>
         <el-container>
             <el-header>
                 <i class="el-icon-circle-close" style="cursor: pointer" @click="close"></i>
@@ -7,39 +7,39 @@
                 <span v-show="show.register">注册</span>
             </el-header>
             <el-main class="login" v-show="show.login">
-                <el-form ref="form" :model="form" label-width="40px">
+                <el-form ref="form" :model="loginForm" label-width="40px">
                     <el-form-item label="邮箱">
-                        <el-input v-model="form.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
+                        <el-input v-model="loginForm.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
                     </el-form-item>
                     <el-form-item label="密码" prop="password">
-                        <el-input v-model="form.password" prefix-icon="el-icon-lock" @keyup.native.enter="onSubmit"
+                        <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" @keyup.native.enter="onSubmit"
                                   placeholder="请输入密码" show-password></el-input>
                     </el-form-item>
-                    <el-button type="primary" @click="onSubmit">登录</el-button>
+                    <el-button type="primary" @click="login">登录</el-button>
                     <el-link type="info" @click="switchPage">还没有账号?点击注册</el-link>
                 </el-form>
             </el-main>
             <el-main class="register" v-show="show.register">
-                <el-form ref="form" :model="form" label-width="70px">
+                <el-form ref="form" :model="registerForm" label-width="70px">
                     <el-form-item label="昵称">
-                        <el-input v-model="form.name" prefix-icon="el-icon-user" placeholder="请输入昵称"></el-input>
+                        <el-input v-model="registerForm.name" prefix-icon="el-icon-user" placeholder="请输入昵称"></el-input>
                     </el-form-item>
                     <el-form-item label="邮箱">
-                        <el-input v-model="form.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
+                        <el-input v-model="registerForm.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
                     </el-form-item>
                     <el-form-item label="密码">
-                        <el-input v-model="form.password" prefix-icon="el-icon-lock" placeholder="请输入密码"
+                        <el-input v-model="registerForm.password" prefix-icon="el-icon-lock" placeholder="请输入密码"
                                   show-password></el-input>
                     </el-form-item>
                     <el-form-item label="确认密码">
-                        <el-input v-model="form.rePassword" type="password" prefix-icon="el-icon-unlock"
+                        <el-input v-model="registerForm.rePassword" type="password" prefix-icon="el-icon-unlock"
                                   placeholder="请确认密码"
                                   @keyup.native="checkPassword">
                             <i slot="suffix" class="el-input__icon el-icon-error" v-show="rePasswordError"
-                               @click="form.rePassword=''"></i>
+                               @click="registerForm.rePassword=''"></i>
                         </el-input>
                     </el-form-item>
-                    <el-button type="primary" @click="onSubmit" :disabled="rePasswordError">注册</el-button>
+                    <el-button type="primary" @click="register" :disabled="rePasswordError">注册</el-button>
                     <el-link type="info" @click="switchPage">已有账号?点击登录</el-link>
                 </el-form>
             </el-main>
@@ -51,23 +51,29 @@
 export default {
     data() {
         return {
-            form: {
+            loginForm: {
                 email: '',
                 password: ''
+            },
+            registerForm: {
+                name: '',
+                email: '',
+                password: '',
+                rePassword: ''
             },
             show: {
                 login: true,
                 register: false
             },
-            zIndex: this.$store.state.maxZIndex
+            rePasswordError: false
         }
     },
     methods: {
-        onSubmit() {
+        login() {
             let _this = this;
             this.$axios.post(this.BASE_URL + "/api/user/login", {
-                email: _this.$data.form.email,
-                password: _this.$data.form.password
+                email: _this.loginForm.email,
+                password: _this.loginForm.password
             })
                 .then(function (response) {
                     if (response.data.status === "fail") {
@@ -87,7 +93,7 @@ export default {
                             timeout: response.data.timeout
                         });
                         _this.$store.commit('setAuth', response.data.auth);
-                        _this.$router.replace('/questionList');
+                        _this.$store.state.show.login = false;
                         _this.$axios.get(_this.BASE_URL + '/api/user/internal_info', {
                             headers: {
                                 Authorization: 'Bearer ' + response.data.token,
@@ -104,6 +110,57 @@ export default {
                     }
                 })
         },
+        register() {
+            let _this = this;
+            _this.$axios.post(_this.BASE_URL + "/api/user/signup", {
+                name: _this.registerForm.name,
+                email: _this.registerForm.email,
+                password: _this.registerForm.password
+            })
+                .then(function (response) {
+                    let status = response.data.status;
+                    if (status === 'success') {
+                        _this.$message({
+                            message: '注册成功!即将跳转至登录页面...',
+                            type: 'success'
+                        });
+                        setTimeout(() => {
+                            _this.switchPage();
+                        }, 2000);
+                    }
+                    else if (status === 'nameInvalid') {
+                        _this.$message({
+                            message: '昵称格式不合法',
+                            type: 'warning'
+                        })
+                    }
+                    else if (status === 'nameExisted') {
+                        _this.$message({
+                            message: '昵称已存在',
+                            type: 'warning'
+                        })
+                    }
+                    else if (status === 'emailInvalid') {
+                        _this.$message({
+                            message: '邮箱格式错误',
+                            type: 'warning'
+                        })
+                    }
+                    else if (status === 'emailExisted') {
+                        _this.$message({
+                            message: '邮箱已被注册',
+                            type: 'warning'
+                        })
+                    }
+                    else if (status === 'passwordInvalid') {
+                        _this.$message({
+                            message: '密码长度应大于8位！',
+                            type: 'warning'
+                        })
+                    }
+                })
+
+        },
         switchPage() {
             this.show.login = !this.show.login;
             this.show.register = !this.show.register;
@@ -114,10 +171,6 @@ export default {
         },
         close() {
             this.$store.state.show.login = false;
-        },
-        gotoTop() {
-            this.$store.state.maxZIndex += 1
-            this.zIndex = this.$store.state.maxZIndex;
         }
     },
     directives: {

@@ -1,7 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Register from '../pages/Register/Register.vue';
-import Login from '../components/Login/Login.vue';
 import QuestionList from "../pages/QuestionList/QuestionList";
 import QuestionDetail from "../pages/QuestionDetail/QuestionDetail";
 import PersonalCenter from "../pages/PersonalCenter/PersonalCenter";
@@ -9,6 +7,7 @@ import Administration from "../pages/Administration/Administration";
 import Chat from "../pages/Chat/Chat";
 import RaiseQuestion from "../pages/RaiseQuestion/RaiseQuestion";
 import SearchResult from "../pages/SearchResult/SearchResult";
+import CodeAnalysis from "../pages/CodeAnalysis/CodeAnalysis";
 
 Vue.use(Router)
 
@@ -17,8 +16,14 @@ export default new Router({
         if (from.name === 'questionList') {
             from.meta.savedPosition = document.getElementById('scroll-body').scrollTop;
         }
+        else if (from.name === 'chat') {
+            from.meta.savedPosition = document.getElementById('words').scrollTop;
+        }
         if (to.name === 'questionList' && to.meta.savedPosition) {
             document.getElementById('scroll-body').scrollTop = to.meta.savedPosition;
+        }
+        else if (to.name === 'chat' && to.meta.savedPosition) {
+            document.getElementById('words').scrollTop = to.meta.savedPosition;
         }
     },
     routes: [
@@ -62,6 +67,12 @@ export default new Router({
             path: '/searchResult',
             component: SearchResult,
             name: 'searchResult'
+        },
+        {
+            path: '/codeAnalysis',
+            component: CodeAnalysis,
+            meta: {show: false},
+            name: 'codeAnalysis'
         }
     ]
 })

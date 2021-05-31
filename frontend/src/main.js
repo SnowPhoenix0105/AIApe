@@ -11,8 +11,6 @@ import 'github-markdown-css/github-markdown.css';
 import 'vue2-animate/dist/vue2-animate.min.css';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
-import VueAxios from 'vue-axios';
-import directive from "element-ui/packages/popover/src/directive";
 import Meta from 'vue-meta';
 
 Vue.prototype.$axios = axios;
@@ -96,4 +94,37 @@ Vue.prototype.$search = function (key) {
             console.log(error);
         })
     this.$router.replace('/searchResult');
+}
+
+Vue.prototype.$changePage = function (index) {
+    if (index === this.$store.state.routerIndex) {
+        return;
+    }
+    this.$store.state.routerIndex = index;
+    switch (index) {
+        case 0: {
+            this.$router.replace('/chat');
+            break;
+        }
+        case 1: {
+            this.$router.replace('/raiseQuestion');
+            break;
+        }
+        case 2: {
+            this.$router.replace('/questionList');
+            break;
+        }
+        case 3: {
+            this.$router.replace('/questionDetail');
+            break;
+        }
+        case 4: {
+            this.$router.replace('/searchResult');
+            break;
+        }
+        case 5: {
+            this.$router.replace('/codeAnalysis');
+            break;
+        }
+    }
 }

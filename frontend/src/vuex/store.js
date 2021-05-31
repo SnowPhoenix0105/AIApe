@@ -17,17 +17,14 @@ export default new Vuex.Store({
         timeout: 0,
         tagList: {'环境' : 1, '代码' : 2, '语言' : 3},
         lastTokenTime: new Date(),
-        logs: [{id: 2, content: '你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！', prompts:[], promptValid: false},
-            {id: 1, content: '你好，我是William！登录完成!', prompts:[], promptValid: false},
-            {id: 2, content: '你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！', prompts:[], promptValid: false},
-            {id: 1, content: '你好，我是William！登录完成!', prompts:[], promptValid: false},
-            {id: 2, content: '你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！', prompts:[], promptValid: false},
-            {id: 1, content: '你好，我是William！登录完成!', prompts:[], promptValid: false},
-            {id: 2, content: '你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！你好，我是AIApe！请先登录！', prompts:[], promptValid: false},
-            {id: 1, content: '你好，我是William！登录完成!', prompts:[], promptValid: false}],
-        maxZIndex: 1,
+        logs: [{id: 2, content: '你好，我是AIApe！请先登录！', prompts:[], promptValid: false}],
         mobileStatus: 'chat',
-        searchResult: []
+        searchResult: [],
+        routerIndex: 0,
+        codeAnalysis: {
+            code: '',
+            issues: []
+        }
     },
     mutations: {
         setUsername(state, value) {

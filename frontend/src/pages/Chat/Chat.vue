@@ -4,26 +4,28 @@
             AIApe
         </el-header>
         <el-main class="log">
-            <div style="width: 60vw; margin-top: 10px">
-                <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
-                    <el-avatar :src="msg.id === 1? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png': bot_avatar" size="medium"></el-avatar>
-                    <span class="chat-content" v-html="msg.content">
-                        {{ msg.content }}
-                    </span>
-<!--                    <el-avatar size="medium"> user </el-avatar>-->
-                    <br/>
-                    <el-button class="prompt" v-for="prompt in msg.prompts"
-                            :key="prompt" v-show="msg.promptValid"
-                            @click="choosePrompt(prompt, msg)">
-                        {{ prompt }}
-                    </el-button>
+            <div style="width: 60vw; overflow-y: scroll" ref="words" id="words">
+                <div v-for="msg in this.$store.state.logs" class="content">
+                    <div :class="msg.id === 1? 'user':'bot'">
+                        <el-avatar
+                            :src="msg.id === 1? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png': bot_avatar"
+                            size="medium"></el-avatar>
+                        <span class="chat-content" v-html="msg.content"></span>
+                    </div>
+                    <div class="prompts" v-show="msg.promptValid">
+                        <el-button class="prompt" v-for="prompt in msg.prompts"
+                                   :key="prompt" @click="choosePrompt(prompt, msg)">
+                            {{ prompt }}
+                        </el-button>
+                    </div>
                 </div>
+
             </div>
         </el-main>
         <el-main class="send-area">
             <div style="width: 60vw; height: 20vh">
                 <el-input class="textarea" type="textarea" resize="none" v-model="message"></el-input>
-                <el-button type="primary">发送</el-button>
+                <el-button type="primary" @click="send">发送</el-button>
             </div>
         </el-main>
     </el-container>
@@ -43,9 +45,6 @@ export default {
         },
         logs() {
             return this.$store.state.logs;
-        },
-        prompt() {
-            return this.$store.state.prompt;
         }
     },
     methods: {
@@ -53,7 +52,7 @@ export default {
             let _this = this;
             let message = this.message;
             if (this.$store.state.username === '') {
-                this.$store.commit('addAImessage', {id: 2, content: '你好,请先登录！看右边→', prompts:[], promptValid: false});
+                this.$store.commit('addAImessage', {id: 2, content: '你好，请先登录！', prompts: [], promptValid: false});
                 return;
             }
             if (this.$data.message === '') {
@@ -71,15 +70,15 @@ export default {
                 }
             }
 
-            this.$store.commit('addUserMessage', this.$data.message);
-
+            message = this.return2Br(this.html2Escape(message));
+            this.$store.commit('addUserMessage', message);
 
             this.$axios.post(this.BASE_URL + '/api/bot/message', {
                 message: this.$data.message
             }, {
                 headers: {
-                    Authorization : 'Bearer ' + _this.$store.state.token,
-                    type : 'application/json;charset=utf-8'
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
                 }
             })
                 .then(function (response) {
@@ -91,8 +90,7 @@ export default {
                         if (i === response.data.messages.length - 1) {
                             payload['prompts'] = response.data.prompt;
                             payload['promptValid'] = response.data.prompt.length > 0;
-                        }
-                        else {
+                        } else {
                             payload['prompts'] = [];
                             payload['promptValid'] = false;
                         }
@@ -106,6 +104,7 @@ export default {
                 .catch(function (error) {
                 })
             this.$data.message = '';
+
         },
         getTagList() {
             let _this = this;
@@ -129,12 +128,10 @@ export default {
                     type = msg.substring(left + 1, left + space);
                     if (type === 'question') {
                         id = msg.substring(left + space + 1, right);
-                    }
-                    else {
+                    } else {
                         url = msg.substring(left + space + 1, right);
                     }
-                }
-                else {
+                } else {
                     url = msg.substring(left + 1, right);
                 }
                 if (type === 'question') {
@@ -142,9 +139,8 @@ export default {
                     msg = msg.substring(0, left) +
                         '<el-link type="text" @click="gotoQuestionDetail()">' +
                         'Question' + id + '</el-link>' + msg.substring(right + 1);
-                }
-                else {
-                    msg = msg.substring(0, left) + '<a target="_blank" style="color: white" href="' + url + '">' + url + '</a>' + msg.substring(right + 1);
+                } else {
+                    msg = msg.substring(0, left) + '<a style="color: #409eff" href="' + url + '" target="_blank">' + url + '</a>' + msg.substring(right + 1);
                 }
                 left = msg.indexOf('[');
                 right = msg.indexOf(']');
@@ -159,8 +155,8 @@ export default {
                 message: prompt
             }, {
                 headers: {
-                    Authorization : 'Bearer ' + _this.$store.state.token,
-                    type : 'application/json;charset=utf-8'
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
                 }
             })
                 .then(function (response) {
@@ -172,8 +168,7 @@ export default {
                         if (i === response.data.messages.length - 1) {
                             payload['prompts'] = response.data.prompt;
                             payload['promptValid'] = response.data.prompt.length > 0;
-                        }
-                        else {
+                        } else {
                             payload['prompts'] = [];
                             payload['promptValid'] = false;
                         }
@@ -186,17 +181,30 @@ export default {
         },
         gotoQuestionDetail() {
             this.$router.replace('/questionDetail');
+        },
+        html2Escape(sHtml) {
+            return sHtml.replace(/[<>&"]/g, function (c) {
+                return {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'}[c];
+            });
+        },
+        return2Br(str) {
+            return str.replace(/\r?\n/g,"<br />");
         }
     },
     watch: {
         username: function (username) {
             let _this = this;
             this.waitTag = true;
-            this.$store.commit('addAImessage', {id: 2, content: '你好,' + username + '！', prompts: [], promptValid: false});
+            this.$store.commit('addAImessage', {
+                id: 2,
+                content: '你好，' + username + '！',
+                prompts: [],
+                promptValid: false
+            });
             _this.$axios.post(_this.BASE_URL + '/api/bot/start', {}, {
                 headers: {
-                    Authorization : 'Bearer ' + _this.$store.state.token,
-                    type : 'application/json;charset=utf-8'
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
                 }
             })
                 .then(function (response) {
@@ -208,8 +216,7 @@ export default {
                         if (i === response.data.messages.length - 1) {
                             payload['prompts'] = response.data.prompt;
                             payload['promptValid'] = response.data.prompt.length > 0;
-                        }
-                        else {
+                        } else {
                             payload['prompts'] = [];
                             payload['promptValid'] = false;
                         }
@@ -222,13 +229,6 @@ export default {
             this.$nextTick(() => {
                 this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
             })
-        },
-        prompt: function () {
-            // let message = '比如:<br/>';
-            // for (let p of this.$store.state.prompt) {
-            //     message += p + '<br/>';
-            // }
-            // this.$store.commit('addAImessage', message);
         }
     },
     mounted() {
@@ -273,16 +273,20 @@ export default {
 }
 
 .user {
-    margin: 10px;
     text-align: right;
     width: auto;
     height: auto;
+    flex-direction: row-reverse;
+    display: flex;
+    align-items: center;
 }
 
 .bot {
     height: auto;
-    margin: 10px;
     width: auto;
+    flex-direction: row;
+    display: flex;
+    align-items: center;
 }
 
 .bot span.chat-content {
@@ -319,8 +323,8 @@ export default {
     margin-right: 3px;
 }
 
-.textarea >>> .el-textarea__inner{
-    font-family: "system-ui",serif !important;
+.textarea >>> .el-textarea__inner {
+    font-family: "system-ui", serif !important;
     font-size: 16px !important;
     color: black;
 }
@@ -340,17 +344,12 @@ export default {
     align-self: flex-start;
 }
 
-.content.user {
-    flex-direction: row-reverse;
-}
-
-.content.bot {
-    flex-direction: row;
-}
-
 .content {
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px;
 }
 
 .chat-content {
@@ -358,4 +357,15 @@ export default {
     flex: 0 1 auto;
 }
 
+.prompts {
+    display: flex;
+    flex-direction: row;
+    margin-left: 45px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.prompt {
+    margin: 10px 10px 0 0;
+}
 </style>

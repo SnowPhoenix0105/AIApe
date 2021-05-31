@@ -221,4 +221,9 @@ h1 {
     min-height: 100vh;
     max-height: 100vh;
 }
+
+::-webkit-scrollbar {
+    width: 0;
+}
+
 </style>

@@ -121,7 +121,7 @@ body {
 }
 
 ::-webkit-scrollbar {
-    width: 0;
+    width: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -133,4 +133,7 @@ body {
     background-color: white !important;
 }
 
+.CodeMirror {
+    height: 90vh!important;
+}
 </style>

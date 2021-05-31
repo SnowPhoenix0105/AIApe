@@ -1,7 +1,7 @@
 <template>
     <el-container class="shell">
         <el-container class="list">
-            <el-main class="question-detail" style="z-index: 1">
+            <el-main class="question-detail">
                 <div class="user">
                     <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                                size="small" style="margin-right: 10px"></el-avatar>
@@ -33,6 +33,7 @@
                                   :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"
                                   :toolbarsFlag="prop.toolbarsFlag" :editable="prop.editable"
                                   :scrollStyle="prop.scrollStyle" :boxShadow="prop.boxShadow"
+                                  style="max-height: 0"
                                   placeholder="编辑你的回答...">
                     </mavon-editor>
                 </div>
@@ -146,7 +147,6 @@ export default {
                     for (let aid of aidList) {
                         _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(async function (response) {
-                                console.log(response);
                                 let answer = response.data.answer;
                                 let id = response.data.answer.creator;
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + id)
@@ -154,20 +154,7 @@ export default {
                                         answer.creatorName = response.data.name;
                                     })
                                 answer['id'] = parseInt(response.data.message[response.data.message.indexOf('=') + 1]);
-                                // if (best === aid) {
-                                //     _this.$data.answers.splice(0, 0, answer);
-                                // } else {
                                 _this.answers.push(answer);
-                                // }
-                                // _this.answers.sort((a, b) => {
-                                //     if (a['id'] === best) {
-                                //         return -1;
-                                //     }
-                                //     if (b['id'] === best) {
-                                //         return 1;
-                                //     }
-                                //     return b['id'] - a['id'];
-                                // });
                             })
                             .catch(function (error) {
                                 console.log(error);
@@ -277,7 +264,7 @@ export default {
     height: 95vh;
     align-items: stretch;
     margin-right: 5px;
-    overflow: scroll;
+    overflow: visible;
 }
 
 .el-header {
@@ -295,7 +282,6 @@ export default {
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
     align-items: stretch;
     flex-direction: column;
-    overflow: scroll;
     padding: 10px;
     flex-shrink: 0;
 }
@@ -322,7 +308,6 @@ h1 {
     margin-top: 10px;
     flex-direction: row;
     justify-content: space-between;
-    margin-bottom: 10px;
 }
 
 .el-tag {
@@ -430,4 +415,14 @@ i {
 .show-all:hover {
     color: #409eff;
 }
+
+.fullscreen {
+    min-height: 100vh;
+    max-height: 100vh;
+}
+
+::-webkit-scrollbar {
+    width: 0!important;
+}
+
 </style>
