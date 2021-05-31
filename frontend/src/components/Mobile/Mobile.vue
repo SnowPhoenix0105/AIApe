@@ -10,6 +10,7 @@
             <MobileRegister v-if="this.$store.state.mobileStatus === 'register'"/>
             <MobileQuestionList v-if="this.$store.state.mobileStatus === 'questionList'"/>
             <MobileRaiseQuestion v-if="this.$store.state.mobileStatus === 'raiseQuestion'"/>
+            <MobileQuestionDetail v-if="this.$store.state.mobileStatus === 'questionDetail'"/>
         </div>
 
     </div>
@@ -22,6 +23,7 @@ import MobileRegister from "./MobileRegister";
 import MobileTopBar from "./MobileTopBar";
 import MobileQuestionList from "./MobileQuestionList";
 import MobileRaiseQuestion from "./MobileRaiseQuestion";
+import MobileQuestionDetail from "./MobileQuestionDetail";
 
 export default {
     name: "Mobile",
@@ -37,6 +39,7 @@ export default {
         MobileTopBar,
         MobileQuestionList,
         MobileRaiseQuestion,
+        MobileQuestionDetail,
     },
     beforeCreate() {
     }

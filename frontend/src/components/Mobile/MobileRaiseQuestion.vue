@@ -235,6 +235,7 @@ h1 {
 .el-footer {
     position: absolute;
     margin-top: 65vh;
+    width: 100vw;
 }
 
 /*.markdown-body {*/
