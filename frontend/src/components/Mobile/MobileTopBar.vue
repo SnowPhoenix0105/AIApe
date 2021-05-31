@@ -16,19 +16,26 @@ export default {
     name: "MobileBottomBar",
     data() {
         return {
-            // index: 0,
+            index: 0,
         }
     },
     methods: {
         showChat() {
             // alert('herre');
             this.$store.state.mobileStatus = 'chat';
+            this.index = 0;
         },
         showRaiseQuestion() {
             this.$store.state.mobileStatus = 'raiseQuestion';
+            this.index = 1
         },
         showQuestionList() {
             this.$store.state.mobileStatus = 'questionList';
+            this.index = 2;
+        },
+        showQuestionDetail() {
+            this.$store.state.mobileStatus = 'questionDetail';
+            this.index = 3;
         }
     }
 }
