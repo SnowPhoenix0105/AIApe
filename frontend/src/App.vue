@@ -14,8 +14,14 @@
                 enter-active-class="zoomInLeft"
                 leave-active-class="zoomOutLeft">
                 <keep-alive>
-                    <router-view/>
+                    <router-view v-if="$route.meta.keepAlive"></router-view>
                 </keep-alive>
+            </transition>
+            <transition
+                name="zoom"
+                enter-active-class="zoomInLeft"
+                leave-active-class="zoomOutLeft">
+            <router-view v-if="!$route.meta.keepAlive"></router-view>
             </transition>
         </el-container>
     </div>
@@ -28,13 +34,13 @@ import Login from "./components/Login/Login";
 import QuestionList from "./pages/QuestionList/QuestionList";
 import Mobile from "./components/Mobile/Mobile";
 
-window.onload = function() {
-    document.addEventListener('touchstart', function(event) {
+window.onload = function () {
+    document.addEventListener('touchstart', function (event) {
         if (event.touches.length > 1) {
             event.preventDefault()
         }
     })
-    document.addEventListener('gesturestart', function(event) {
+    document.addEventListener('gesturestart', function (event) {
         event.preventDefault()
     })
 }
@@ -79,9 +85,9 @@ export default {
         this.$store.state.lastTokenTime = new Date();
 
         this.$axios.get(this.BASE_URL + '/api/questions/taglist')
-        .then(function (response) {
-            _this.$store.state.tagList = response.data;
-        })
+            .then(function (response) {
+                _this.$store.state.tagList = response.data;
+            })
     }
 }
 </script>
