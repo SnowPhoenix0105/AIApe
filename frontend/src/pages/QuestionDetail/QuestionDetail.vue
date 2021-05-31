@@ -79,7 +79,7 @@ export default {
         return {
             title: '',
             detail: '',
-            tags: ['Windows', 'C', '环境'],
+            tags: [],
             creatorName: '',
             date: '',
             answers: [],

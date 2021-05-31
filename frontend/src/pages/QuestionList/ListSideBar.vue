@@ -33,7 +33,7 @@ export default {
     },
     methods: {
         search() {
-            this.$alert('搜索！');
+            this.$search(this.question);
         }
     }
 }

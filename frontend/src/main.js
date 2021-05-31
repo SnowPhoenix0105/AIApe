@@ -64,3 +64,36 @@ axios.interceptors.response.use(response => {
     }
 })
 
+Vue.prototype.$search = function (key) {
+    let _this = this;
+    this.$store.state.searchResult = [];
+    this.$axios.post(this.BASE_URL + '/api/questions/search', {
+        content: key
+    })
+        .then(async function (response) {
+            console.log(response);
+            let questions = response.data.questions;
+            for (let qid of questions) {
+                await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
+                    .then(async function (response) {
+                        let question = {
+                            id: qid,
+                            title: response.data.question.title,
+                            content: response.data.question.remarks,
+                            tags: response.data.question.tags,
+                            date: response.data.question.createTime
+                        };
+                        let uid = response.data.question.creator;
+                        await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
+                            .then(function (response) {
+                                question.creator = response.data.name;
+                            })
+                        _this.$store.state.searchResult.push(question);
+                    });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+    this.$router.replace('/searchResult');
+}

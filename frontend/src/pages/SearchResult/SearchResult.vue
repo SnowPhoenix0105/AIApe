@@ -8,28 +8,7 @@
                 <el-button type="text" style="cursor: default">搜索结果</el-button>
             </el-main>
             <el-main class="question-list">
-                <div class="question-body" v-for="question in questionList" :key="question.id" v-if="select==='new'">
-                    <div class="user">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                   size="small" style="margin-right: 10px"></el-avatar>
-                        {{ question.creator }}
-                    </div>
-                    <el-link class='title' @click="goToDetail(question.id)" :underline="false">{{ question.title }}
-                    </el-link>
-                    <div class="content">
-                        {{ question.content }}
-                    </div>
-                    <div class="other-info">
-                        <div class="tags">
-                            <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
-                        </div>
-                        <div class="recommend-time">
-                            <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
-                            <span>{{ question.date }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="question-body" v-for="question in hots" :key="question.id" v-else="select==='hot'">
+                <div class="question-body" v-for="question in this.$store.state.searchResult" :key="question.id">
                     <div class="user">
                         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                                    size="small" style="margin-right: 10px"></el-avatar>
