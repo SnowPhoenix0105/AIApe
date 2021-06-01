@@ -22,7 +22,7 @@
                     <div class="recommend-time">
                         <el-button style="margin-right: 20px" icon="el-icon-edit" size="mini" circle
                                    @click="answerAreaMove"></el-button>
-                        <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
+                        <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
                         <span>{{ date }}</span>
                     </div>
                 </div>
@@ -51,7 +51,7 @@
                                   :scrollStyle="false" :box-shadow="false">
                     </mavon-editor>
                     <div style="display: flex; justify-content: flex-end; align-items: center">
-                        <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
+                        <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
                         <span>{{ answer.createTime }}</span>
                     </div>
                 </div>
@@ -336,14 +336,17 @@ i {
 /*}*/
 
 .recommend {
-    display: flex;
     height: 20px;
     font-size: 10px;
     line-height: 20px;
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
+    color: #966dff;
     padding: 3px 3px;
     margin-right: 20px;
     align-items: center;
 }
+
 
 .user-time {
     display: flex;

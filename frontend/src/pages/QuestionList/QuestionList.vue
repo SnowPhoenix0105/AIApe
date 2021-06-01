@@ -17,6 +17,13 @@
                              {{ question.creator }}
                         </div>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">{{ question.title}}</el-link>
+
+                        <!-- <mavon-editor :style='"max-height:" + maxHeight' class="question" v-model="content" ref=md
+                              :subfield="false" defaultOpen="preview"
+                              :toolbarsFlag="false" :editable="false"
+                              :scrollStyle="false" :box-shadow="false">
+                        </mavon-editor> -->
+
                         <div class="content">
                             {{ question.content }}
                         </div>
@@ -25,7 +32,7 @@
                                 <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
                             </div>
                             <div class="recommend-time">
-                                <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
+                                <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
                                 <span>{{ question.date }}</span>
                             </div>
                         </div>
@@ -45,7 +52,7 @@
                                 <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
                             </div>
                             <div class="recommend-time">
-                                <el-button class="recommend" type="primary" icon="el-icon-arrow-up">推荐</el-button>
+                                <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
                                 <span>{{ question.date }}</span>
                             </div>
                         </div>
@@ -59,6 +66,7 @@
 
 <script>
 import ListSideBar from "./ListSideBar";
+import 'markdown-it-vue/dist/markdown-it-vue.css'
 
 export default {
     components: {
@@ -245,6 +253,10 @@ export default {
     color: #409eff;
 }
 
+.recommand:hover{
+    color: rgb(39, 214, 214);
+}
+
 .question-list {
     align-self: stretch;
     flex-direction: column;
@@ -336,6 +348,9 @@ i:hover{
     height: 20px;
     font-size: 10px;
     line-height: 20px;
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
+    color: #966dff;
     padding: 3px 3px;
     margin-right: 20px;
     align-items: center;
