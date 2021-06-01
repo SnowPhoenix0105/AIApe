@@ -50,7 +50,7 @@ export default {
 <style scoped>
 
 .el-header {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(128, 128, 128, 1);
     width: 100%;
     flex-direction: row;
     align-items: center;

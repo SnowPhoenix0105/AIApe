@@ -109,7 +109,7 @@ export default {
             let _this = this;
 
             let post_data = {
-                number: 64,
+                number: 10,
                 tags: _this.selectedTag,
             }
             if (pt > 0) {
@@ -193,9 +193,10 @@ export default {
             this.$store.state.maxZIndex += 1
             this.zIndex = this.$store.state.maxZIndex;
         },
-        async loadMore() {
-            let e = this.$refs['scroll-body'];
-            if (e.scrollTop + e.offsetHeight > e.scrollHeight - 1 && !this.loading && !this.no_more) {
+        async loadMore(e) {
+            // console.log(e);
+            // let e = this.$refs['scroll-body'];
+            if (e.srcElement.scrollTop + e.srcElement.clientHeight == e.srcElement.scrollHeight) {
                 this.loading = true;
                 await this.getQuestions(this.last_index);
                 this.loading = false;
