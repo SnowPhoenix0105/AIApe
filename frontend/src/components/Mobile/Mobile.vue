@@ -5,7 +5,7 @@
             <MobileLogin v-if="this.$store.state.mobileStatus === 'login'"/>
             <MobileChat v-if="this.$store.state.mobileStatus === 'chat'"/>
             <MobileRegister v-if="this.$store.state.mobileStatus === 'register'"/>
-            <MobileQuestionList v-if="this.$store.state.mobileStatus === 'questionList'"/>
+            <MobileQuestionList v-show="this.$store.state.mobileStatus === 'questionList'"/>
             <MobileRaiseQuestion v-if="this.$store.state.mobileStatus === 'raiseQuestion'"/>
             <MobileQuestionDetail v-if="this.$store.state.mobileStatus === 'questionDetail'"/>
         </div>

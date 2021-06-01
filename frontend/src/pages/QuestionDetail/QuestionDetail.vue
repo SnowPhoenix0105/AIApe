@@ -52,7 +52,7 @@
                     </mavon-editor>
                     <div style="display: flex; justify-content: flex-end; align-items: center">
                         <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
-                        <span>{{ answer.createTime }}</span>
+                        <span>{{ answer.createTime }}</span>g
                     </div>
                 </div>
             </el-main>

@@ -148,6 +148,7 @@ export default {
         goToDetail(qid) {
             this.$store.commit('setQuestionID', qid);
             // this.$changePage(3);
+            this.$store.state.mobileStatus = 'questionDetail';
         },
         goToPersonalCenter() {
             // this.$router.replace('PersonalCenter');
@@ -326,6 +327,7 @@ i:hover {
     /*text-overflow: ellipsis;*/
     /*display: block;*/
     margin-right: 20px;
+    overflow: hidden;
 }
 
 .tags {

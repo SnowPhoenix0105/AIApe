@@ -3,16 +3,16 @@
 
         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                    size="large" @click.native="login"></el-avatar>
-        <i class="el-icon-chat-dot-round" :class="(this.index === 0)? 'selected' : 'unselected'"
+        <i class="el-icon-chat-dot-round" :class="(this.$store.state.mobileStatus === 'chat')? 'selected' : 'unselected'"
            @click="showChat"></i>
 
-        <i class="el-icon-edit" :class="(this.index === 1)? 'selected' : 'unselected'"
+        <i class="el-icon-edit" :class="(this.$store.state.mobileStatus === 'raiseQuestion')? 'selected' : 'unselected'"
            @click="showRaiseQuestion"></i>
 
-        <i class="el-icon-notebook-2" :class="(this.index === 2)? 'selected' : 'unselected'"
+        <i class="el-icon-notebook-2" :class="(this.$store.state.mobileStatus === 'questionList')? 'selected' : 'unselected'"
            @click="showQuestionList"></i>
 
-        <i class="el-icon-paperclip" :class="(this.index === 3)? 'selected' : 'unselected'"
+        <i class="el-icon-paperclip" :class="(this.$store.state.mobileStatus === 'questionDetail')? 'selected' : 'unselected'"
            @click="showQuestionDetail"></i>
     </el-header>
 </template>

@@ -1,5 +1,5 @@
 <template>
-    <h1>问题详情页面</h1>
+    <h1>问题详情页面{{this.$store.state.questionID}}</h1>
 </template>
 
 <script>
