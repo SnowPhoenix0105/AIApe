@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Repository.Exceptions;
 using Buaa.AIBot.Utils;
@@ -15,38 +16,112 @@ namespace Buaa.AIBot.Repository.Implement
     /// <remarks><seealso cref="ITagRepostory"/></remarks>
     public class TagRepository : RepositoryBase, ITagRepostory
     {
-        public TagRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
-            : base(context, cachePool, globalCancellationTokenSource.Token) { }
-
-        private volatile bool changed = true;
-        private Dictionary<string, int> cache
+        private class CachedData
         {
-            get
-            {
-                return CachePool.GetOrDefault<Dictionary<string, int>>(CacheId.Tag);
-            }
-            set
-            {
-                CachePool.Set(CacheId.Tag, value);
-            }
+            public bool tagListChanged = true;
+            public bool tagCategoryChanged = true;
+            public Dictionary<string, int> cachedList;
+            public IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>> cachedCategory;
+            public SemaphoreSlim listLock = new SemaphoreSlim(1);
+            public SemaphoreSlim categoryLock = new SemaphoreSlim(1);
         }
 
-        public async Task<Dictionary<string, int>> SelectAllTagsAsync()
+        public TagRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
+            : base(context, cachePool, globalCancellationTokenSource.Token) 
         {
-            if (!changed)
+            var cached = cachePool.GetOrDefault<CachedData>(CacheId.Tag);
+            if (cached == null)
             {
-                return cache;
+                using (cachePool.LockAsync(CacheId.Tag))
+                {
+                    cached = cachePool.GetOrDefault<CachedData>(CacheId.Tag);
+                    if (cached == null)
+                    {
+                        cached = new CachedData();
+                        cachePool.Set(CacheId.Tag, cached);
+                    }
+                }
             }
-            var query = await Context
-                 .Tags
-                 .AsQueryable()
-                 .Select(t => new KeyValuePair<string, int>(t.Name, t.TagId))
-                 .ToListAsync(CancellationToken);
-            CancellationToken.ThrowIfCancellationRequested();
-            var res = new Dictionary<string, int>(query);
-            cache = res;
-            changed = false;
-            return res;
+            sharedData = cached;
+        }
+
+        private readonly CachedData sharedData;
+
+        public async Task<IReadOnlyDictionary<string, int>> SelectAllTagsAsync()
+        {
+            Dictionary<string, int> ret;
+            if (sharedData.tagListChanged)
+            {
+                await sharedData.listLock.WaitAsync();
+                try
+                {
+                    if (sharedData.tagListChanged)
+                    {
+                        var query = await Context
+                             .Tags
+                             // .AsQueryable()
+                             .Select(t => new KeyValuePair<string, int>(t.Name, t.TagId))
+                             .ToListAsync(CancellationToken);
+                        CancellationToken.ThrowIfCancellationRequested();
+                        var res = new Dictionary<string, int>(query);
+                        sharedData.cachedList = res;
+                        sharedData.tagListChanged = false;
+                        ret = res;
+                    }
+                    else
+                    {
+                        ret = sharedData.cachedList;
+                    }
+                }
+                finally
+                {
+                    sharedData.listLock.Release();
+                }
+            }
+            else
+            {
+                ret = sharedData.cachedList;
+            }
+            return ret;
+        }
+
+        public async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> SelectAllTagsCategorysAsync()
+        {
+            IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>> ret;
+            if (sharedData.tagCategoryChanged)
+            {
+                await sharedData.categoryLock.WaitAsync();
+                try
+                {
+                    if (sharedData.tagCategoryChanged)
+                    {
+                        var tags = await Context.Tags.ToListAsync();
+                        CancellationToken.ThrowIfCancellationRequested();
+                        var query = from tag in tags
+                                    group tag by tag.Category into groups
+                                    select new KeyValuePair<TagCategory, IReadOnlyDictionary<int, string>>(
+                                        (TagCategory)groups.Key, 
+                                        new Dictionary<int, string>(groups.Select(t => new KeyValuePair<int, string>(t.TagId, t.Name))));
+                        var dict = new Dictionary<TagCategory, IReadOnlyDictionary<int, string>>(query);
+                        sharedData.cachedCategory = dict;
+                        sharedData.tagCategoryChanged = false;
+                        ret = dict;
+                    }
+                    else
+                    {
+                        ret = sharedData.cachedCategory;
+                    }
+                }
+                finally
+                {
+                    sharedData.categoryLock.Release();
+                }
+            }
+            else
+            {
+                ret = sharedData.cachedCategory;
+            }
+            return ret;
         }
 
         public async Task<TagInfo> SelectTagByIdAsync(int tagId)
@@ -116,7 +191,8 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 await CheckTagName(tag.Name);
             }
-            changed = true;
+            sharedData.tagListChanged = true;
+            sharedData.tagCategoryChanged = true;
             return target.TagId;
         }
 
@@ -156,7 +232,8 @@ namespace Buaa.AIBot.Repository.Implement
                 }
                 await CheckTagName(tag.Name);
             }
-            changed = true;
+            sharedData.tagListChanged = true;
+            sharedData.tagCategoryChanged = true;
         }
 
         public async Task DeleteTagAsync(int tagId)
@@ -166,7 +243,8 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 Context.Tags.Remove(target);
                 await SaveChangesAgainAndAgainAsync();
-                changed = true;
+                sharedData.tagListChanged = true;
+                sharedData.tagCategoryChanged = true;
             }
         }
     }
