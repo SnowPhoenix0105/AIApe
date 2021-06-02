@@ -1,11 +1,13 @@
 import os
 import numpy as np
 import const
+from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 
 
 class EmbeddingModel:
-    def __init__(self, model_name, max_sentences_num, device):
+    def __init__(self, model_name, max_sentences_num, device, debug=False):
+        self.debug = debug
         self.model_name = model_name
         self.max_sentences_num = max_sentences_num
         self.device = device
@@ -15,7 +17,9 @@ class EmbeddingModel:
     '''
     def embedding(self, sentences):
         embeddings = None
-        for i in range(0, len(sentences), self.max_sentences_num):
+        sentences = [sentences] if isinstance(sentences, str) else sentences
+        range_iter = tqdm(range(0, len(sentences), self.max_sentences_num)) if self.debug else range(0, len(sentences), self.max_sentences_num)
+        for i in range_iter:
             part_sentences = sentences[i: i + self.max_sentences_num]
             part_embeddings = self.model.encode(sentences=part_sentences, batch_size=len(part_sentences))
             if embeddings is None:
