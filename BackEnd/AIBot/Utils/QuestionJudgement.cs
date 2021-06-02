@@ -109,6 +109,13 @@ namespace Buaa.AIBot.Utils
                 .AddTagIfSatisfy(content, "clang", tags, "llvm")
                 .AddTagIfSatisfy(content, "msvc", tags, "Microsoft Visual C++")
                 ;
+            if (tags.TryGetValue("代码", out var codeTid))
+            {
+                if (IsCode(title, content))
+                {
+                    ret.Add("代码", codeTid);
+                }
+            }
             return ret;
         }
     }

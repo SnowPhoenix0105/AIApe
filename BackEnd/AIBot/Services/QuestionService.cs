@@ -21,13 +21,15 @@ namespace Buaa.AIBot.Services
         private readonly IAnswerRepository answerRepository;
         private readonly ITagRepostory tagRepostory;
         private readonly ILikeRepository likeRepository;
+        private readonly NLPService nlpService;
 
-        public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository)
+        public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository, NLPService nlpService)
         {
             this.questionRepository = questionRepository;
             this.answerRepository = answerRepository;
             this.tagRepostory = tagRepostory;
             this.likeRepository = likeRepository;
+            this.nlpService = nlpService;
         }
 
         public async Task<QuestionInformation> GetQuestionAsync(int qid, int? uid=null)
@@ -167,6 +169,12 @@ namespace Buaa.AIBot.Services
                 number--;
             }
             return ret;
+        }
+
+        public async Task<IEnumerable<int>> SearchQuestionAsync(string content)
+        {
+            var res = await nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().ToList());
+            return res.OrderByDescending(t => t.Item2).Select(t => t.Item1).ToList();
         }
 
         public Task<IReadOnlyDictionary<string, int>> GetTagListAsync()

@@ -72,6 +72,8 @@ namespace Buaa.AIBot
                 // Add UserServices
                 .AddUserServices(Configuration)
 
+                .AddNLPServices(Configuration) 
+
                 .AddTransient<IQuestionService, QuestionService>()
 
                 .AddCodeAnalyze(Configuration)

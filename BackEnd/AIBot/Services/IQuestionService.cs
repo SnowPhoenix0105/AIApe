@@ -50,6 +50,8 @@ namespace Buaa.AIBot.Services
         /// <returns></returns>
         Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number);
 
+        Task<IEnumerable<int>> SearchQuestionAsync(string content);
+
         Task<IReadOnlyDictionary<string, int>> GetTagListAsync();
 
         Task<IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>>> GetTagCategoryAsync();
