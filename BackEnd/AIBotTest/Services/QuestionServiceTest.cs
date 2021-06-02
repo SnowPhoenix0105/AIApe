@@ -57,7 +57,7 @@ namespace AIBotTest.Services
             Assert.Equal(questionInfo.Title, res.Title);
             Assert.Equal(questionInfo.Remarks, res.Remarks);
             Assert.Equal(questionInfo.CreaterId, res.Creator);
-            Assert.Equal(questionInfo.CreateTime, res.CreatTime);
+            Assert.Equal(questionInfo.CreateTime, res.CreateTime);
             Assert.Equal(questionInfo.ModifyTime, res.ModifyTime);
             Assert.True(answerList.OrderBy(a => a).SequenceEqual(res.Answers.OrderBy(a => a)));
             Assert.True(tagDict.OrderBy(kv => kv.Value).SequenceEqual(res.Tags.OrderBy(kv => kv.Value)));

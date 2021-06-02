@@ -77,7 +77,7 @@ namespace Buaa.AIBot.Services
                 Like = like,
                 LikeNum = likeNum,
                 HotValue = question.HotValue,
-                CreatTime = question.CreateTime,
+                CreateTime = question.CreateTime,
                 HotFreshTime = question.HotFreshTime,
                 ModifyTime = question.ModifyTime,
                 Tags = new Dictionary<string, int>(tags),
@@ -169,9 +169,27 @@ namespace Buaa.AIBot.Services
             return ret;
         }
 
-        public Task<Dictionary<string, int>> GetTagListAsync()
+        public Task<IReadOnlyDictionary<string, int>> GetTagListAsync()
         {
             return tagRepostory.SelectAllTagsAsync();
+        }
+
+        public async Task<IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>>> GetTagCategoryAsync()
+        {
+            return new Dictionary<string, IReadOnlyDictionary<string, int>>((await tagRepostory.SelectAllTagsCategorysAsync())
+                .Select(kv => new KeyValuePair<string, IReadOnlyDictionary<string, int>>(
+                    kv.Key.ToString(), 
+                    new Dictionary<string, int>(kv.Value.Select(vkv => new KeyValuePair<string, int>(vkv.Value, vkv.Key))))));
+        }
+
+        public Task<bool> QuestionIsCodeAsync(string title, string remarks)
+        {
+            return Task.FromResult(Utils.QuestionJudgement.IsCode(title, remarks));
+        }
+
+        public Task<Dictionary<string, int>> GenerageTagsForQuestionAsync(string title, string remarks)
+        {
+            return Utils.QuestionJudgement.GenerageTagsForQuestionAsync(tagRepostory, title, remarks);
         }
 
         public async Task<int> AddQuestionAsync(int creater, string title, string remarks, IEnumerable<int> tags)

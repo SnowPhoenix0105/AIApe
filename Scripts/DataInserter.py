@@ -15,6 +15,9 @@ import os
 
 tag_table = {
     "C语言":("Lang", "C语言, 一门面向过程的、抽象化的通用程序设计语言，广泛应用于底层开发。"),
+    "Java":("Lang", "Java是由Sun Microsystems公司于1995年 月推出的高级程序设计语言。Java可运行于多个平台，如Windows, Mac OS及其他多种UNIX版本的系统。"),
+    "Python":("Lang", "Python由荷兰数学和计算机科学研究学会的Guido van Rossum 于1990 年代初设计，作为一门叫做ABC语言的替代品。"),
+    "SQL":("Lang", "结构化查询语言（Structured Query Language）简称SQL，是一种特殊目的的编程语言，是一种数据库查询和程序设计语言，用于存取数据以及查询、更新和管理关系数据库系统。"),
     "环境配置" : ("Other", "环境配置相关，包括IDE安装、编译器安装。"),
     "工具使用" : ("Other", "开发工具使用相关，包括IDE使用、编译器使用，包括各种报错。"),
     "标准库" : ("Other", "标准库相关，包括标准库函数使用、理解。"),
