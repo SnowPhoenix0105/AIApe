@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-from tkinter import TRUE
 import const
 from EmbeddingModel import EmbeddingModel
 from sentence_transformers import util
