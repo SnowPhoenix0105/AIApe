@@ -8,7 +8,7 @@ namespace Buaa.AIBot.Utils
 {
     public class GlobalCancellationTokenSource
     {
-        public CancellationTokenSource Source { get; set; }
+        public CancellationTokenSource Source { get; set; } = new CancellationTokenSource();
         public CancellationToken Token
         {
             get

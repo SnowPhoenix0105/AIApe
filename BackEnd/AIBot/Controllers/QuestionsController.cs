@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 using Buaa.AIBot.Services;
 using Buaa.AIBot.Services.Models;
@@ -195,6 +196,46 @@ namespace Buaa.AIBot.Controllers
         public async Task<IActionResult> TaglistAsync()
         {
             return Ok(await questionService.GetTagListAsync());
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet("tagcategory")]
+        public async Task<IActionResult> TagCategooryAsync()
+        {
+            return Ok(await questionService.GetTagCategoryAsync());
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("auto_tag")]
+        public async Task<IActionResult> AutoTagAsync(QuestionBody body)
+        {
+            string title = (body.Title == null) ? "" : body.Title;
+            string remarks = (body.Remarks == null) ? "" : body.Remarks;
+            var res = await questionService.GenerageTagsForQuestionAsync(title, remarks);
+            return Ok(new
+            {
+                Status = "success",
+                Message = "code judgement success",
+                Tags = res
+            });
+        }
+
+
+        [AllowAnonymous]
+        [HttpPost("is_code")]
+        public async Task<IActionResult> IsCodeAsync(QuestionBody body)
+        {
+            string title = (body.Title == null) ? "" : body.Title;
+            string remarks = (body.Remarks == null) ? "" : body.Remarks;
+            var res = await questionService.QuestionIsCodeAsync(title, remarks);
+            return Ok(new
+            {
+                Status = "success",
+                Message = "code judgement success",
+                Result = res
+            });
         }
 
         [Authorize(Policy = "UserAdmin")]

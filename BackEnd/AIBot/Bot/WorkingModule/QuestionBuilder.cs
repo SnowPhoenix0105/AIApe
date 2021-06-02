@@ -48,7 +48,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             this.questionService = questionService;
         }
 
-        public static void TryAddTag(Dictionary<string, int> source, List<int> target, string name)
+        public static void TryAddTag(IReadOnlyDictionary<string, int> source, List<int> target, string name)
         {
             int tid;
             if (source.TryGetValue(name, out tid))
