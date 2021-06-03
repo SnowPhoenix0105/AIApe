@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Buaa.AIBot.Repository.Models;
 
 namespace Buaa.AIBot.Utils
 {
@@ -117,6 +118,55 @@ namespace Buaa.AIBot.Utils
                 }
             }
             return ret;
+        }
+    
+
+        public interface IQuestionTagInfo
+        {
+            int Qid { get; }
+            IReadOnlyDictionary<TagCategory, IEnumerable<int>> Tags { get; }
+        }
+
+        public static bool ContainsAny<T>(this IEnumerable<T> sups, IEnumerable<T> subs)
+        {
+            var set = new HashSet<T>(sups);
+            foreach (var sub in subs)
+            {
+                if (set.Contains(sub))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool Satisfy(this IQuestionTagInfo question, Dictionary<TagCategory, IEnumerable<int>> tags)
+        {
+            foreach (var category in tags)
+            {
+                if (category.Value.FirstOrDefault() == default)
+                {
+                    continue;
+                }
+                var questionCategoryTags = question.Tags[category.Key];
+                if (questionCategoryTags.FirstOrDefault() == default)
+                {
+                    return false;
+                }
+                if (!questionCategoryTags.ContainsAny(category.Value))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public static IEnumerable<int> GetFilteredQuestions(IEnumerable<IQuestionTagInfo> questions, Dictionary<TagCategory, IReadOnlyCollection<int>> tags)
+        {
+            var query = from question in questions
+                        where question.Satisfy(tags)
+                        select question.Qid;
+            return query.ToList();
         }
     }
 }

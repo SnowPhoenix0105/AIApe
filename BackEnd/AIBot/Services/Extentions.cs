@@ -33,7 +33,7 @@ namespace Buaa.AIBot.Services
                 Password = nlpConfig.GetValue<string>("Password"),
                 BaseUrl = nlpConfig.GetValue<string>("BaseUrl")
             };
-            services.AddTransient<NLPService>(provider =>
+            services.AddTransient<INLPService>(provider =>
                 new NLPService(
                     provider.GetRequiredService<ILogger<NLPService>>(),
                     provider.GetRequiredService<Utils.GlobalCancellationTokenSource>(),

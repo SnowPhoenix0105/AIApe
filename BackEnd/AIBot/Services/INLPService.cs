@@ -13,7 +13,18 @@ using System.Runtime.Serialization;
 
 namespace Buaa.AIBot.Services
 {
-    public class NLPService
+    public interface INLPService
+    {
+        Task<double[]> AddAsync(int qid, string question, NLPService.Languages language);
+        Task DeleteAsync(int qid);
+        Task<List<double[]>> EmbeddingsAsync(List<string> sentences);
+        Task<List<double[]>> EmbeddingsAsync(params string[] sentences);
+        Task<List<Tuple<int, double>>> RetrievalAsync(string question, int num, IEnumerable<NLPService.Languages> languages);
+        Task<string> SelectAsync(string reply, IEnumerable<string> prompts);
+        Task<string> SelectAsync(string reply, params string[] prompts);
+    }
+
+    public class NLPService : INLPService
     {
         public class Options
         {
@@ -127,7 +138,7 @@ namespace Buaa.AIBot.Services
         {
             public string Status { get; set; }
             public string Message { get; set; }
-            public List<double[]> Embeddings { get; set; } 
+            public List<double[]> Embeddings { get; set; }
         }
 
         public Task<List<double[]>> EmbeddingsAsync(params string[] sentences)

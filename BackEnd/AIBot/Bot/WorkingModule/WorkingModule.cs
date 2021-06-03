@@ -13,15 +13,21 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public static IServiceCollection AddWorkingModule(this IServiceCollection services, IConfiguration config)
         {
             string gccWorkDir = config.GetSection("Path").GetValue<string>("GccWorkDir");
+            double minScore = config.GetSection("BetaBot").GetValue<double>("MinScore");
             services
                 .AddTransient<IWorkingModule, WorkingModule>()
                 .AddTransient<QuestionBuilder>()
                 .AddSingleton<GovernmentInstallingInfo>()
                 .AddSingleton<IdeAndCompilerDocumentCollection>()
-                .AddSingleton<IGccHandlerFactory>(provider => 
+                .AddSingleton<IGccHandlerFactory>(provider =>
                     new GccHandlerFactory(gccWorkDir, provider.GetRequiredService<ILogger<GccHandlerFactory>>()))
                 .AddSingleton<SourceCodeAnalyzer>()
                 .AddSingleton<DocumentCollection>()
+                .AddTransient(provider =>
+                    new InnerRepoSearcher(
+                        provider.GetRequiredService<Services.IQuestionService>(),
+                        provider.GetRequiredService<Services.INLPService>(),
+                        minScore))
                 .AddTransient<OuterRepoSearcher>()
                 ;
             return services;
@@ -37,6 +43,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
         SourceCodeAnalyzer GetSourceCodeAnalyzer();
         DocumentCollection GetDocumentCollection();
         OuterRepoSearcher GetOuterRepoSearcher();
+        InnerRepoSearcher GetInnerRepoSearcher();
     }
 
     public class WorkingModule : IWorkingModule
@@ -81,6 +88,11 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public OuterRepoSearcher GetOuterRepoSearcher()
         {
             return services.GetService<OuterRepoSearcher>();
+        }
+
+        public InnerRepoSearcher GetInnerRepoSearcher()
+        {
+            return services.GetService<InnerRepoSearcher>();
         }
     }
 }

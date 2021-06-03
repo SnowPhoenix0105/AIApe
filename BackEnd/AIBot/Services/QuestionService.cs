@@ -21,9 +21,9 @@ namespace Buaa.AIBot.Services
         private readonly IAnswerRepository answerRepository;
         private readonly ITagRepostory tagRepostory;
         private readonly ILikeRepository likeRepository;
-        private readonly NLPService nlpService;
+        private readonly INLPService nlpService;
 
-        public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository, NLPService nlpService)
+        public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository, INLPService nlpService)
         {
             this.questionRepository = questionRepository;
             this.answerRepository = answerRepository;

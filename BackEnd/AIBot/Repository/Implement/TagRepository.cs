@@ -29,26 +29,30 @@ namespace Buaa.AIBot.Repository.Implement
         public TagRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
             : base(context, cachePool, globalCancellationTokenSource.Token) 
         {
-            var cached = cachePool.GetOrDefault<CachedData>(CacheId.Tag);
-            if (cached == null)
+        }
+
+        private CachedData sharedData;
+
+        private async ValueTask InitSharedDataAsync()
+        {
+            sharedData = CachePool.GetOrDefault<CachedData>(CacheId.Tag);
+            if (sharedData == null)
             {
-                using (cachePool.LockAsync(CacheId.Tag))
+                using (await CachePool.LockAsync(CacheId.Tag))
                 {
-                    cached = cachePool.GetOrDefault<CachedData>(CacheId.Tag);
-                    if (cached == null)
+                    sharedData = CachePool.GetOrDefault<CachedData>(CacheId.Tag);
+                    if (sharedData == null)
                     {
-                        cached = new CachedData();
-                        cachePool.Set(CacheId.Tag, cached);
+                        sharedData = new CachedData();
+                        CachePool.Set(CacheId.Tag, sharedData);
                     }
                 }
             }
-            sharedData = cached;
         }
-
-        private readonly CachedData sharedData;
 
         public async Task<IReadOnlyDictionary<string, int>> SelectAllTagsAsync()
         {
+            await InitSharedDataAsync();
             Dictionary<string, int> ret;
             if (sharedData.tagListChanged)
             {
@@ -87,6 +91,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> SelectAllTagsCategorysAsync()
         {
+            await InitSharedDataAsync();
             IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>> ret;
             if (sharedData.tagCategoryChanged)
             {
@@ -126,6 +131,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<TagInfo> SelectTagByIdAsync(int tagId)
         {
+            await InitSharedDataAsync();
             var query = await Context
                 .Tags
                 .Select(t => new TagInfo()
@@ -157,6 +163,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<int> InsertTagAsync(TagInfo tag)
         {
+            await InitSharedDataAsync();
             if (tag.Name == null)
             {
                 throw new ArgumentNullException(nameof(tag.Name));
@@ -198,6 +205,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task UpdateTagAsync(TagInfo tag)
         {
+            await InitSharedDataAsync();
             bool success = true;
             var target = await Context.Tags.FindAsync(tag.TagId);
             if (target == null)
@@ -238,6 +246,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task DeleteTagAsync(int tagId)
         {
+            await InitSharedDataAsync();
             var target = await Context.Tags.FindAsync(tagId);
             if (target != null)
             {
