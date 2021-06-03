@@ -5,13 +5,32 @@
                 <i slot="suffix" class="el-input__icon el-icon-search" @click="search" style="cursor: pointer"></i>
             </el-input>
         </el-main>
-        <el-main>
-
+        <el-main class="category">
+            <span>环境</span>
+            <div class="tag-selector">
+                <el-tag v-for="(tid, tname) in this.$store.state.tagList.Env" :key="tid"
+                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag">
+                    {{ tname }}
+                </el-tag>
+            </div>
         </el-main>
-        <el-main>
-
+        <el-main class="category">
+            <span>语言</span>
+            <div class="tag-selector">
+                <el-tag v-for="(tid, tname) in this.$store.state.tagList.Lang" :key="tid"
+                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag">
+                    {{ tname }}
+                </el-tag>
+            </div>
         </el-main>
-        <el-main>
+        <el-main class="category">
+            <span>其它</span>
+            <div class="tag-selector">
+                <el-tag v-for="(tid, tname) in this.$store.state.tagList.Other" :key="tid"
+                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag">
+                    {{ tname }}
+                </el-tag>
+            </div>
 
         </el-main>
         <el-main class="info">
@@ -28,12 +47,31 @@
 export default {
     data() {
         return {
-            question: ''
+            question: '',
+            showTag: true
         }
     },
     methods: {
         search() {
             this.$search(this.question);
+        },
+        select(tid) {
+            this.$store.state.questionList.tagState[tid] = !this.$store.state.questionList.tagState[tid];
+            this.showTag = false;
+            this.showTag = true;
+            let selectedTag = [];
+            let tagState = this.$store.state.questionList.tagState;
+            for (let id in tagState) {
+                if (this.tagState[id]) {
+                    selectedTag.push(id);
+                }
+            }
+            this.$store.state.questionList.selectedTag = selectedTag;
+        }
+    },
+    computed: {
+        tagState() {
+            return this.$store.state.questionList.tagState;
         }
     }
 }
@@ -67,4 +105,24 @@ export default {
     align-items: center;
     flex-grow: 0;
 }
+
+.category {
+    flex-direction: column;
+    padding: 20px;
+}
+
+.el-tag {
+    margin-top: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+i {
+    color: #409eff;
+}
+
+i:hover {
+    color: #6dfff3;
+}
+
 </style>

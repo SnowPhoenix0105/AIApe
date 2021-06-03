@@ -1,85 +1,91 @@
 <template>
-    <el-container style="height: 100%">
-        <el-page-header @back="goBack" content="个人中心">
-        </el-page-header>
-        <el-header style="height: auto">
-            <h1 align="center">基本信息</h1>
-            <div class="header">
-                <p>我的id：{{ uid }}</p>
-                <p>我的昵称：{{ nickName }}</p>
-                <p>我的邮箱：{{ email }}</p>
+    <el-container class="shell">
+        <el-container class="list">
+            <el-header>
+                AIApe
+            </el-header>
+            <el-main class="selector">
+                <el-button type="text" :class="{'unselected': select === 'answer'}" @click="handleSelect('question')">我的提问
+                </el-button>
+                <el-button type="text" :class="{'unselected': select === 'question'}" @click="handleSelect('answer')">我的回答
+                </el-button>
+            </el-main>
+            <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body">
+                <el-main class="question-list" v-if="select==='question'">
+                    <div class="question-body" v-for="question in questions">
+                        <div class="user">
+                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                       size="small" style="margin-right: 10px"></el-avatar>
+                            {{ question.creator }}
+                        </div>
+                        <el-link class='title' @click="goToDetail(question.id)" :underline="false">
+                            {{ question.title }}
+                        </el-link>
+                        <div class="content">
+                            {{ question.content }}
+                        </div>
+                        <div class="other-info">
+                            <div class="tags">
+                                <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
+                            </div>
+                            <div class="recommend-time">
+                                <el-button class="recommend" type="text"
+                                           :icon="question.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                           @click="like(question)">
+                                    推荐{{ question.likeNum }}
+                                </el-button>
+                                <span>{{ question.date }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </el-main>
+                <el-main class="question-list" v-else>
+                    <div class="question-body" v-for="question in answers">
+                        <div class="user">
+                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                       size="small" style="margin-right: 10px"></el-avatar>
+                            {{ question.creator }}
+                        </div>
+                        <el-link class='title' @click="goToDetail(question.id)" :underline="false">
+                            {{ question.title }}
+                        </el-link>
+                        <div class="content">
+                            {{ question.content }}
+                        </div>
+                        <div class="other-info">
+                            <div class="tags">
+                                <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
+                            </div>
+                            <div class="recommend-time">
+                                <el-button class="recommend" type="text"
+                                           :icon="question.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                           @click="like(question)">
+                                    推荐{{ question.likeNum }}
+                                </el-button>
+                                <span>{{ question.date }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </el-main>
             </div>
-        </el-header>
-        <el-main>
-            <el-tabs v-model="activeName">
-                <el-tab-pane label="我提出的问题" name="first">
-                    <!--                    <el-table :data="askedQuestions" style="width: 100%">-->
-                    <!--                        <el-table-column prop="date" label="日期" style="width: 100%">-->
-                    <!--                        </el-table-column>-->
-                    <!--                    </el-table>-->
-                    <el-table
-                        :data="questions"
-                        style="width: 100%"
-                        :header-cell-style="{textAlign: 'center'}"
-                        :cell-style="{ textAlign: 'center' }">
-                        <el-table-column
-                            prop="id"
-                            label="编号"
-                            width="180">
-                        </el-table-column>
-                        <el-table-column
-                            label="问题">
-                            <template slot-scope="scope">
-                                <el-popover trigger="hover" placement="top">
-                                    <p>编号: {{ scope.row.id }}</p>
-                                    <p>问题: {{ scope.row.title }}</p>
-                                    <el-link @click="goToDetail(scope.row.id)" slot="reference">{{
-                                            scope.row.title
-                                        }}
-                                    </el-link>
-                                </el-popover>
-                            </template>
-                        </el-table-column>
-                        <el-table-column
-                            label="编辑"
-                            width="180">
-                            <template slot-scope="scope">
-                                <el-link @click="removeQuestion(scope.row.id)" slot="reference">
-                                    删除
-                                </el-link>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-tab-pane>
-                <el-tab-pane label="我回答的问题" name="second">
-                    <el-table
-                        :data="answers"
-                        style="width: 100%"
-                        :header-cell-style="{textAlign: 'center'}"
-                        :cell-style="{ textAlign: 'center' }">
-                        <el-table-column
-                            prop="aid"
-                            label="编号"
-                            width="180">
-                        </el-table-column>
-                        <el-table-column
-                            label="回答"
-                            prop="content"
-                        >
-                        </el-table-column>
-                        <el-table-column
-                            label="编辑"
-                            width="180">
-                            <template slot-scope="scope">
-                                <el-link @click="removeAnswer(scope.row.aid)" slot="reference">
-                                    删除
-                                </el-link>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-tab-pane>
-            </el-tabs>
-        </el-main>
+        </el-container>
+        <el-aside width="30vw">
+            <el-main class="user-info">
+                <div class="name-avatar">
+                    {{ this.$store.state.username }}
+                    <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                               :size="80"></el-avatar>
+                </div>
+                {{ email }}
+            </el-main>
+            <el-main class="info">
+                <span>AIApe</span>
+                <span>京ICP备 2021007509号-1</span>
+                <span>
+                联系我们 @2021软件工程DQSJ
+            </span>
+            </el-main>
+        </el-aside>
     </el-container>
 </template>
 
@@ -89,162 +95,271 @@ import store from "../../vuex/store";
 export default {
     data() {
         return {
-            uid: "测试id",
-            nickName: "测试昵称",
-            email: "测试邮箱",
-
-            activeName: "first",
-
+            select: 'question',
             questions: [],
             answers: [],
+            question: '',
+            email: '',
+            uid: 0
         }
     },
     methods: {
-        goBack() {
-            this.$router.replace('/questionList');
-        },
-        removeQuestion(qid) {
-            // alert('删除问题' + qid);
-            let _this = this;
-            let token = store.state.token;
-            _this.$axios.delete(_this.BASE_URL + '/api/questions/delete_question', {
-                data: {qid: qid},
-                headers: {
-                    Authorization: 'Bearer ' + token,
-                },
-            })
-                .then(function (response) {
-                    console.log(response);
-                    _this.questions = [];
-                    _this.getQuestions();
-                })
-        },
-        removeAnswer(aid) {
-            // alert('删除回答' + aid);
-            let _this = this;
-            let token = store.state.token;
-            _this.$axios.delete(_this.BASE_URL + '/api/questions/delete_answer', {
-                data: {aid: aid},
-                headers: {
-                    Authorization: 'Bearer ' + token,
-                },
-            })
-                .then(function (response) {
-                    console.log(response);
-                    _this.answers = [];
-                    _this.getAnswers();
-                })
-        },
-        getAnswers() {
-            let _this = this;
-            let token = store.state.token;
-            _this.$axios.get(this.BASE_URL + '/api/user/answers', {
-                headers: {
-                    Authorization: 'Bearer ' + token,
-                },
-            })
-                .then(function (response) {
-                    // console.log('成功获得回答序号');
-                    // console.log(response);
-                    // console.log(response.data.answers);
-                    let answerIdList = response.data.answers;
-                    for (let aid of answerIdList) {
-                        _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + aid)
-                            .then(function (res) {
-                                // console.log("问题详细信息：");
-                                // console.log(res);
-                                _this.$data.answers.push({
-                                    'aid': aid,
-                                    'content': res.data.answer.content
-                                });
-                            })
-                    }
-                })
-        },
-        getQuestions() {
-            let _this = this;
-            let token = store.state.token;
-            _this.$axios.get(_this.BASE_URL + '/api/user/questions', {
-                headers: {
-                    Authorization: 'Bearer ' + token,
-                },
-            })
-                .then(function (response) {
-                    console.log('成功获得问题列表');
-                    console.log(response);
-                    let questionIdList = response.data.questions;
-                    // questionIdList.sort();
-                    for (let qid of questionIdList) {
-                        _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
-                            .then(function (response) {
-                                _this.$data.questions.push({
-                                    'id': qid,
-                                    'title': response.data.question.title
-                                });
-                            });
-                    }
-                })
-        },
-        goToDetail(qid) {
-            this.$router.replace('questionDetail');
-            this.$store.commit('setQuestionID', qid);
-        },
+        handleSelect(selector) {
+            this.$refs['scroll-body'].scrollTop = 0;
+            this.select = selector;
+        }
     },
-    mounted() {
-        this.getQuestions();
-        this.getAnswers();
+    created() {
         let _this = this;
-        // var token = this.GLOBAL.token;
-        let token = store.state.token;
-        // console.log(token);
-        console.log('获取到的token是' + token);
         this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
             headers: {
-                Authorization: 'Bearer ' + token,
-            },
+                Authorization: 'Bearer ' + _this.$store.state.token,
+                type: 'application/json;charset=utf-8'
+            }
         })
-            .then(function (response) {
-                console.log('成功获得内部信息');
-                console.log(response);
-                _this.nickName = response.data.name;
-                _this.email = response.data.email;
-                _this.uid = response.data.uid;
-
-                _this.$axios.get(_this.BASE_URL + '/api/user/answers', {
+        .then(function (response) {
+            _this.email = response.data.email;
+            _this.uid = response.data.uid;
+        })
+        this.$axios.get(this.BASE_URL + '/api/user/questions', {
+            headers: {
+                Authorization: 'Bearer ' + _this.$store.state.token,
+                type: 'application/json;charset=utf-8'
+            }
+        })
+        .then(async function (response) {
+            let questionList = response.data.questions;
+            for (let qid of questionList) {
+                await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid, {
                     headers: {
-                        Authorization: 'Bearer ' + token,
-                    },
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
                 })
-                    .then(function (response) {
-                        console.log('成功获得回答列表');
-                        console.log(response);
-                    })
-                    .catch(function (error) {
-                        console.log(error);
+                    .then(async function (response) {
+                        let question = {
+                            id: qid,
+                            title: response.data.question.title,
+                            content: response.data.question.remarks,
+                            tags: response.data.question.tags,
+                            date: response.data.question.createTime,
+                            likeNum: response.data.question.likeNum,
+                            like: response.data.question.like
+                        };
+                        let uid = response.data.question.creator;
+                        await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
+                            .then(function (response) {
+                                question.creator = response.data.name;
+                            })
+                        _this.questions.push(question);
                     });
+            }
+        })
+        this.$axios.get(this.BASE_URL + '/api/user/answers', {
+            headers: {
+                Authorization: 'Bearer ' + _this.$store.state.token,
+                type: 'application/json;charset=utf-8'
+            }
+        })
+            .then(async function (response) {
             })
-            .catch(function (error) {
-                console.log(error);
-            });
     }
 }
 </script>
 
 <style scoped>
-.el-page-header {
-    margin: 20px;
+.shell {
+    position: absolute;
+    left: 5vw;
+    top: 0;
+    width: 95vw;
+    height: 100vh;
+    padding-left: 100px;
+    padding-right: 100px;
+    background-color: rgba(246, 246, 246, 0.5);
 }
 
-.header {
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-    padding-top: 1px;
+.list {
+    flex-direction: column;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 2px;
+    height: 95vh;
+    background-color: white;
+    margin-right: 5px;
+}
+
+.el-header {
+    padding-top: 10px;
+    font-size: 30px;
+}
+
+.selector {
+    flex: none;
+    align-self: stretch;
+    padding-left: 10px;
+    border-bottom: 1px solid lightgrey;
+}
+
+.unselected {
+    color: black;
+}
+
+.el-button {
+    font-size: 20px;
+}
+
+.el-button:hover {
+    color: #409eff;
+}
+
+.recommand:hover {
+    color: rgb(39, 214, 214);
+}
+
+.question-list {
+    align-self: stretch;
+    flex-direction: column;
+}
+
+.user {
+    align-self: flex-start;
+    flex-direction: row;
+    align-items: center;
+}
+
+.el-link {
+    justify-content: flex-start;
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    flex-grow: 0;
+}
+
+.question-list * {
+    display: flex;
+}
+
+.question-body {
+    flex-direction: column;
+    padding: 10px;
+    flex: 1 0 110px;
+    border-bottom: 1px solid lightgrey;
+}
+
+.content {
+    flex-grow: 2;
+    justify-content: flex-start;
+    align-items: flex-start;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-height: 20px;
+    height: 60px;
+    margin: 10px 30px;
+}
+
+i {
+    color: #409eff;
+}
+
+i:hover {
+    color: #6dfff3;
+}
+
+.title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-left: 30px;
+    /*white-space: nowrap;*/
+    /*overflow: hidden;*/
+    /*text-overflow: ellipsis;*/
+    /*display: block;*/
+    margin-right: 20px;
+}
+
+.tags {
+    flex-direction: row;
+}
+
+.other-info {
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 25px;
+}
+
+.recommend-time {
+    flex-direction: row;
+    align-items: center;
 }
 
 .el-tag {
-    margin: 10px;
+    height: 25px;
+    line-height: 23px;
+    font-size: 12px;
+    margin-left: 5px;
+    margin-bottom: 5px;
 }
 
-p {
-    margin: 10px;
+.recommend {
+    height: 20px;
+    font-size: 10px;
+    line-height: 20px;
+    padding: 3px 3px;
+    margin-right: 20px;
+    align-items: center;
+}
+
+.detail {
+    text-overflow: ellipsis;
+}
+
+.el-aside {
+    flex-direction: column;
+    height: 95vh;
+    overflow: visible;
+    justify-content: space-between;
+}
+
+.user-info {
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+    background-color: white;
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 0;
+    padding: 30px;
+    margin-left: 10px;
+}
+
+.search-question {
+    flex: 0 0 auto;
+    box-shadow: 0 0 0 0;
+    border-radius: 4px;
+    margin-top: 0;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.info {
+    box-shadow: 0 0 0 0;
+    background-color: rgba(0, 0, 0, 0);
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 0;
+    margin-top: 10px;
+}
+
+.name-avatar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 25px;
+    align-self: stretch;
+    margin-bottom: 20px;
 }
 </style>

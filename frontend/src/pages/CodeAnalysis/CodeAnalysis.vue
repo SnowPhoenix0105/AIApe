@@ -1,7 +1,7 @@
 <template>
     <el-container class="shell">
         <el-container class="code">
-            <codemirror style="width: 50vw;" v-if="show" v-model="code" :options="cmOptions"
+            <codemirror ref="codeBox" style="width: 50vw;" v-if="show" v-model="code" :options="cmOptions"
                         class="editor"></codemirror>
             <div style="height: 90vh" v-else></div>
             <div class="tip-submit">
@@ -10,8 +10,11 @@
             </div>
         </el-container>
         <el-container class="issues">
-            <el-main class="issue" v-for="issue in issues" :key="issue.desc">
-                {{ issue.desc }}
+            <el-main class="issue" v-for="issue in issues" :key="issue.desc" :class="issue.level">
+                <div>
+                    {{ issue.desc}}
+                </div>
+                <el-link id="position" :underline="false" @click="gotoPosition(issue.line - 1, issue.column - 1)">{{ issue.line }}:{{ issue.column }}</el-link>
             </el-main>
             <el-main class="info">
                 <span>AIApe</span>
@@ -91,6 +94,10 @@ export default {
                     _this.code = response.data.fmtCode;
                     _this.issues = response.data.messages;
                 })
+        },
+        gotoPosition(line, column) {
+            this.$refs['codeBox'].codemirror.focus();
+            this.$refs['codeBox'].codemirror.setCursor(line, column);
         }
     },
     mounted() {
@@ -150,6 +157,8 @@ export default {
     margin-bottom: 10px;
     border-radius: 2px;
     padding: 10px;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .tip-submit {
@@ -165,6 +174,38 @@ export default {
     flex-direction: column;
     align-items: center;
     flex-grow: 0;
+}
+
+.error {
+    background-color: #fef0f0;
+}
+
+.warning {
+    background-color: #fdf6ec;
+}
+
+.style {
+    background-color: #ecf5ff;
+}
+
+.performance {
+    background-color: #f0f9eb;
+}
+
+.portability {
+    background-color: #f4f4f5;
+}
+
+.issue > * {
+    display: flex;
+}
+
+#position {
+    align-self: flex-end;
+}
+
+#position {
+    color: #409eff;
 }
 </style>
 

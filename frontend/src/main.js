@@ -126,5 +126,9 @@ Vue.prototype.$changePage = function (index) {
             this.$router.replace('/codeAnalysis');
             break;
         }
+        case 6: {
+            this.$router.replace('/personalCenter');
+            break;
+        }
     }
 }

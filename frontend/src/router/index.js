@@ -73,6 +73,11 @@ export default new Router({
             component: CodeAnalysis,
             meta: {show: false},
             name: 'codeAnalysis'
+        },
+        {
+            path: '/personalCenter',
+            component: PersonalCenter,
+            name: 'personalCenter'
         }
     ]
 })

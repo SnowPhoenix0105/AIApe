@@ -22,13 +22,17 @@
                     <div class="recommend-time">
                         <el-button style="margin-right: 20px" icon="el-icon-edit" size="mini" circle
                                    @click="answerAreaMove"></el-button>
-                        <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
+                        <el-button class="recommend" type="text"
+                                   :icon="like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                   @click="like_question()">
+                            推荐{{ likeNum }}
+                        </el-button>
                         <span>{{ date }}</span>
                     </div>
                 </div>
             </el-main>
             <el-collapse-transition>
-                <div v-show="showAnswerArea">
+                <div v-show="showAnswerArea" style="display: flex; flex-direction: column">
                     <mavon-editor class="editor" :toolbars="toolbars" v-model="myAnswer" ref=md
                                   :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"
                                   :toolbarsFlag="prop.toolbarsFlag" :editable="prop.editable"
@@ -36,10 +40,11 @@
                                   style="max-height: 0"
                                   placeholder="编辑你的回答...">
                     </mavon-editor>
+                    <el-button @click="submitAnswer" class="submit">提交答案</el-button>
                 </div>
             </el-collapse-transition>
             <el-main class="answers">
-                <div class="answer" v-for="answer in answers" :key="answer.id">
+                <div class="answer" v-for="answer in answers">
                     <div class="user">
                         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                                    size="small" style="margin-right: 10px"></el-avatar>
@@ -51,7 +56,11 @@
                                   :scrollStyle="false" :box-shadow="false">
                     </mavon-editor>
                     <div style="display: flex; justify-content: flex-end; align-items: center">
-                        <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
+                        <el-button class="recommend" type="text"
+                                   :icon="answer.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                   @click="like_answer(answer)">
+                            推荐{{ answer.likeNum }}
+                        </el-button>
                         <span>{{ answer.createTime }}</span>
                     </div>
                 </div>
@@ -85,6 +94,8 @@ export default {
             date: '',
             answers: [],
             myAnswer: '',
+            like: false,
+            likeNum: 0,
             showAnswerArea: false,
             toolbars: {
                 bold: true, // 粗体
@@ -132,7 +143,12 @@ export default {
         getQuestionDetail() {
             let _this = this;
             let id = this.$store.state.questionID;
-            _this.$axios.get(_this.BASE_URL + "/api/questions/question?qid=" + id)
+            _this.$axios.get(_this.BASE_URL + "/api/questions/question?qid=" + id, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
                 .then(async function (response) {
                     _this.title = response.data.question.title;
                     _this.detail = response.data.question.remarks;
@@ -143,11 +159,14 @@ export default {
                     })
                     _this.$data.date = response.data.question.createTime;
                     _this.$data.tags = response.data.question.tags;
+                    _this.like = response.data.question.like;
+                    _this.likeNum = response.data.question.likeNum;
                     let aidList = response.data.question.answers;
                     for (let aid of aidList) {
                         _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(async function (response) {
                                 let answer = response.data.answer;
+                                answer.id = aid;
                                 let id = response.data.answer.creator;
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + id)
                                     .then(function (response) {
@@ -188,23 +207,18 @@ export default {
             })
                 .then(function (response) {
                     _this.myAnswer = '';
-                    console.log(response);
                     if (response.data.status === 'success') {
-                        _this.$store.commit('addAImessage', {
-                            id: 2,
-                            content: '感谢你的回答!',
-                            prompts: [],
-                            promptValid: false
-                        });
+                        _this.$message({
+                            message: '感谢你的回答！',
+                            type: 'success'
+                        })
                         _this.getQuestionDetail();
                         location.reload();
                     } else {
-                        _this.$store.commit('addAImessage', {
-                            id: 2,
-                            content: '你已经回答过这个问题啦!',
-                            prompts: [],
-                            promptValid: false
-                        });
+                        _this.$message({
+                            message: '你已经回答过这个问题了！',
+                            type: 'warning'
+                        })
                     }
                 })
         },
@@ -226,6 +240,54 @@ export default {
                 this.showAllState = false;
                 this.maxHeight = '15vh';
             }
+        },
+        like_question() {
+            let _this = this;
+            let qid = this.$store.state.questionID;
+            let markAsLike = !this.like;
+            this.$axios.post(this.BASE_URL + '/api/questions/like_question', {
+                qid: qid,
+                markAsLike: markAsLike
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    _this.like = response.data.like;
+                    _this.likeNum = response.data.likeNum;
+                })
+                .catch(function (error) {
+                    _this.$message({
+                        message: '登录后才可以点赞~!',
+                        type: 'warning'
+                    })
+                })
+        },
+        like_answer(answer) {
+            let _this = this;
+            let aid = answer.id;
+            let markAsLike = !answer.like;
+            this.$axios.post(this.BASE_URL + '/api/questions/like_answer', {
+                aid: aid,
+                markAsLike: markAsLike
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    answer.like = response.data.like;
+                    answer.likeNum = response.data.likeNum;
+                })
+                .catch(function (error) {
+                    _this.$message({
+                        message: '登录后才可以点赞~!',
+                        type: 'warning'
+                    })
+                })
         }
     },
     mounted() {
@@ -241,7 +303,8 @@ export default {
                 scrollStyle: false,
                 boxShadow: true//边框
             };
-        }
+        },
+
     }
 }
 </script>
@@ -339,9 +402,6 @@ i {
     height: 20px;
     font-size: 10px;
     line-height: 20px;
-    background-color: rgb(255, 255, 255);
-    border-color: rgb(255, 255, 255);
-    color: #966dff;
     padding: 3px 3px;
     margin-right: 20px;
     align-items: center;
@@ -428,4 +488,8 @@ i {
     width: 0!important;
 }
 
+.submit {
+    margin-top: 10px;
+    align-self: flex-end;
+}
 </style>

@@ -15,7 +15,7 @@ export default new Vuex.Store({
         token: '',
         auth: 0,
         timeout: 0,
-        tagList: {'环境' : 1, '代码' : 2, '语言' : 3},
+        tagList: {},
         lastTokenTime: new Date(),
         logs: [{id: 2, content: '你好，我是AIApe！请先登录！', prompts:[], promptValid: false}],
         mobileStatus: 'chat',
@@ -24,6 +24,10 @@ export default new Vuex.Store({
         codeAnalysis: {
             code: '',
             issues: []
+        },
+        questionList: {
+            tagState: {},
+            selectedTag: []
         }
     },
     mutations: {

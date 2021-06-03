@@ -5,14 +5,29 @@
                 <i slot="suffix" class="el-input__icon el-icon-search" @click="search" style="cursor: pointer"></i>
             </el-input>
         </el-main>
-        <el-main>
-
+        <el-main class="category">
+            <span>环境</span>
+<!--            <div class="tag-selector">-->
+<!--                <el-tag v-for="(tid, tname) in this.EnvTag" :key="tid">-->
+<!--                    {{ tname }}-->
+<!--                </el-tag>-->
+<!--            </div>-->
         </el-main>
-        <el-main>
-
+        <el-main class="category">
+            <span>语言</span>
+<!--            <div class="tag-selector">-->
+<!--                <el-tag v-for="(tid, tname) in this.LangTag" :key="tid">-->
+<!--                    {{ tname }}-->
+<!--                </el-tag>-->
+<!--            </div>-->
         </el-main>
-        <el-main>
-
+        <el-main class="category">
+            <span>其它</span>
+<!--            <div class="tag-selector">-->
+<!--                <el-tag v-for="(tid, tname) in this.tags" :key="tid">-->
+<!--                    {{ tname }}-->
+<!--                </el-tag>-->
+<!--            </div>-->
         </el-main>
         <el-main class="info">
             <span>AIApe</span>
@@ -67,4 +82,24 @@ export default {
     align-items: center;
     flex-grow: 0;
 }
+
+.category {
+    flex-direction: column;
+    padding: 20px;
+}
+
+.el-tag {
+    margin-top: 10px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+i {
+    color: #409eff;
+}
+
+i:hover {
+    color: #6dfff3;
+}
+
 </style>

@@ -84,7 +84,7 @@ export default {
 
         this.$store.state.lastTokenTime = new Date();
 
-        this.$axios.get(this.BASE_URL + '/api/questions/taglist')
+        this.$axios.get(this.BASE_URL + '/api/questions/tagcategory')
             .then(function (response) {
                 _this.$store.state.tagList = response.data;
             })

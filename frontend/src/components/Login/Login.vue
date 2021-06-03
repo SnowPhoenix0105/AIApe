@@ -1,5 +1,5 @@
 <template>
-    <div class="shell" style="z-index: 100" v-drag>
+    <div class="shell" style="z-index: 9999" v-drag>
         <el-container>
             <el-header>
                 <i class="el-icon-circle-close" style="cursor: pointer" @click="close"></i>

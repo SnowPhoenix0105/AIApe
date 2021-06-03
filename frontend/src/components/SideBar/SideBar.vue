@@ -31,7 +31,12 @@ export default {
     },
     methods: {
         login() {
-            this.$store.state.show.login = true;
+            if (this.$store.state.username === '') {
+                this.$store.state.show.login = true;
+            }
+            else {
+                this.$changePage(6);
+            }
         },
         changePage(index) {
             this.$changePage(index);
