@@ -8,6 +8,7 @@
             <MobileQuestionList v-show="this.$store.state.mobileStatus === 'questionList'"/>
             <MobileRaiseQuestion v-if="this.$store.state.mobileStatus === 'raiseQuestion'"/>
             <MobileQuestionDetail v-if="this.$store.state.mobileStatus === 'questionDetail'"/>
+            <MobileCodeAnalysis v-if="this.$store.state.mobileStatus === 'codeAnalysis'"/>
         </div>
 
         <div class="footer">
@@ -25,6 +26,7 @@ import MobileTopBar from "./MobileTopBar";
 import MobileQuestionList from "./MobileQuestionList";
 import MobileRaiseQuestion from "./MobileRaiseQuestion";
 import MobileQuestionDetail from "./MobileQuestionDetail";
+import MobileCodeAnalysis from "./MobileCodeAnalysis";
 
 export default {
     name: "Mobile",
@@ -41,6 +43,7 @@ export default {
         MobileQuestionList,
         MobileRaiseQuestion,
         MobileQuestionDetail,
+        MobileCodeAnalysis,
     },
     beforeCreate() {
     }
@@ -57,6 +60,7 @@ export default {
     width: 100vw;
     position: fixed;
     bottom: 0;
+    z-index: 2;
 }
 
 </style>

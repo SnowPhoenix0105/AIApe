@@ -9,7 +9,11 @@
                 </el-button>
                 <el-button type="text" :class="{'unselected': select === 'new'}" @click="handleSelect('hot')">热门
                 </el-button>
+
             </el-main>
+            <el-input placeholder="搜索你的问题" v-model="question">
+                <i slot="suffix" class="el-input__icon el-icon-search"></i>
+            </el-input>
             <div style="height: auto; overflow: auto; width: 100vw" ref="scroll-body" id="scroll-body"
                  @scroll="loadMore">
                 <el-main class="question-list">
@@ -73,6 +77,7 @@ export default {
     name: "MobileQuestionList",
     data() {
         return {
+            question: '',
             hots: [],
             questionList: [],
             last_index: 0,
