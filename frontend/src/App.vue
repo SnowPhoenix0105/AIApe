@@ -71,6 +71,8 @@ export default {
         this.system.mac = p.indexOf("Mac") == 0;
         this.system.xll = p.indexOf("Xll") == 0;
         this.isMobile = !(this.system.win || this.system.mac || this.system.xll);
+        // this.isMobile = true;
+        // this.$store.state.mobileStatus = 'login';
 
         //在页面加载时读取localStorage里的状态信息
         if (sessionStorage.getItem("store")) {

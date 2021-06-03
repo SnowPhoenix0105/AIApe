@@ -209,6 +209,28 @@ export default {
                 this.loading = false;
             }
         },
+        tagClick(tid) {
+            if (!this.tagState[tid]) {
+                this.tagState[tid] = true;
+                this.selectedTag.push(tid);
+            } else {
+                this.tagState[tid] = false;
+                let index = this.selectedTag.indexOf(tid);
+                this.selectedTag.splice(index, 1);
+            }
+            this.showTag = false;
+            this.$nextTick(function () {
+                this.showTag = true;
+            })
+            this.getQuestions();
+        },
+        close() {
+            this.$store.state.show.questionList = false;
+        },
+        gotoTop() {
+            this.$store.state.maxZIndex += 1
+            this.zIndex = this.$store.state.maxZIndex;
+        },
         async getHot() {
             if (!this.getHotValid) {
                 return;
