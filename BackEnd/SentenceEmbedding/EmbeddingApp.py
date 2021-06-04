@@ -51,7 +51,7 @@ def api_embeddings():
     return make_response(res, 200)
 
 @app.route('/api/retrieval', methods=['POST'])
-def retrieval():
+def api_retrieval():
     res = {'status':'', 'message': '', 'results': []}
     json_body = request.json
     if not _check_account(json_body):
@@ -77,7 +77,8 @@ def retrieval():
         res['status'] = 'fail'
         res['message'] = 'illegal language exist(s)'
         return make_response(res, 200)
-    retrieval_result = retrieval_engine.retrieve(question, to_be_retrieved[1], number)
+    question_embedding = embedding_model.embedding(question)
+    retrieval_result = retrieval_engine.retrieve(question_embedding, to_be_retrieved[1], number)
     if retrieval_result is False:
         res['status'] = 'fail'
         res['message'] = 'number is too large'
@@ -85,12 +86,12 @@ def retrieval():
     res['status'] = 'success'
     res['message'] = 'retrieval succeed'
     for score, idx in retrieval_result:
-        res['results'].append([to_be_retrieved[0][idx], score])
+        res['results'].append([int(to_be_retrieved[0][idx]), float(score)])
     return make_response(res, 200)
 
 
 @app.route('/api/add', methods=['POST'])
-def add():
+def api_add():
     res = {'status': '', 'message': '', 'embedding': []}
     json_body = request.json
     if not _check_account(json_body):
@@ -119,12 +120,12 @@ def add():
         return make_response(res, 200)
     res['status'] = 'success'
     res['message'] = 'succeed adding question'
-    res['embedding'] = list(add_result[0])
+    res['embedding'] = list(add_result[0].astype(float))
     return make_response(res, 200)
 
 
 @app.route('/api/delete', methods=['POST'])
-def delete():
+def api_delete():
     res = {'status': '', 'message': ''}
     json_body = request.json
     if not _check_account(json_body):
@@ -147,7 +148,7 @@ def delete():
 
 
 @app.route('/api/select', methods=['POST'])
-def select():
+def api_select():
     res = {'status': '', 'message': '', 'prompt': ''}
     json_body = request.json
     if not _check_account(json_body):
@@ -169,7 +170,8 @@ def select():
         res['status'] = 'fail'
         res['message'] = 'prompts don\'t contain any prompt'
         return make_response(res, 200)
-    retrieval_result = retrieval_engine.retrieve(reply, prompts_embeddings, 1)
+    reply_embedding = embedding_model.embedding(reply)
+    retrieval_result = retrieval_engine.retrieve(reply_embedding, prompts_embeddings, 1)
     if retrieval_result is False:
         assert False
     res['status'] = 'success'
@@ -179,7 +181,7 @@ def select():
 
 
 @app.route('/api/dump', methods=['POST'])
-def dump():
+def api_dump():
     res = {'status': '', 'message': '', 'count': {}}
     json_body = request.json
     if not _check_account(json_body):
@@ -191,6 +193,24 @@ def dump():
     res['count'] = embedding_set.dump()
     return make_response(res, 200)
 
+@app.route('/api/checkqids', methods=['POST'])
+def api_checkqids():
+    res = {'status': '', 'message': '', 'qids': []}
+    json_body = request.json
+    if not _check_account(json_body):
+        res['status'] = 'fail'
+        res['message'] = 'authentication failed'
+        return make_response(res, 401)
+    if 'qids' not in json_body:
+        res['status'] = 'fail'
+        res['message'] = 'qids not exist'
+        return make_response(res, 200)
+    qids = json_body['qids']
+    checkqids_result = embedding_set.checkqids(qids)
+    res['status'] = 'success'
+    res['message'] = 'succeeding checking qids.'
+    res['qids'] = checkqids_result
+    return make_response(res, 200)
 
 if __name__ == '__main__':
     app.run(debug=True, host=args.host, port=args.port)

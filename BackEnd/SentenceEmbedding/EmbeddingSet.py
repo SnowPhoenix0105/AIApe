@@ -7,7 +7,7 @@ import numpy as np
 
 
 class EmbeddingSet:
-    def __init__(self, model, languages=('C', 'Java', 'Python', 'SQL', 'Natrual'), dump_seconds = 10):
+    def __init__(self, model, languages=('C', 'Java', 'Python', 'SQL', 'Natrual', 'Other'), dump_seconds = 10):
         self.model = model
         self.cache_name = '{}_EmbeddingSet.pkl'.format(self.model.model_name)
         self.add_filename = 'QuestionAddFile.csv'
@@ -33,7 +33,7 @@ class EmbeddingSet:
     def add(self, language, qid, question):
         if language not in self.data:
             return False
-        with open(self.add_filename, 'a', encoding='utf8') as f:
+        with open(os.path.join(const.CACHE_PATH, self.add_filename), 'a', encoding='utf8') as f:
             f.write('{},{},{}\n'.format(language, qid, question))
         self.data[language][0].append(qid)
         self.data[language][1].append(self.model.embedding(question))
@@ -47,7 +47,7 @@ class EmbeddingSet:
                 continue
             for i, temp_qid in enumerate(records[0]):
                 if qid == temp_qid:
-                    with open(self.delete_filename, 'a', encoding='utf8') as f:
+                    with open(os.path.join(const.CACHE_PATH, self.delete_filename), 'a', encoding='utf8') as f:
                         f.write('{}\n'.format(qid))
                     records[0].pop(i)
                     records[1].pop(i)
@@ -55,6 +55,18 @@ class EmbeddingSet:
                     return True
         self._update()
         return False
+
+    def checkqids(self, qids):
+        to_be_checked = set(qids)
+        for language, records in self.data.items():
+            if language != 'prompts':
+                for qid in records[0]:
+                    if len(to_be_checked) == 0:
+                        break
+                    if qid in to_be_checked:
+                        to_be_checked.remove(qid)
+        return list(to_be_checked)
+
 
     def get_prompts_embedding(self, prompts):
         ret = False

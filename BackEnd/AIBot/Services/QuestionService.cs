@@ -21,13 +21,23 @@ namespace Buaa.AIBot.Services
         private readonly IAnswerRepository answerRepository;
         private readonly ITagRepostory tagRepostory;
         private readonly ILikeRepository likeRepository;
+        private readonly INLPService nlpService;
 
-        public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository)
+        public ITagRepostory TagRepostory => tagRepostory;
+
+        public IQuestionRepository QuestionRepository => questionRepository;
+
+        public IAnswerRepository AnswerRepository => AnswerRepository;
+
+        public ILikeRepository LikeRepository => likeRepository;
+
+        public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository, INLPService nlpService)
         {
             this.questionRepository = questionRepository;
             this.answerRepository = answerRepository;
             this.tagRepostory = tagRepostory;
             this.likeRepository = likeRepository;
+            this.nlpService = nlpService;
         }
 
         public async Task<QuestionInformation> GetQuestionAsync(int qid, int? uid=null)
@@ -169,6 +179,12 @@ namespace Buaa.AIBot.Services
             return ret;
         }
 
+        public async Task<IEnumerable<int>> SearchQuestionAsync(string content)
+        {
+            var res = await nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().ToList());
+            return res.OrderByDescending(t => t.Item2).Select(t => t.Item1).ToList();
+        }
+
         public Task<IReadOnlyDictionary<string, int>> GetTagListAsync()
         {
             return tagRepostory.SelectAllTagsAsync();
@@ -207,6 +223,8 @@ namespace Buaa.AIBot.Services
                     Remarks = remarks,
                     Tags = tags
                 });
+                // TODO
+                await nlpService.AddAsync(qid, title, NLPService.Languages.C);
                 return qid;
             }
             catch (Repository.Exceptions.UserNotExistException e)
@@ -395,6 +413,7 @@ namespace Buaa.AIBot.Services
                 throw new Exceptions.QuestionNotExistException(qid);
             }
             await questionRepository.DeleteQuestionByIdAsync(qid);
+            await nlpService.DeleteAsync(qid);
         }
 
         public async Task DeleteTagAsync(int tid)
