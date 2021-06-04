@@ -13,6 +13,7 @@ namespace Buaa.AIBot.Repository
     {
         public static IServiceCollection AddRepository(this IServiceCollection services, string ConnctingString)
         {
+            IndependentDatabaseContext.ConnectingString = ConnctingString;
             services
                 // .AddScoped(sp => new DatabaseContext(ConnctingString))
                 .AddDbContext<DatabaseContext>(options =>

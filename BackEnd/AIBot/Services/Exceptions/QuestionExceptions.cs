@@ -69,6 +69,12 @@ namespace Buaa.AIBot.Services.Exceptions
             : base($"User with uid={uid} has already answered question with qid={qid}.", innerException) { }
     }
 
+    public class UnknownTagCategoryException : QuestionException
+    {
+        public UnknownTagCategoryException(string category)
+            : base($"unknown tag category: {category}.") { }
+    }
+
     public class TagNameTooLongException : QuestionException
     {
         public TagNameTooLongException(int actual, int limit)

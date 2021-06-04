@@ -39,7 +39,8 @@ namespace AIBotTest.Repository
                     .Select(i =>new TagData() 
                     { 
                         Name = $"Tag{i}", 
-                        Desc = $"This is tag No.{i}" 
+                        Desc = $"This is tag No.{i}",
+                        Category = (int)TagCategory.Other
                     }));
                 await context.SaveChangesAsync();
             }
@@ -70,7 +71,8 @@ namespace AIBotTest.Repository
                     .Select(i =>new TagData()
                     {
                         Name = $"Tag{i}",
-                        Desc = $"This is tag No.{i}"
+                        Desc = $"This is tag No.{i}",
+                        Category = (int)TagCategory.Other
                     }));
                 await context.SaveChangesAsync();
             }
@@ -106,7 +108,8 @@ namespace AIBotTest.Repository
                     .Select(i => new TagData()
                     {
                         Name = $"Tag{i}",
-                        Desc = $"This is tag No.{i}"
+                        Desc = $"This is tag No.{i}",
+                        Category = (int)TagCategory.Other
                     }));
                 await context.SaveChangesAsync();
             }
@@ -120,7 +123,8 @@ namespace AIBotTest.Repository
                 var newTag = new TagInfo()
                 {
                     Name = $"Tag{tagNum}",
-                    Desc = $"This is tag No.{tagNum}"
+                    Desc = $"This is tag No.{tagNum}",
+                    Category = TagCategory.Other
                 };
                 int tid = await tagRepostory.InsertTagAsync(newTag);
                 var res2 = await tagRepostory.SelectAllTagsAsync();
@@ -148,7 +152,8 @@ namespace AIBotTest.Repository
                     .Select(i => new TagData()
                     {
                         Name = $"Tag{i}",
-                        Desc = $"This is tag No.{i}"
+                        Desc = $"This is tag No.{i}",
+                        Category = (int)TagCategory.Other
                     }));
                 await context.SaveChangesAsync();
             }
@@ -187,7 +192,8 @@ namespace AIBotTest.Repository
                 var newTag = new TagInfo()
                 {
                     Name = "Tag0",
-                    Desc = "This is tag No.0"
+                    Desc = "This is tag No.0",
+                    Category = TagCategory.Other
                 };
                 await tagRepostory.InsertTagAsync(newTag);
 
@@ -208,7 +214,8 @@ namespace AIBotTest.Repository
                 var newTag = new TagInfo()
                 {
                     Name = null,
-                    Desc = "This is tag No.0"
+                    Desc = "This is tag No.0",
+                    Category = TagCategory.Other
                 };
                 await Assert.ThrowsAsync<ArgumentNullException>(async () => 
                     await tagRepostory.InsertTagAsync(newTag));
@@ -228,7 +235,8 @@ namespace AIBotTest.Repository
                 var newTag = new TagInfo()
                 {
                     Name = "Tag0",
-                    Desc = null
+                    Desc = null,
+                    Category = TagCategory.Other
                 };
                 await Assert.ThrowsAsync<ArgumentNullException>(async () =>
                     await tagRepostory.InsertTagAsync(newTag));
@@ -253,7 +261,8 @@ namespace AIBotTest.Repository
                 var maxLengthNameTag = new TagInfo()
                 {
                     Name = nameBuilder.ToString(),
-                    Desc = "This is tag with max length Name"
+                    Desc = "This is tag with max length Name",
+                    Category = TagCategory.Other
                 };
                 await tagRepostory.InsertTagAsync(maxLengthNameTag);
 
@@ -261,7 +270,8 @@ namespace AIBotTest.Repository
                 var tooLongNameTag = new TagInfo()
                 {
                     Name = nameBuilder.ToString(),
-                    Desc = "This is tag with max length Name"
+                    Desc = "This is tag with max length Name",
+                    Category = TagCategory.Other
                 }; 
                 await Assert.ThrowsAsync<TagNameTooLongException>(async () =>
                     await tagRepostory.InsertTagAsync(tooLongNameTag));
@@ -285,14 +295,16 @@ namespace AIBotTest.Repository
                 var firstTag = new TagInfo()
                 {
                     Name = name,
-                    Desc = "This is tag with max length Name"
+                    Desc = "This is tag with max length Name",
+                    Category = TagCategory.Other
                 };
                 await tagRepostory.InsertTagAsync(firstTag);
 
                 var secondNameTag = new TagInfo()
                 {
                     Name = name,
-                    Desc = "This is tag with max length Name"
+                    Desc = "This is tag with max length Name",
+                    Category = TagCategory.Other
                 };
                 await Assert.ThrowsAsync<TagNameHasExistException>(async () =>
                     await tagRepostory.InsertTagAsync(secondNameTag));
@@ -312,7 +324,8 @@ namespace AIBotTest.Repository
             var originTag = new TagData()
             {
                 Name = "tag",
-                Desc = "desc"
+                Desc = "desc",
+                Category = (int)TagCategory.Other
             };
 
             using (var context = new DatabaseContext(options))
@@ -345,7 +358,8 @@ namespace AIBotTest.Repository
             var originTag = new TagData()
             {
                 Name = "tag",
-                Desc = "desc"
+                Desc = "desc",
+                Category = (int)TagCategory.Other
             };
 
             using (var context = new DatabaseContext(options))
@@ -378,7 +392,8 @@ namespace AIBotTest.Repository
             var originTag = new TagData()
             {
                 Name = "tag",
-                Desc = "desc"
+                Desc = "desc",
+                Category = (int)TagCategory.Other
             };
 
             using (var context = new DatabaseContext(options))
@@ -411,7 +426,8 @@ namespace AIBotTest.Repository
             var originTag = new TagData()
             {
                 Name = "tag",
-                Desc = "desc"
+                Desc = "desc",
+                Category = (int)TagCategory.Other
             };
             using (var context = new DatabaseContext(options))
             {
@@ -464,14 +480,16 @@ namespace AIBotTest.Repository
                 var firstTag = new TagInfo()
                 {
                     Name = "Tag0",
-                    Desc = "This is tag"
+                    Desc = "This is tag",
+                    Category = TagCategory.Other
                 };
                 await tagRepostory.InsertTagAsync(firstTag);
 
                 var secondNameTag = new TagInfo()
                 {
                     Name = "Tag1",
-                    Desc = "This is tag"
+                    Desc = "This is tag",
+                    Category = TagCategory.Other
                 };
                 int tid = await tagRepostory.InsertTagAsync(secondNameTag);
 
@@ -479,7 +497,8 @@ namespace AIBotTest.Repository
                 {
                     TagId = tid,
                     Name = "Tag0",
-                    Desc = null
+                    Desc = null,
+                    Category = TagCategory.Other
                 };
                 await Assert.ThrowsAsync<TagNameHasExistException>(async () =>
                     await tagRepostory.UpdateTagAsync(newInfo));
@@ -504,7 +523,8 @@ namespace AIBotTest.Repository
                 {
                     TagId = 1,
                     Name = "Tag0",
-                    Desc = null
+                    Desc = null,
+                    Category = TagCategory.Other
                 };
                 await Assert.ThrowsAsync<TagNotExistException>(async () =>
                     await tagRepostory.UpdateTagAsync(newInfo));
@@ -527,7 +547,8 @@ namespace AIBotTest.Repository
                 var firstTag = new TagInfo()
                 {
                     Name = "Tag0",
-                    Desc = "This is tag"
+                    Desc = "This is tag",
+                    Category = TagCategory.Other
                 };
                 int tid = await tagRepostory.InsertTagAsync(firstTag);
 

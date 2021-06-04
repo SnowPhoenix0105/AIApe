@@ -50,7 +50,13 @@ namespace Buaa.AIBot.Services
         /// <returns></returns>
         Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number);
 
-        Task<Dictionary<string, int>> GetTagListAsync();
+        Task<IReadOnlyDictionary<string, int>> GetTagListAsync();
+
+        Task<IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>>> GetTagCategoryAsync();
+
+        Task<bool> QuestionIsCodeAsync(string title, string remarks);
+
+        Task<Dictionary<string, int>> GenerageTagsForQuestionAsync(string title, string remarks);
 
         /// <summary>
         /// 
@@ -85,7 +91,7 @@ namespace Buaa.AIBot.Services
         /// <param name="name"></param>
         /// <param name="content"></param>
         /// <returns>tid</returns>
-        Task<int> AddTagAsync(string name, string desc);
+        Task<int> AddTagAsync(string name, string desc, string category);
 
         /// <summary>
         /// qid is required. For other params, null mean no change.
@@ -118,7 +124,7 @@ namespace Buaa.AIBot.Services
         /// <param name="name"></param>
         /// <param name="desc"></param>
         /// <returns></returns>
-        Task ModifyTagAsync(int tid, string name, string desc);
+        Task ModifyTagAsync(int tid, string name, string desc, string category);
 
         /// <summary>
         /// 

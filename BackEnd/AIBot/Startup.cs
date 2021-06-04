@@ -76,6 +76,8 @@ namespace Buaa.AIBot
 
                 .AddCodeAnalyze(Configuration)
 
+                .AddHotList(Configuration)
+
                 .AddRepository(Configuration.GetConnectionString("MySQL"))
                 ;
 

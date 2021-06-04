@@ -57,7 +57,7 @@ namespace AIBotTest.Services
             Assert.Equal(questionInfo.Title, res.Title);
             Assert.Equal(questionInfo.Remarks, res.Remarks);
             Assert.Equal(questionInfo.CreaterId, res.Creator);
-            Assert.Equal(questionInfo.CreateTime, res.CreatTime);
+            Assert.Equal(questionInfo.CreateTime, res.CreateTime);
             Assert.Equal(questionInfo.ModifyTime, res.ModifyTime);
             Assert.True(answerList.OrderBy(a => a).SequenceEqual(res.Answers.OrderBy(a => a)));
             Assert.True(tagDict.OrderBy(kv => kv.Value).SequenceEqual(res.Tags.OrderBy(kv => kv.Value)));
@@ -592,7 +592,7 @@ namespace AIBotTest.Services
 
             var questionService = CreateQuestionService();
 
-            int ret = await questionService.AddTagAsync(name, desc);
+            int ret = await questionService.AddTagAsync(name, desc, "Other");
             Assert.Equal(tid, ret);
             tagMock.Verify();
             Assert.Equal(name, res.Value.Name);
@@ -621,10 +621,10 @@ namespace AIBotTest.Services
             var questionService = CreateQuestionService();
 
             await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.TagNameTooLongException>(async () =>
-                await questionService.AddTagAsync(name + 't', desc));
+                await questionService.AddTagAsync(name + 't', desc, "Other"));
             Assert.Null(res.Value);
 
-            int ret = await questionService.AddTagAsync(name, desc);
+            int ret = await questionService.AddTagAsync(name, desc, "Other");
             Assert.Equal(tid, ret);
             tagMock.Verify();
             Assert.Equal(name, res.Value.Name);
@@ -646,7 +646,7 @@ namespace AIBotTest.Services
 
             res.Value = null;
             await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.TagNameExistException>(async () =>
-                await questionService.AddTagAsync(name, desc));
+                await questionService.AddTagAsync(name, desc, "Other"));
             Assert.Null(res.Value);
         }
 
@@ -845,7 +845,7 @@ namespace AIBotTest.Services
 
             var questionService = CreateQuestionService();
 
-            await questionService.ModifyTagAsync(tid, name, desc);
+            await questionService.ModifyTagAsync(tid, name, desc, "Other");
             tagMock.Verify();
             Assert.Equal(tid, res.Value.TagId);
             Assert.Equal(name, res.Value.Name);
@@ -865,7 +865,7 @@ namespace AIBotTest.Services
             var questionService = CreateQuestionService();
 
             await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.TagNotExistException>(async () =>
-                await questionService.ModifyTagAsync(tid, name, desc));
+                await questionService.ModifyTagAsync(tid, name, desc, "Other"));
         }
 
         [Fact]
@@ -893,10 +893,10 @@ namespace AIBotTest.Services
             var questionService = CreateQuestionService();
 
             await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.TagNameTooLongException>(async () =>
-                await questionService.ModifyTagAsync(tid, name + 't', desc));
+                await questionService.ModifyTagAsync(tid, name + 't', desc, "Other"));
             Assert.Null(res.Value);
 
-            await questionService.ModifyTagAsync(tid, name, desc);
+            await questionService.ModifyTagAsync(tid, name, desc, "Other");
             tagMock.Verify();
             Assert.Equal(tid, res.Value.TagId);
             Assert.Equal(name, res.Value.Name);
@@ -916,7 +916,7 @@ namespace AIBotTest.Services
             var questionService = CreateQuestionService();
 
             await Assert.ThrowsAsync<Buaa.AIBot.Services.Exceptions.TagNameExistException>(async () =>
-                await questionService.ModifyTagAsync(tid, name, desc));
+                await questionService.ModifyTagAsync(tid, name, desc, "Other"));
         }
 
         #endregion

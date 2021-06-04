@@ -10,9 +10,9 @@ namespace Buaa.AIBot.Repository.Implement
 {
     public class RepositoryBase
     {
-        protected DatabaseContext Context { get; }
+        public DatabaseContext Context { get; set; }
 
-        protected CancellationToken CancellationToken { get; }
+        public CancellationToken CancellationToken { get; set; }
 
         protected ICachePool<int> CachePool { get; }
 

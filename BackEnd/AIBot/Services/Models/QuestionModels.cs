@@ -15,8 +15,11 @@ namespace Buaa.AIBot.Services.Models
         public int? Creator { get; set; }
         public bool? Like { get; set; }
         public int LikeNum { get; set; }
+        public int HotValue { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]
-        public DateTime CreatTime { get; set; }
+        public DateTime HotFreshTime { get; set; }
+        [JsonConverter(typeof(DateTimeJsonConverter))]
+        public DateTime CreateTime { get; set; }
         [JsonConverter(typeof(DateTimeJsonConverter))]
         public DateTime ModifyTime { get; set; }
         public Dictionary<string, int> Tags { get; set; }
@@ -37,6 +40,8 @@ namespace Buaa.AIBot.Services.Models
 
     public class TagInformation
     {
+        [JsonConverter(typeof(EnumJsonConverter<Repository.Models.TagCategory>))]
+        public Repository.Models.TagCategory Category { get; set; }
         public string Name { get; set; }
         public string Desc { get; set; }
     }

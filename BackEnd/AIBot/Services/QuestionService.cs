@@ -76,7 +76,9 @@ namespace Buaa.AIBot.Services
                 Creator = question.CreaterId,
                 Like = like,
                 LikeNum = likeNum,
-                CreatTime = question.CreateTime,
+                HotValue = question.HotValue,
+                CreateTime = question.CreateTime,
+                HotFreshTime = question.HotFreshTime,
                 ModifyTime = question.ModifyTime,
                 Tags = new Dictionary<string, int>(tags),
                 Answers = answers
@@ -132,6 +134,7 @@ namespace Buaa.AIBot.Services
             }
             return new TagInformation()
             {
+                Category = tag.Category,
                 Name = tag.Name,
                 Desc = tag.Desc
             };
@@ -166,9 +169,27 @@ namespace Buaa.AIBot.Services
             return ret;
         }
 
-        public Task<Dictionary<string, int>> GetTagListAsync()
+        public Task<IReadOnlyDictionary<string, int>> GetTagListAsync()
         {
             return tagRepostory.SelectAllTagsAsync();
+        }
+
+        public async Task<IReadOnlyDictionary<string, IReadOnlyDictionary<string, int>>> GetTagCategoryAsync()
+        {
+            return new Dictionary<string, IReadOnlyDictionary<string, int>>((await tagRepostory.SelectAllTagsCategorysAsync())
+                .Select(kv => new KeyValuePair<string, IReadOnlyDictionary<string, int>>(
+                    kv.Key.ToString(), 
+                    new Dictionary<string, int>(kv.Value.Select(vkv => new KeyValuePair<string, int>(vkv.Value, vkv.Key))))));
+        }
+
+        public Task<bool> QuestionIsCodeAsync(string title, string remarks)
+        {
+            return Task.FromResult(Utils.QuestionJudgement.IsCode(title, remarks));
+        }
+
+        public Task<Dictionary<string, int>> GenerageTagsForQuestionAsync(string title, string remarks)
+        {
+            return Utils.QuestionJudgement.GenerageTagsForQuestionAsync(tagRepostory, title, remarks);
         }
 
         public async Task<int> AddQuestionAsync(int creater, string title, string remarks, IEnumerable<int> tags)
@@ -224,16 +245,29 @@ namespace Buaa.AIBot.Services
             }
         }
 
-        public async Task<int> AddTagAsync(string name, string desc)
+        public async Task<int> AddTagAsync(string name, string desc, string category)
         {
             if (name.Length > Constants.TagNameMaxLength)
             {
                 throw new Exceptions.TagNameTooLongException(name.Length, Constants.TagNameMaxLength);
             }
+            if (!Enum.TryParse<TagCategory>(category, out var tagCategory))
+            {
+                category = category.Substring(0, 1).ToUpper() + category.Substring(1);
+                if (!Enum.TryParse(category, out tagCategory))
+                {
+                    throw new UnknownTagCategoryException(category);
+                }
+            }
+            if (tagCategory == TagCategory.None)
+            {
+                tagCategory = TagCategory.Other;
+            }
             try
             {
                 int tid = await tagRepostory.InsertTagAsync(new TagInfo()
-                {
+                { 
+                    Category = tagCategory,
                     Name = name,
                     Desc = desc
                 });
@@ -296,7 +330,7 @@ namespace Buaa.AIBot.Services
             }
         }
 
-        public async Task ModifyTagAsync(int tid, string name, string desc)
+        public async Task ModifyTagAsync(int tid, string name, string desc, string category)
         {
             if (name != null)
             {
@@ -307,11 +341,28 @@ namespace Buaa.AIBot.Services
                     throw new Exceptions.TagNameTooLongException(actual, max);
                 }
             }
+            TagCategory tagCategory = TagCategory.None;
+            if (category != null)
+            {
+                if (!Enum.TryParse<TagCategory>(category, out tagCategory))
+                {
+                    category = category.Substring(0, 1).ToUpper() + category.Substring(1);
+                    if (!Enum.TryParse(category, out tagCategory))
+                    {
+                        throw new UnknownTagCategoryException(category);
+                    }
+                }
+                if (tagCategory == TagCategory.None)
+                {
+                    tagCategory = TagCategory.Other;
+                }
+            }
             try
             {
                 await tagRepostory.UpdateTagAsync(new TagInfo()
                 {
                     TagId = tid,
+                    Category = tagCategory,
                     Name = name,
                     Desc = desc
                 });
