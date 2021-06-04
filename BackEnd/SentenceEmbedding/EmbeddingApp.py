@@ -77,7 +77,8 @@ def api_retrieval():
         res['status'] = 'fail'
         res['message'] = 'illegal language exist(s)'
         return make_response(res, 200)
-    retrieval_result = retrieval_engine.retrieve(question, to_be_retrieved[1], number)
+    question_embedding = embedding_model.embedding(question)
+    retrieval_result = retrieval_engine.retrieve(question_embedding, to_be_retrieved[1], number)
     if retrieval_result is False:
         res['status'] = 'fail'
         res['message'] = 'number is too large'
