@@ -5,6 +5,10 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        show: {
+            login: false,
+            questionList: false
+        },
         questionID: 0,
         username: '',
         uid: 0,
@@ -13,7 +17,18 @@ export default new Vuex.Store({
         timeout: 0,
         tagList: {},
         lastTokenTime: new Date(),
-        logs: [{id: 2, content: '你好，我是AIApe!请先登录！', prompts:[], promptValid: false}]
+        logs: [{id: 2, content: '你好，我是AIApe！请先登录！', prompts:[], promptValid: false}],
+        mobileStatus: 'chat',
+        searchResult: [],
+        routerIndex: 0,
+        codeAnalysis: {
+            code: '',
+            issues: []
+        },
+        questionList: {
+            tagState: {},
+            selectedTag: []
+        }
     },
     mutations: {
         setUsername(state, value) {

@@ -1,72 +1,129 @@
 <template>
-    <div>
-        <div class="left">
-            <Chat/>
-        </div>
-        <div class="right">
-            <router-view/>
-        </div>
+    <div v-if="isMobile">
+        <Mobile/>
+    </div>
+    <div v-else>
+        <el-container>
+            <div class="background">
+                <img :src="imgSrc" width="100%" height="100%" alt=""/>
+            </div>
+            <Login v-show="this.$store.state.show.login"></Login>
+            <SideBar/>
+            <transition
+                name="zoom"
+                enter-active-class="zoomInLeft"
+                leave-active-class="zoomOutLeft">
+                <keep-alive>
+                    <router-view v-if="$route.meta.keepAlive"></router-view>
+                </keep-alive>
+            </transition>
+            <transition
+                name="zoom"
+                enter-active-class="zoomInLeft"
+                leave-active-class="zoomOutLeft">
+            <router-view v-if="!$route.meta.keepAlive"></router-view>
+            </transition>
+        </el-container>
     </div>
 </template>
 
 <script>
-import Chat from './components/Chat/Chat.vue'
+import Chat from './pages/Chat/Chat.vue'
+import SideBar from "./components/SideBar/SideBar";
+import Login from "./components/Login/Login";
+import QuestionList from "./pages/QuestionList/QuestionList";
+import Mobile from "./components/Mobile/Mobile";
+
+window.onload = function () {
+    document.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+            event.preventDefault()
+        }
+    })
+    document.addEventListener('gesturestart', function (event) {
+        event.preventDefault()
+    })
+}
 
 export default {
+    data() {
+        return {
+            imgSrc: require('./assets/background1.jpg'),
+            system: {
+                win: false,
+                mac: false,
+                xll: false,
+            },
+            isMobile: false,
+        }
+    },
     components: {
-        Chat
+        Mobile,
+        SideBar,
+        Chat,
+        Login,
+        QuestionList
     },
     created() {
+        let _this = this;
+        var p = navigator.platform;
+        this.system.win = p.indexOf("Win") == 0;
+        this.system.mac = p.indexOf("Mac") == 0;
+        this.system.xll = p.indexOf("Xll") == 0;
+        this.isMobile = !(this.system.win || this.system.mac || this.system.xll);
+        // this.isMobile = true;
+        // this.$store.state.mobileStatus = 'login';
+
         //在页面加载时读取localStorage里的状态信息
-        if (sessionStorage.getItem("store") ) {
+        if (sessionStorage.getItem("store")) {
             this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(sessionStorage.getItem("store"))))
         }
 
         //在页面刷新时将vuex里的信息保存到localStorage里
-        window.addEventListener("beforeunload",()=>{
+        window.addEventListener("beforeunload", () => {
             sessionStorage.setItem("store", JSON.stringify(this.$store.state))
         })
 
         this.$store.state.lastTokenTime = new Date();
+
+        this.$axios.get(this.BASE_URL + '/api/questions/tagcategory')
+            .then(function (response) {
+                _this.$store.state.tagList = response.data;
+            })
     }
 }
 </script>
 
 <style>
-/*#app {*/
-/*  font-family: 'Avenir', Helvetica, Arial, sans-serif;*/
-/*  -webkit-font-smoothing: antialiased;*/
-/*  -moz-osx-font-smoothing: grayscale;*/
-/*  text-align: center;*/
-/*  color: #2c3e50;*/
-/*  margin-top: 60px;*/
-/*}*/
+@import "./common/font/font.css";
 
-html, body, #app, .left, .right {
-    height: 100%;
-    width: 100%;
-    padding: 0;
+body {
     margin: 0;
+    overflow: hidden;
+    font-family: msyh, Georgia;
 }
 
-.left {
-    position: absolute;
+.background {
     left: 0;
     top: 0;
-    width: 40%;
-    border-right: 1px solid lightgrey;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    position: absolute;
+    user-select: none;
 }
 
-.right {
-    position: absolute;
-    left: 40%;
-    top: 0;
-    width: 60%;
+.el-main, .el-aside, .el-header {
+    display: flex;
+    padding: 0;
+}
+
+.el-container {
+    align-items: center;
 }
 
 ::-webkit-scrollbar {
     width: 5px;
-
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -74,9 +131,11 @@ html, body, #app, .left, .right {
     border-radius: 3px;
 }
 
-.el-popover {
-    height: 100px;
-    width: 500px;
-    overflow: hidden;
+.v-show-content {
+    background-color: white !important;
+}
+
+.CodeMirror {
+    height: 90vh!important;
 }
 </style>

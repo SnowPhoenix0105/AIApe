@@ -8,14 +8,18 @@ import 'element-ui/lib/theme-chalk/index.css';
 import store from "./vuex/store";
 import axios from 'axios';
 import 'github-markdown-css/github-markdown.css';
-import VueAxios from 'vue-axios';
-// import global_ from './components/tool/Global'
-// Vue.prototype.GLOBAL = global_
+import 'vue2-animate/dist/vue2-animate.min.css';
+import mavonEditor from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css';
+import Meta from 'vue-meta';
 
 Vue.prototype.$axios = axios;
+// const BASE_URL = 'https://aiape.snowphoenix.design';
 const BASE_URL = 'http://test.snowphoenix.design';
 Vue.prototype.BASE_URL = BASE_URL;
 Vue.use(ElementUI);
+Vue.use(mavonEditor);
+Vue.use(Meta);
 Vue.prototype.$store = store;
 
 new Vue({
@@ -23,8 +27,6 @@ new Vue({
     render: h => h(App),
     router
 })
-
-
 
 axios.interceptors.response.use(response => {
     // 几种不需要刷新token的情况
@@ -60,3 +62,73 @@ axios.interceptors.response.use(response => {
     }
 })
 
+Vue.prototype.$search = function (key) {
+    let _this = this;
+    this.$store.state.searchResult = [];
+    this.$axios.post(this.BASE_URL + '/api/questions/search', {
+        content: key
+    })
+        .then(async function (response) {
+            console.log(response);
+            let questions = response.data.questions;
+            for (let qid of questions) {
+                await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
+                    .then(async function (response) {
+                        let question = {
+                            id: qid,
+                            title: response.data.question.title,
+                            content: response.data.question.remarks,
+                            tags: response.data.question.tags,
+                            date: response.data.question.createTime
+                        };
+                        let uid = response.data.question.creator;
+                        await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
+                            .then(function (response) {
+                                question.creator = response.data.name;
+                            })
+                        _this.$store.state.searchResult.push(question);
+                    });
+            }
+        })
+        .catch(function (error) {
+            console.log(error);
+        })
+    this.$router.replace('/searchResult');
+}
+
+Vue.prototype.$changePage = function (index) {
+    if (index === this.$store.state.routerIndex) {
+        return;
+    }
+    this.$store.state.routerIndex = index;
+    switch (index) {
+        case 0: {
+            this.$router.replace('/chat');
+            break;
+        }
+        case 1: {
+            this.$router.replace('/raiseQuestion');
+            break;
+        }
+        case 2: {
+            this.$router.replace('/questionList');
+            break;
+        }
+        case 3: {
+            this.$router.replace('/questionDetail');
+            break;
+        }
+        case 4: {
+            this.$router.replace('/searchResult');
+            break;
+        }
+        case 5: {
+            this.$router.replace('/codeAnalysis');
+            break;
+        }
+        case 6: {
+            this.$router.replace('/personalCenter');
+            break;
+        }
+    }
+}
