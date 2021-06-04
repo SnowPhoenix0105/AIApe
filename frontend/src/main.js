@@ -1,17 +1,17 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue'
-import App from './App'
-import router from './router'
-import ElementUI from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
-import store from "./vuex/store";
-import axios from 'axios';
 import 'github-markdown-css/github-markdown.css';
 import 'vue2-animate/dist/vue2-animate.min.css';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
 import Meta from 'vue-meta';
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+import Vue from 'vue'
+import App from './App'
+import store from "./vuex/store";
+import axios from 'axios';
+import router from './router';
 
 Vue.prototype.$axios = axios;
 // const BASE_URL = 'https://aiape.snowphoenix.design';

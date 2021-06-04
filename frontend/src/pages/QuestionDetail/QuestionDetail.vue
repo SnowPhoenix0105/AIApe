@@ -510,6 +510,9 @@ export default {
                     break;
                 }
             }
+        },
+        questionId() {
+            this.getQuestionDetail();
         }
     }
 }

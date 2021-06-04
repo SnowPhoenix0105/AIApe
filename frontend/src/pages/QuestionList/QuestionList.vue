@@ -10,7 +10,7 @@
                 <el-button type="text" :class="{'unselected': select === 'new'}" @click="handleSelect('hot')">热门
                 </el-button>
             </el-main>
-            <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body1"
+            <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body"
                  @scroll="loadMore">
                 <el-main class="question-list" v-if="select==='new'">
                     <div class="question-body" v-for="question in questionList">
