@@ -31,8 +31,10 @@ namespace Buaa.AIBot.Bot.BetaBot
                     new ShowLimitResultStatus(),
                     new ReduceResultByTagsStatus(),
                         new ShowAllResultStatus(),
+                            new CreateQuestionStatus(),
 
-                new ResetStatus()
+                new ResetStatus(),
+                new GetFeedBackStatus(),
             };
             var ret = new Dictionary<StatusId, IBotStatusBehaviour<StatusId>>();
             foreach (var status in list)

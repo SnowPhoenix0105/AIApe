@@ -29,10 +29,10 @@ namespace Buaa.AIBot.Bot.WorkingModule
 
         private async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> BuildTagsAsync(Dictionary<int, TagCategory> tagIndex, int qid)
         {
-            var question = await questionService.GetQuestionAsync(qid);
+            var questionTags = await questionService.QuestionRepository.SelectTagsForQuestionByIdAsync(qid);
             var ret = new Dictionary<TagCategory, Dictionary<int, string>>(
                 Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, Dictionary<int, string>>(c, new Dictionary<int, string>())));
-            foreach (var kv in question.Tags)
+            foreach (var kv in questionTags)
             {
                 var category = tagIndex[kv.Value];
                 ret[category][kv.Value] = kv.Key;

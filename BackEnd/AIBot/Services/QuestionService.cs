@@ -23,6 +23,14 @@ namespace Buaa.AIBot.Services
         private readonly ILikeRepository likeRepository;
         private readonly INLPService nlpService;
 
+        public ITagRepostory TagRepostory => tagRepostory;
+
+        public IQuestionRepository QuestionRepository => questionRepository;
+
+        public IAnswerRepository AnswerRepository => AnswerRepository;
+
+        public ILikeRepository LikeRepository => likeRepository;
+
         public QuestionService(IQuestionRepository questionRepository, IAnswerRepository answerRepository, ITagRepostory tagRepostory, ILikeRepository likeRepository, INLPService nlpService)
         {
             this.questionRepository = questionRepository;
@@ -215,6 +223,8 @@ namespace Buaa.AIBot.Services
                     Remarks = remarks,
                     Tags = tags
                 });
+                // TODO
+                await nlpService.AddAsync(qid, title, NLPService.Languages.C);
                 return qid;
             }
             catch (Repository.Exceptions.UserNotExistException e)
@@ -403,6 +413,7 @@ namespace Buaa.AIBot.Services
                 throw new Exceptions.QuestionNotExistException(qid);
             }
             await questionRepository.DeleteQuestionByIdAsync(qid);
+            await nlpService.DeleteAsync(qid);
         }
 
         public async Task DeleteTagAsync(int tid)

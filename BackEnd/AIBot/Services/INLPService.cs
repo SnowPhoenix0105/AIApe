@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Buaa.AIBot.Utils;
 using System.Net;
+using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text;
 using System.IO;
@@ -99,34 +100,34 @@ namespace Buaa.AIBot.Services
                     throw new UnauthorizedException("wrong name or password when calling nlp-service");
                 }
                 var stream = response.GetResponseStream();
-                if (response.ContentEncoding.ToLower().Contains("gzip"))
-                {
-                    using (GZipStream gzip = new GZipStream(stream, CompressionMode.Decompress))
-                    {
-                        using (StreamReader reader = new StreamReader(gzip, Encoding.UTF8))
-                        {
-                            ret = reader.ReadToEnd();
-                        }
-                    }
-                }
-                else if (response.ContentEncoding.ToLower().Contains("deflate"))
-                {
-                    using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Decompress))
-                    {
-                        using (StreamReader reader = new StreamReader(deflate, Encoding.UTF8))
-                        {
-                            ret = reader.ReadToEnd();
-                        }
+                // if (response.ContentEncoding.ToLower().Contains("gzip"))
+                // {
+                //     using (GZipStream gzip = new GZipStream(stream, CompressionMode.Decompress))
+                //     {
+                //         using (StreamReader reader = new StreamReader(gzip, Encoding.UTF8))
+                //         {
+                //             ret = reader.ReadToEnd();
+                //         }
+                //     }
+                // }
+                // else if (response.ContentEncoding.ToLower().Contains("deflate"))
+                // {
+                //     using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Decompress))
+                //     {
+                //         using (StreamReader reader = new StreamReader(deflate, Encoding.UTF8))
+                //         {
+                //             ret = reader.ReadToEnd();
+                //         }
 
-                    }
-                }
-                else
+                //     }
+                // }
+                // else
+                // {
+                // }
+                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
                 {
-                    using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
-                    {
 
-                        ret = reader.ReadToEnd();
-                    }
+                    ret = reader.ReadToEnd();
                 }
             }
             return ret;
@@ -154,7 +155,10 @@ namespace Buaa.AIBot.Services
             };
             var json = await PostResultAsync("/api/embeddings", body);
 
-            var res = JsonSerializer.Deserialize<EmbeddingResult>(json);
+            var res = JsonSerializer.Deserialize<EmbeddingResult>(json, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             if (res.Status == "fail")
             {
                 logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
@@ -167,16 +171,26 @@ namespace Buaa.AIBot.Services
 
         #region retrieval
 
-        private class RetrievalResult
+        public class RetrievalResult
         {
             public string Status { get; set; }
             public string Message { get; set; }
-            public List<Tuple<int, double>> Results { get; set; }
+            public List<List<double>> Results { get; set; }
+
+            public override string ToString()
+            {
+                if (Results == null)
+                {
+                    return $"{nameof(RetrievalResult)}{{{nameof(Status)}={Status}, {nameof(Message)}={Message}, {nameof(Results)}=null}}";
+                }
+                string res = string.Join(", ", Results.Select(t => $"({t[0]}, {t[1]})"));
+                return $"{nameof(RetrievalResult)}{{{nameof(Status)}={Status}, {nameof(Message)}={Message}, {nameof(Results)}=[{res}]}}";
+            }
         }
 
         public enum Languages
         {
-            C, Java, Python, SQL, Natrual
+            C, Java, Python, SQL, Natrual, Other
         }
 
         public async Task<List<Tuple<int, double>>> RetrievalAsync(string question, int num, IEnumerable<Languages> languages)
@@ -197,14 +211,16 @@ namespace Buaa.AIBot.Services
                 ["number"] = num
             };
             var json = await PostResultAsync("/api/retrieval", body);
-
-            var res = JsonSerializer.Deserialize<RetrievalResult>(json);
+            var res = JsonSerializer.Deserialize<RetrievalResult>(json, new JsonSerializerOptions()
+            { 
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             if (res.Status == "fail")
             {
                 logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
                 return null;
             }
-            return res.Results;
+            return res.Results.Select(l => new Tuple<int, double>((int)l[0], l[1])).ToList();
         }
 
         #endregion
@@ -232,7 +248,10 @@ namespace Buaa.AIBot.Services
             };
             var json = await PostResultAsync("/api/add", body);
 
-            var res = JsonSerializer.Deserialize<AddResult>(json);
+            var res = JsonSerializer.Deserialize<AddResult>(json, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             if (res.Status == "fail")
             {
                 logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
@@ -259,7 +278,10 @@ namespace Buaa.AIBot.Services
             };
             var json = await PostResultAsync("/api/delete", body);
 
-            var res = JsonSerializer.Deserialize<DeleteResult>(json);
+            var res = JsonSerializer.Deserialize<DeleteResult>(json, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             if (res.Status == "fail")
             {
                 logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
@@ -291,7 +313,10 @@ namespace Buaa.AIBot.Services
             };
             var json = await PostResultAsync("/api/select", body);
 
-            var res = JsonSerializer.Deserialize<SelectResult>(json);
+            var res = JsonSerializer.Deserialize<SelectResult>(json, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
             if (res.Status == "fail")
             {
                 logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);

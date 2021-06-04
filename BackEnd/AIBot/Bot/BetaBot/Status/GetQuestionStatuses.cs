@@ -43,6 +43,7 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
                 context.Sender.AddMessage(SentenceGeneration.Choose("检测到您的问题中可能含有代码，小猿建议您可以尝试一下代码分析功能，通过导航栏即可打开。"));
             }
 
+            
             var searchTask = worker.GetLocalSearchResultAsync(msg);
             if (msg.Length <= AIBot.Constants.QuestionTitleMaxLength / 2)
             {
@@ -55,10 +56,10 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
                 status.Put(Constants.Key.LongQuestion, msg);
             }
             var res = await searchTask;
-            status.Put(Constants.Key.QuestionMatches, res);
-            var questions = status.CalculateSortedSelectedQuestions(null, res);
             var logger = context.Worker.Get<ILogger<WelcomeStatus>>();
             logger.LogInformation("QuestionMatches:\n{questionMatches}", string.Join("\n", res.Select(q => new Tuple<int, double>(q.Qid, q.Score))));
+            status.Put(Constants.Key.QuestionMatches, res);
+            var questions = status.CalculateSortedSelectedQuestions(null, res);
             logger.LogInformation("SortedSelectedQuestionMatches:\n[{sortedSelectedQuestionMatches}]", string.Join(", ", questions));
             if (questions.Count == 0)
             {
@@ -73,6 +74,12 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
                         return StatusId.GetShorter;
                     }
                 }
+                context.Sender
+                    .AddMessage(SentenceGeneration.Choose(
+                        $"抱歉，小猿暂时未能帮您找到有用的信息{Kaomojis.Sad}"
+                        ))
+                    .NewScope();
+                return StatusId.CreateQuestion;
             }
             status.Put(Constants.Key.Cached_SortedSelectedMatches, questions);
             if (questions.Count <= 3)
@@ -83,7 +90,22 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             {
                 return StatusId.ShowLimitResult;
             }
-            return StatusId.ReduceResultByTags;
+            var reducingTags = status.GetReducingTags(out var canBeEmpty, out var category);
+            {
+                var selectedTags = status.GetSelectedTags();
+                foreach (var c in canBeEmpty)
+                {
+                    selectedTags[c] = new HashSet<int>();
+                }
+                status.Put(Constants.Key.SelectedTags, selectedTags);
+            }
+
+            if (reducingTags != null)
+            {
+                return ReduceResultByTagsStatus.PrepareToEnter(status, reducingTags, category);
+            }
+
+            return StatusId.ShowLimitResult;
         }
     }
 
@@ -192,7 +214,22 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             {
                 return StatusId.ShowLimitResult;
             }
-            return StatusId.ReduceResultByTags;
+            var reducingTags = status.GetReducingTags(out var canBeEmpty, out var category);
+            {
+                var selectedTags = status.GetSelectedTags();
+                foreach (var c in canBeEmpty)
+                {
+                    selectedTags[c] = new HashSet<int>();
+                }
+                status.Put(Constants.Key.SelectedTags, selectedTags);
+            }
+
+            if (reducingTags != null)
+            {
+                return ReduceResultByTagsStatus.PrepareToEnter(status, reducingTags, category);
+            }
+
+            return StatusId.ShowLimitResult;
         }
     }
 }

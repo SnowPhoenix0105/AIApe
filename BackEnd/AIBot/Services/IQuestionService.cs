@@ -9,6 +9,11 @@ namespace Buaa.AIBot.Services
 {
     public interface IQuestionService
     {
+        Repository.ITagRepostory TagRepostory { get; }
+        Repository.IQuestionRepository QuestionRepository { get; }
+        Repository.IAnswerRepository AnswerRepository { get; }
+        Repository.ILikeRepository LikeRepository { get; }
+
         /// <summary>
         /// 
         /// </summary>

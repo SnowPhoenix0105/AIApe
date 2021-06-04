@@ -176,7 +176,8 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
 
         public static StatusId DecideFeedbackOrWelcome(this IBotStatusContainer status)
         {
-            return StatusId.Welcome;
+            // TODO
+            return StatusId.GetFeedBack;
         }
     }
 }

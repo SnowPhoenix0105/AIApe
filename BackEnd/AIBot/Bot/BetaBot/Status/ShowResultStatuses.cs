@@ -41,7 +41,7 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
                     $"您可以通过直接点击选项卡来选择单个标签，或者点击{SkipButton}来跳过选择。"
                     ))
                 .AddMessage(SentenceGeneration.Choose(
-                    $"如果您想选择多个标签（只要满足任意一个您选择的标签的信息就会被保留），请直接通过聊天框输入，并用空格或逗号隔开。"
+                    $"如果您想选择多个标签（只要满足任意一个您选择的标签的信息就会被保留），请直接通过聊天框输入，并用逗号隔开。"
                     ))
                 ;
             var reducingTags = status.Get<Dictionary<int, string>>(Constants.Key.Cached_ReducingTags);
@@ -96,7 +96,7 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
         protected override Task<StatusId> ProduceExitAsync(IBotStatusContainer status, IBotExitContext context)
         {
             var msg = context.Receiver.UserMessage;
-            var tokens = msg.Split(new char[]{ ' ', ',', '，'}, StringSplitOptions.RemoveEmptyEntries);
+            var tokens = msg.Split(new char[]{',', '，'}, StringSplitOptions.RemoveEmptyEntries);
 
             var reducingTags = status.Get<Dictionary<int, string>>(Constants.Key.Cached_ReducingTags);
             var dict = new Dictionary<string, int>(reducingTags.Select(kv => new KeyValuePair<string, int>(kv.Value, kv.Key)));
