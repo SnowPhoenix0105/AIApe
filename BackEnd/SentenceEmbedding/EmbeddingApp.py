@@ -170,7 +170,8 @@ def api_select():
         res['status'] = 'fail'
         res['message'] = 'prompts don\'t contain any prompt'
         return make_response(res, 200)
-    retrieval_result = retrieval_engine.retrieve(reply, prompts_embeddings, 1)
+    reply_embedding = embedding_model.embedding(reply)
+    retrieval_result = retrieval_engine.retrieve(reply_embedding, prompts_embeddings, 1)
     if retrieval_result is False:
         assert False
     res['status'] = 'success'
