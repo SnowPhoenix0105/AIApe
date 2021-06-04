@@ -1,17 +1,18 @@
 <template>
-    <div class="shell" style="z-index: 9999" v-drag>
+    <div class="shell" style="z-index: 9999">
         <el-container>
             <el-header>
                 <i class="el-icon-circle-close" style="cursor: pointer" @click="close"></i>
-                <span v-show="show.login">登录</span>
-                <span v-show="show.register">注册</span>
+                <span v-show="false">登录</span>
+                <span v-show="false">注册</span>
+                <span style="font-size: 30px">AIApe</span>
             </el-header>
             <el-main class="login" v-show="show.login">
-                <el-form ref="form" :model="loginForm" label-width="40px">
-                    <el-form-item label="邮箱">
+                <el-form ref="form" :model="loginForm" label-width="0">
+                    <el-form-item>
                         <el-input v-model="loginForm.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
                     </el-form-item>
-                    <el-form-item label="密码" prop="password">
+                    <el-form-item prop="password">
                         <el-input v-model="loginForm.password" prefix-icon="el-icon-lock" @keyup.native.enter="onSubmit"
                                   placeholder="请输入密码" show-password></el-input>
                     </el-form-item>
@@ -20,18 +21,18 @@
                 </el-form>
             </el-main>
             <el-main class="register" v-show="show.register">
-                <el-form ref="form" :model="registerForm" label-width="70px">
-                    <el-form-item label="昵称">
+                <el-form ref="form" :model="registerForm" label-width="0">
+                    <el-form-item>
                         <el-input v-model="registerForm.name" prefix-icon="el-icon-user" placeholder="请输入昵称"></el-input>
                     </el-form-item>
-                    <el-form-item label="邮箱">
+                    <el-form-item>
                         <el-input v-model="registerForm.email" prefix-icon="el-icon-message" placeholder="请输入邮箱"></el-input>
                     </el-form-item>
-                    <el-form-item label="密码">
+                    <el-form-item>
                         <el-input v-model="registerForm.password" prefix-icon="el-icon-lock" placeholder="请输入密码"
                                   show-password></el-input>
                     </el-form-item>
-                    <el-form-item label="确认密码">
+                    <el-form-item>
                         <el-input v-model="registerForm.rePassword" type="password" prefix-icon="el-icon-unlock"
                                   placeholder="请确认密码"
                                   @keyup.native="checkPassword">
@@ -196,8 +197,8 @@ export default {
 .shell {
     position: absolute;
     border: 1px solid lightgrey;
-    left: 35px;
-    top: 20vh;
+    left: 35vw;
+    top: 25vh;
     width: 30vw;
     height: 50vh;
     background-color: white;
@@ -226,7 +227,7 @@ export default {
 }
 
 .el-header {
-    border-bottom: 1px solid #eaecf1;
+    /*border-bottom: 1px solid #eaecf1;*/
     align-items: center;
     height: 10vh;
     width: 30vw;

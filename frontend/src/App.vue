@@ -27,6 +27,7 @@
     </div>
 </template>
 
+<script src="https://cdn.bootcss.com/showdown/1.3.0/showdown.min.js"></script>
 <script>
 import Chat from './pages/Chat/Chat.vue'
 import SideBar from "./components/SideBar/SideBar";

@@ -13,11 +13,7 @@
             <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body">
                 <el-main class="question-list" v-if="select==='question'">
                     <div class="question-body" v-for="question in questions">
-                        <div class="user">
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                       size="small" style="margin-right: 10px"></el-avatar>
-                            {{ question.creator }}
-                        </div>
+                        <i class="el-icon-delete" v-show="this.$store.state.auth > 1 || this.$store.state.uid === this.$store.state.questionID" @click="deleteQuestion(question)"></i>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
                         </el-link>
@@ -91,6 +87,7 @@
 
 <script>
 import store from "../../vuex/store";
+import marked from 'marked';
 
 export default {
     data() {
@@ -100,69 +97,150 @@ export default {
             answers: [],
             question: '',
             email: '',
-            uid: 0
+            uid: 0,
+            likeValid: true
         }
     },
     methods: {
         handleSelect(selector) {
             this.$refs['scroll-body'].scrollTop = 0;
             this.select = selector;
-        }
-    },
-    created() {
-        let _this = this;
-        this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
-            headers: {
-                Authorization: 'Bearer ' + _this.$store.state.token,
-                type: 'application/json;charset=utf-8'
+        },
+        goToDetail(qid) {
+            this.$store.commit('setQuestionID', qid);
+            this.$changePage(3);
+        },
+        async like(question) {
+            if (!this.likeValid) {
+                this.$message({
+                    message: '操作过于频繁!',
+                    type: 'warning'
+                });
             }
-        })
-        .then(function (response) {
-            _this.email = response.data.email;
-            _this.uid = response.data.uid;
-        })
-        this.$axios.get(this.BASE_URL + '/api/user/questions', {
-            headers: {
-                Authorization: 'Bearer ' + _this.$store.state.token,
-                type: 'application/json;charset=utf-8'
-            }
-        })
-        .then(async function (response) {
-            let questionList = response.data.questions;
-            for (let qid of questionList) {
-                await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid, {
+            this.likeValid = false;
+            let _this = this;
+            let qid = question.id;
+            let markAsLike = !question.like;
+            this.$axios.post(this.BASE_URL + '/api/questions/like_question', {
+                qid: qid,
+                markAsLike: markAsLike
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    question.like = response.data.like;
+                    question.likeNum = response.data.likeNum;
+                })
+                .catch(function (error) {
+                    _this.$message({
+                        message: '登录后才可以点赞~!',
+                        type: 'warning'
+                    })
+                })
+            this.likeValid = true;
+        },
+        deleteQuestion(question) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该问题, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_question', {
+                    data: {
+                        qid: question.id,
+                    },
                     headers: {
                         Authorization: 'Bearer ' + _this.$store.state.token,
                         type: 'application/json;charset=utf-8'
                     }
                 })
-                    .then(async function (response) {
-                        let question = {
-                            id: qid,
-                            title: response.data.question.title,
-                            content: response.data.question.remarks,
-                            tags: response.data.question.tags,
-                            date: response.data.question.createTime,
-                            likeNum: response.data.question.likeNum,
-                            like: response.data.question.like
-                        };
-                        let uid = response.data.question.creator;
-                        await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
-                            .then(function (response) {
-                                question.creator = response.data.name;
-                            })
-                        _this.questions.push(question);
+                .then(response => {
+                    this.$message({
+                        type: 'success',
+                        message: '删除成功!'
                     });
-            }
-        })
-        this.$axios.get(this.BASE_URL + '/api/user/answers', {
-            headers: {
-                Authorization: 'Bearer ' + _this.$store.state.token,
-                type: 'application/json;charset=utf-8'
-            }
-        })
-            .then(async function (response) {
+                    this.getQuestions();
+                })
+                .catch(error => {
+                    this.$message({
+                        type: 'error',
+                        message: '删除失败!'
+                    });
+                })
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
             })
+        },
+        getQuestions() {
+            let _this = this;
+            this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(function (response) {
+                    _this.email = response.data.email;
+                    _this.uid = response.data.uid;
+                })
+            this.$axios.get(this.BASE_URL + '/api/user/questions', {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    let questionList = response.data.questions;
+                    _this.questions = [];
+                    for (let qid of questionList) {
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
+                            .then(async function (response) {
+                                let question = {
+                                    id: qid,
+                                    title: response.data.question.title,
+                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g,""),
+                                    tags: response.data.question.tags,
+                                    date: response.data.question.createTime,
+                                    likeNum: response.data.question.likeNum,
+                                    like: response.data.question.like
+                                };
+                                let uid = response.data.question.creator;
+                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
+                                    .then(function (response) {
+                                        question.creator = response.data.name;
+                                    })
+                                _this.questions.push(question);
+                            });
+                    }
+                })
+        },
+        getAnswers() {
+            let _this = this;
+            this.$axios.get(this.BASE_URL + '/api/user/answers', {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                })
+        }
+    },
+    created() {
+        this.getQuestions();
     }
 }
 </script>
@@ -257,22 +335,20 @@ export default {
     -webkit-box-orient: vertical;
     line-height: 20px;
     height: 60px;
-    margin: 10px 30px;
+    margin: 10px 15px;
 }
 
-i {
-    color: #409eff;
-}
-
-i:hover {
-    color: #6dfff3;
+.el-icon-delete {
+    display: flex;
+    align-self: flex-end;
+    color: #F56C6C;
+    cursor: pointer;
 }
 
 .title {
     font-size: 20px;
     font-weight: bold;
-    margin-top: 10px;
-    margin-left: 30px;
+    margin-left: 10px;
     /*white-space: nowrap;*/
     /*overflow: hidden;*/
     /*text-overflow: ellipsis;*/
@@ -287,7 +363,7 @@ i:hover {
 .other-info {
     justify-content: space-between;
     align-items: center;
-    margin-left: 25px;
+    margin-left: 10px;
 }
 
 .recommend-time {

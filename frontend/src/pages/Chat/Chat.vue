@@ -71,6 +71,7 @@ export default {
             }
 
             message = this.return2Br(this.html2Escape(message));
+            this.$store.state.logs[this.$store.state.logs.length - 1].promptValid = false;
             this.$store.commit('addUserMessage', message);
 
             this.$axios.post(this.BASE_URL + '/api/bot/message', {

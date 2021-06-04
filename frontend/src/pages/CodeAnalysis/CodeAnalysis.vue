@@ -10,12 +10,14 @@
             </div>
         </el-container>
         <el-container class="issues">
+            <div>
             <el-main class="issue" v-for="issue in issues" :key="issue.desc" :class="issue.level">
                 <div>
                     {{ issue.desc}}
                 </div>
                 <el-link id="position" :underline="false" @click="gotoPosition(issue.line - 1, issue.column - 1)">{{ issue.line }}:{{ issue.column }}</el-link>
             </el-main>
+            </div>
             <el-main class="info">
                 <span>AIApe</span>
                 <span>京ICP备 2021007509号-1</span>
@@ -91,6 +93,7 @@ export default {
                 }
             })
                 .then(function (response) {
+                    console.log(response);
                     _this.code = response.data.fmtCode;
                     _this.issues = response.data.messages;
                 })
@@ -147,7 +150,7 @@ export default {
     margin-left: 10px;
     flex-direction: column;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
 }
 
 .issue {
@@ -159,6 +162,7 @@ export default {
     padding: 10px;
     flex-direction: column;
     justify-content: space-between;
+    flex-grow: 0;
 }
 
 .tip-submit {
@@ -174,6 +178,7 @@ export default {
     flex-direction: column;
     align-items: center;
     flex-grow: 0;
+    justify-self: flex-end;
 }
 
 .error {

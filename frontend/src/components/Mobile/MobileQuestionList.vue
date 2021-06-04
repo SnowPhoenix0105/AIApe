@@ -276,6 +276,7 @@ export default {
     align-self: flex-start;
     flex-direction: row;
     align-items: center;
+    justify-self: stretch;
 }
 
 .el-link {

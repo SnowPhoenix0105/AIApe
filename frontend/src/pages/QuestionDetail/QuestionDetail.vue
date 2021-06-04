@@ -2,29 +2,45 @@
     <el-container class="shell">
         <el-container class="list">
             <el-main class="question-detail">
-                <div class="user">
-                    <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                               size="small" style="margin-right: 10px"></el-avatar>
-                    {{ creatorName }}
+                <div v-show="questionState === 'preview'" class="user">
+                    <div style="display: flex; align-items: center">
+                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                   size="small" style="margin-right: 10px"></el-avatar>
+                        {{ creatorName }}
+                    </div>
+                    <i class="el-icon-delete"
+                       v-show="this.$store.state.auth > 1 || currentUid === creatorId" @click="deleteQuestion"></i>
                 </div>
-                <h1>{{ title }}</h1>
+                <h1 v-show="questionState === 'preview'">{{ title }}</h1>
+                <el-input v-model="title" v-show="questionState === 'edit'"></el-input>
                 <mavon-editor :style='"max-height:" + maxHeight' class="question" v-model="detail" ref=md
-                              :subfield="false" defaultOpen="preview"
-                              :toolbarsFlag="false" :editable="false"
-                              :scrollStyle="false" :box-shadow="false">
+                              :subfield="false" :toolbars="toolbars"
+                              :toolbarsFlag="questionState === 'edit'" :editable="questionState === 'edit'"
+                              :scrollStyle="false" :box-shadow="false" :defaultOpen="questionState">
                 </mavon-editor>
-                <el-button style="padding-bottom: 0" type="text" class="show-all" icon="el-icon-arrow-down" @click="showAll" v-if="showAllState === false">展开</el-button>
-                <el-button style="padding-bottom: 0" type="text" class="show-all" icon="el-icon-arrow-up" @click="showAll" v-else>收起</el-button>
+                <el-button style="align-self: flex-end; margin-top: 10px" v-if="questionState === 'edit'"
+                           @click="modifyQuestion">提交修改
+                </el-button>
+                <el-button style="padding-bottom: 0" type="text" class="show-all" icon="el-icon-arrow-down"
+                           @click="showAll" v-if="showAllState === false && questionState === 'preview'">展开
+                </el-button>
+                <el-button style="padding-bottom: 0" type="text" class="show-all" icon="el-icon-arrow-up"
+                           @click="showAll" v-if="showAllState === true && questionState === 'preview'">收起
+                </el-button>
                 <div class="other-info">
                     <div class="tags">
                         <el-tag v-for="(tid, tName) in tags" :key="tid">{{ tName }}</el-tag>
                     </div>
                     <div class="recommend-time">
-                        <el-button style="margin-right: 20px" icon="el-icon-edit" size="mini" circle
-                                   @click="answerAreaMove"></el-button>
-                        <el-button class="recommend" type="text"
+                        <el-button style="margin-right: 10px;" icon="el-icon-edit" size="mini" circle
+                                   v-if="this.$store.state.uid === creatorId" @click="editQuestion">
+                        </el-button>
+                        <el-button style="margin-right: 10px" :icon="icon" size="mini"
+                                   @click="answerAreaMove">我要回答
+                        </el-button>
+                        <el-button class="recommend"
                                    :icon="like? 'el-icon-star-on' : 'el-icon-star-off'"
-                                   @click="like_question()">
+                                   @click="like_question()" size="mini" type="text">
                             推荐{{ likeNum }}
                         </el-button>
                         <span>{{ date }}</span>
@@ -32,12 +48,12 @@
                 </div>
             </el-main>
             <el-collapse-transition>
-                <div v-show="showAnswerArea" style="display: flex; flex-direction: column">
+                <div v-show="showAnswerArea" style="display: flex; flex-direction: column; flex-shrink: 0">
                     <mavon-editor class="editor" :toolbars="toolbars" v-model="myAnswer" ref=md
                                   :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"
                                   :toolbarsFlag="prop.toolbarsFlag" :editable="prop.editable"
                                   :scrollStyle="prop.scrollStyle" :boxShadow="prop.boxShadow"
-                                  style="max-height: 0"
+                                  style="max-height: 0; z-index: 1"
                                   placeholder="编辑你的回答...">
                     </mavon-editor>
                     <el-button @click="submitAnswer" class="submit">提交答案</el-button>
@@ -46,16 +62,24 @@
             <el-main class="answers">
                 <div class="answer" v-for="answer in answers">
                     <div class="user">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                   size="small" style="margin-right: 10px"></el-avatar>
-                        {{ answer.creatorName }}
+                        <div style="display: flex; align-items: center">
+                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                       size="small" style="margin-right: 10px"></el-avatar>
+                            {{ answer.creatorName }}
+                        </div>
+                        <i class="el-icon-delete" v-show="authority > 1 || currentUid === answer.creator"
+                           @click="deleteAnswer(answer)"></i>
                     </div>
                     <mavon-editor class="content" ref=md v-model="answer.content"
                                   :subfield="false" defaultOpen="preview"
                                   :toolbarsFlag="false" :editable="false"
-                                  :scrollStyle="false" :box-shadow="false">
+                                  :scrollStyle="false" :box-shadow="false"
+                                  style="z-index: 1">
                     </mavon-editor>
                     <div style="display: flex; justify-content: flex-end; align-items: center">
+                        <el-button style="margin-right: 10px;" icon="el-icon-edit" size="mini" circle
+                                   v-if="currentUid === answer.creator" @click="answerAreaMove">
+                        </el-button>
                         <el-button class="recommend" type="text"
                                    :icon="answer.like? 'el-icon-star-on' : 'el-icon-star-off'"
                                    @click="like_answer(answer)">
@@ -90,10 +114,11 @@ export default {
             title: '',
             detail: '',
             tags: [],
+            questionState: 'preview',
             creatorName: '',
+            creatorId: -1,
             date: '',
             answers: [],
-            myAnswer: '',
             like: false,
             likeNum: 0,
             showAnswerArea: false,
@@ -133,7 +158,12 @@ export default {
                 preview: true // 预览
             },
             showAllState: false,
-            maxHeight: '15vh'
+            minHeight: 0,
+            maxHeight: '15vh',
+            modifyAnswerId: -1,
+            icon: 'el-icon-edit-outline',
+            myAnswer: '',
+            myAnswerId: -1
         }
     },
     methods: {
@@ -153,26 +183,31 @@ export default {
                     _this.title = response.data.question.title;
                     _this.detail = response.data.question.remarks;
                     let creatorId = response.data.question.creator;
+                    _this.creatorId = creatorId;
                     await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + creatorId)
-                    .then(function (response) {
-                        _this.creatorName = response.data.name;
-                    })
+                        .then(async function (response) {
+                            _this.creatorName = response.data.name;
+                        })
                     _this.$data.date = response.data.question.createTime;
                     _this.$data.tags = response.data.question.tags;
                     _this.like = response.data.question.like;
                     _this.likeNum = response.data.question.likeNum;
                     let aidList = response.data.question.answers;
+                    _this.answers = [];
                     for (let aid of aidList) {
-                        _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
+                        await _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(async function (response) {
                                 let answer = response.data.answer;
                                 answer.id = aid;
                                 let id = response.data.answer.creator;
+                                if (id === _this.$store.state.uid) {
+                                    _this.myAnswer = answer.content;
+                                    _this.myAnswerId = aid;
+                                }
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + id)
                                     .then(function (response) {
                                         answer.creatorName = response.data.name;
                                     })
-                                answer['id'] = parseInt(response.data.message[response.data.message.indexOf('=') + 1]);
                                 _this.answers.push(answer);
                             })
                             .catch(function (error) {
@@ -190,37 +225,69 @@ export default {
                 this.$data.icon = 'el-icon-arrow-up';
             } else {
                 this.$data.showAnswerArea = false;
-                this.$data.icon = 'el-icon-edit';
+                this.$data.icon = 'el-icon-edit-outline';
             }
         },
         submitAnswer() {
             let answer = this.myAnswer;
             let _this = this;
-            this.$axios.post(_this.BASE_URL + '/api/questions/add_answer', {
-                qid: _this.$store.state.questionID,
-                content: answer
-            }, {
-                headers: {
-                    Authorization: 'Bearer ' + _this.$store.state.token,
-                    type: 'application/json;charset=utf-8'
-                }
-            })
-                .then(function (response) {
-                    _this.myAnswer = '';
-                    if (response.data.status === 'success') {
-                        _this.$message({
-                            message: '感谢你的回答！',
-                            type: 'success'
+            if (this.myAnswerId > 0) {
+                this.$confirm('你已经回答过这个问题，确认修改你的答案吗？', '修改确认', {
+                    cancelButtonText: '取消',
+                    confirmButtonText: '确定',
+                })
+                    .then(function (response) {
+                        _this.$axios.put(_this.BASE_URL + '/api/questions/modify_answer', {
+                            aid: _this.myAnswerId,
+                            content: _this.myAnswer
+                        }, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
                         })
-                        _this.getQuestionDetail();
-                        location.reload();
-                    } else {
+                            .then(function (response) {
+                                _this.$message({
+                                    message: '修改成功！',
+                                    type: 'success'
+                                })
+                                _this.getQuestionDetail();
+                            })
+                            .catch(function (error) {
+                                _this.$message({
+                                    message: '修改失败！',
+                                    type: 'error'
+                                })
+                            })
+                    })
+                    .catch(function (error) {
                         _this.$message({
-                            message: '你已经回答过这个问题了！',
-                            type: 'warning'
-                        })
+                            type: 'info',
+                            message: '取消修改'
+                        });
+                    })
+            } else {
+                this.$axios.post(_this.BASE_URL + '/api/questions/add_answer', {
+                    qid: _this.$store.state.questionID,
+                    content: answer
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
                     }
                 })
+                    .then(function (response) {
+                        _this.myAnswer = '';
+                        if (response.data.status === 'success') {
+                            _this.$message({
+                                message: '感谢你的回答！',
+                                type: 'success'
+                            })
+                            _this.getQuestionDetail();
+                            location.reload();
+                        }
+                    })
+            }
         },
         async getUserName(uid) {
             let _this = this;
@@ -235,8 +302,7 @@ export default {
             if (!this.showAllState) {
                 this.showAllState = true;
                 this.maxHeight = '55vh';
-            }
-            else {
+            } else {
                 this.showAllState = false;
                 this.maxHeight = '15vh';
             }
@@ -288,7 +354,128 @@ export default {
                         type: 'warning'
                     })
                 })
-        }
+        },
+        editQuestion() {
+            this.questionState = 'edit';
+            this.maxHeight = '55vh';
+        },
+        modifyQuestion() {
+            let _this = this;
+            this.$confirm('确认修改你的问题吗？', '修改确认', {
+                cancelButtonText: '取消',
+                confirmButtonText: '确定',
+            })
+                .then(function (response) {
+                    _this.$axios.put(_this.BASE_URL + '/api/questions/modify_question', {
+                        qid: _this.$store.state.questionID,
+                        question: _this.title,
+                        remarks: _this.detail
+                    }, {
+                        headers: {
+                            Authorization: 'Bearer ' + _this.$store.state.token,
+                            type: 'application/json;charset=utf-8'
+                        }
+                    })
+                        .then(function (response) {
+                            if (response.data.status === 'success') {
+                                _this.$message({
+                                    message: '修改成功',
+                                    type: 'success'
+                                });
+                            }
+                            _this.questionState = 'preview';
+                            if (!_this.showAllState) {
+                                _this.maxHeight = '15vh';
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                            _this.$message({
+                                message: '修改失败',
+                                type: 'error'
+                            });
+                        })
+                })
+                .catch(function (error) {
+                    _this.$message({
+                        type: 'info',
+                        message: '取消修改'
+                    });
+                })
+        },
+        deleteAnswer(answer) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该回答, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_answer', {
+                    data: {
+                        aid: answer.id,
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestionDetail();
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
+        },
+        deleteQuestion() {
+            let _this = this;
+            this.$confirm('此操作将永久删除该问题, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_question', {
+                    data: {
+                        qid: _this.$store.state.questionID
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.$store.state.questionID = 0;
+                        this.$changePage(2);
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
+        },
     },
     mounted() {
         this.getQuestionDetail();
@@ -304,7 +491,26 @@ export default {
                 boxShadow: true//边框
             };
         },
-
+        currentUid() {
+            return this.$store.state.uid;
+        },
+        authority() {
+            return this.$store.state.auth;
+        },
+        questionId() {
+            return this.$store.state.questionID;
+        }
+    },
+    watch: {
+        currentUid() {
+            for (let answer of this.answers) {
+                if (answer.creator === this.currentUid) {
+                    this.myAnswer = answer.content;
+                    this.myAnswerId = answer.id;
+                    break;
+                }
+            }
+        }
     }
 }
 </script>
@@ -401,7 +607,7 @@ i {
 .recommend {
     height: 20px;
     font-size: 10px;
-    line-height: 20px;
+    line-height: 10px;
     padding: 3px 3px;
     margin-right: 20px;
     align-items: center;
@@ -446,9 +652,10 @@ i {
 
 .user {
     display: flex;
-    align-self: flex-start;
+    align-self: stretch;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 }
 
 .other-info {
@@ -485,11 +692,18 @@ i {
 }
 
 ::-webkit-scrollbar {
-    width: 0!important;
+    width: 0 !important;
 }
 
 .submit {
     margin-top: 10px;
     align-self: flex-end;
+}
+
+.el-icon-delete {
+    display: flex;
+    justify-self: flex-end;
+    color: #F56C6C;
+    cursor: pointer;
 }
 </style>
