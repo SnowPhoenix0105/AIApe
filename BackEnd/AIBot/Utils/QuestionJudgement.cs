@@ -161,7 +161,7 @@ namespace Buaa.AIBot.Utils
             return true;
         }
 
-        public static IEnumerable<int> GetFilteredQuestions(IEnumerable<IQuestionTagInfo> questions, Dictionary<TagCategory, IReadOnlyCollection<int>> tags)
+        public static List<int> GetFilteredQuestions(IEnumerable<IQuestionTagInfo> questions, Dictionary<TagCategory, IEnumerable<int>> tags)
         {
             var query = from question in questions
                         where question.Satisfy(tags)

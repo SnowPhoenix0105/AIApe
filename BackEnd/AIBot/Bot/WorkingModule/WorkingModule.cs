@@ -36,6 +36,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
 
     public interface IWorkingModule
     {
+        T Get<T>();
         QuestionBuilder GetQuestionBuilder();
         GovernmentInstallingInfo GetGovernmentInstallingInfo();
         IdeAndCompilerDocumentCollection GetIdeAndCompilerDocumentCollection();
@@ -48,51 +49,56 @@ namespace Buaa.AIBot.Bot.WorkingModule
 
     public class WorkingModule : IWorkingModule
     {
-        IServiceProvider services;
+        public IServiceProvider Services { get; }
 
         public WorkingModule(IServiceProvider services)
         {
-            this.services = services;
+            this.Services = services;
+        }
+
+        public T Get<T>()
+        {
+            return Services.GetRequiredService<T>();
         }
 
         public QuestionBuilder GetQuestionBuilder()
         {
-            return services.GetService<QuestionBuilder>();
+            return Services.GetService<QuestionBuilder>();
         }
 
         public GovernmentInstallingInfo GetGovernmentInstallingInfo()
         {
-            return services.GetService<GovernmentInstallingInfo>();
+            return Services.GetService<GovernmentInstallingInfo>();
         }
 
         public IdeAndCompilerDocumentCollection GetIdeAndCompilerDocumentCollection()
         {
-            return services.GetService<IdeAndCompilerDocumentCollection>();
+            return Services.GetService<IdeAndCompilerDocumentCollection>();
         }
 
         public IGccHandlerFactory GetGccHandlerFactory()
         {
-            return services.GetService<IGccHandlerFactory>();
+            return Services.GetService<IGccHandlerFactory>();
         }
 
         public SourceCodeAnalyzer GetSourceCodeAnalyzer()
         {
-            return services.GetService<SourceCodeAnalyzer>();
+            return Services.GetService<SourceCodeAnalyzer>();
         }
 
         public DocumentCollection GetDocumentCollection()
         {
-            return services.GetService<DocumentCollection>();
+            return Services.GetService<DocumentCollection>();
         }
 
         public OuterRepoSearcher GetOuterRepoSearcher()
         {
-            return services.GetService<OuterRepoSearcher>();
+            return Services.GetService<OuterRepoSearcher>();
         }
 
         public InnerRepoSearcher GetInnerRepoSearcher()
         {
-            return services.GetService<InnerRepoSearcher>();
+            return Services.GetService<InnerRepoSearcher>();
         }
     }
 }

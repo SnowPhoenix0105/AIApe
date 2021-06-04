@@ -3,18 +3,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Buaa.AIBot.Bot.BetaBot.Status;
 
 namespace Buaa.AIBot.Bot.BetaBot
 {
     public enum StatusId
     {
         Welcome,
-        GetLonger,
         GetShorter,
             ShowLimitResult,
             ReduceResultByTags,
                     ShowAllResult,
-                        CreateAnswer,
+                        CreateQuestion,
+
+        Reset,
+        GetFeedBack,
     }
 
     public static class Configuration
@@ -23,6 +26,13 @@ namespace Buaa.AIBot.Bot.BetaBot
         {
             var list = new List<IBotStatusBehaviour<StatusId>>()
             {
+                new WelcomeStatus(),
+                new GetShorterStatus(),
+                    new ShowLimitResultStatus(),
+                    new ReduceResultByTagsStatus(),
+                        new ShowAllResultStatus(),
+
+                new ResetStatus()
             };
             var ret = new Dictionary<StatusId, IBotStatusBehaviour<StatusId>>();
             foreach (var status in list)

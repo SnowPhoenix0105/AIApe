@@ -12,11 +12,6 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
 {
     public static class Utils
     {
-        public static Task<IEnumerable<QuestionScoreInfo>> GetLocalSearchResultAsync(this IWorkingModule worker, string content)
-        {
-            var searcher = worker.GetInnerRepoSearcher();
-            return searcher.SearchAsync(content);
-        }
 
         public static Dictionary<TagCategory, HashSet<int>> GetSelectedTags(this IBotStatusContainer status)
         {
@@ -25,16 +20,24 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             {
                 return ret;
             }
-            ret = new Dictionary<TagCategory, HashSet<int>>(Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, HashSet<int>>(c, new HashSet<int>())));
+            ret = new Dictionary<TagCategory, HashSet<int>>(Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, HashSet<int>>(c, null)));
+
+            // TODO
+            ret[TagCategory.Other] = new HashSet<int>();
             status.Put(Constants.Key.SelectedTags, ret);
             return ret;
         }
 
-        public static IEnumerable<QuestionScoreInfo> GetCheckingQuestions(this IBotStatusContainer status)
+        public static string GetCheckingQuestion(this IBotStatusContainer status)
         {
             return status.Get<string>(Constants.Key.Checking) == Constants.Value.CheckingLong ?
-                status.Get<IEnumerable<QuestionScoreInfo>>(Constants.Key.LongQuestion) :
-                status.Get<IEnumerable<QuestionScoreInfo>>(Constants.Key.ShortQuestion);
+                status.Get<string>(Constants.Key.LongQuestion) :
+                status.Get<string>(Constants.Key.ShortQuestion);
+        }
+
+        public static IEnumerable<QuestionScoreInfo> GetQuestionMatches(this IBotStatusContainer status)
+        {
+            return status.Get<IEnumerable<QuestionScoreInfo>>(Constants.Key.QuestionMatches);
         }
 
         private class QuestionTagAdapter : AIBot.Utils.QuestionJudgement.IQuestionTagInfo
@@ -55,28 +58,28 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
         /// </summary>
         /// <param name="status"></param>
         /// <returns></returns>
-        public static IEnumerable<int> GetSelectedQuestions(
+        public static List<int> CalculateSelectedQuestions(
             this IBotStatusContainer status,
             Dictionary<TagCategory, HashSet<int>> selectedTags = null,
             IEnumerable<QuestionScoreInfo> questions = null)
         {
             selectedTags ??= status.GetSelectedTags();
-            questions ??= status.GetCheckingQuestions();
+            questions ??= status.GetQuestionMatches();
             var res = AIBot.Utils.QuestionJudgement.GetFilteredQuestions(
                 questions.Select(q => new QuestionTagAdapter(q)).ToList(), 
-                new Dictionary<TagCategory, IReadOnlyCollection<int>>(selectedTags.Select(kv => 
-                    new KeyValuePair<TagCategory, IReadOnlyCollection<int>>(kv.Key, kv.Value))));
+                new Dictionary<TagCategory, IEnumerable<int>>(selectedTags.Select(kv => 
+                    new KeyValuePair<TagCategory, IEnumerable<int>>(kv.Key, kv.Value??new HashSet<int>()))));
             return res;
         }
 
-        public static IEnumerable<int> GetSortedSelectedQuestions(
+        public static List<int> CalculateSortedSelectedQuestions(
             this IBotStatusContainer status,
             Dictionary<TagCategory, HashSet<int>> selectedTags = null,
             IEnumerable<QuestionScoreInfo> questions = null)
         {
             selectedTags ??= status.GetSelectedTags();
-            questions ??= status.GetCheckingQuestions();
-            var res = status.GetSelectedQuestions(selectedTags, questions);
+            questions ??= status.GetQuestionMatches();
+            var res = status.CalculateSelectedQuestions(selectedTags, questions);
             var set = new HashSet<int>(res);
             var query = from question in questions
                         where set.Contains(question.Qid)
@@ -85,19 +88,95 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             return query.ToList();
         }
 
-        public static Dictionary<int, double> GetSelectedQuestionsWithScore(
+        public static List<int> GetSortedSelectedQuestions(this IBotStatusContainer status)
+        {
+            if (status.TryGet<List<int>>(Constants.Key.Cached_SortedSelectedMatches, out var ret))
+            {
+                return ret;
+            }
+            ret = status.CalculateSortedSelectedQuestions();
+            status.Put(Constants.Key.Cached_SortedSelectedMatches, ret);
+            return ret;
+        }
+
+        public static Dictionary<int, double> CalculateSelectedQuestionsWithScore(
             this IBotStatusContainer status,
             Dictionary<TagCategory, HashSet<int>> selectedTags = null,
             IEnumerable<QuestionScoreInfo> questions = null)
         {
             selectedTags ??= status.GetSelectedTags();
-            questions ??= status.GetCheckingQuestions();
-            var res = status.GetSelectedQuestions(selectedTags, questions);
+            questions ??= status.GetQuestionMatches();
+            var res = status.CalculateSelectedQuestions(selectedTags, questions);
             var set = new HashSet<int>(res);
             var query = from question in questions
                         where set.Contains(question.Qid)
                         select new KeyValuePair<int, double>(question.Qid, question.Score);
             return new Dictionary<int, double>(query);
+        }
+
+        /// <summary>
+        /// key >=  0 ==> real tid;
+        /// key == -1 ==> null;
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="questions"></param>
+        /// <returns></returns>
+        private static Dictionary<int, string> GetAllTagsForCategory(TagCategory category, IEnumerable<QuestionScoreInfo> questions)
+        {
+            var ret = new Dictionary<int, string>();
+            foreach (var question in questions)
+            {
+                var questionTags = question.Tags[category];
+                if (questionTags.Count == 0)
+                {
+                    ret.TryAdd(-1, "null");
+                }
+                foreach (var tag in questionTags)
+                {
+                    ret.TryAdd(tag.Key, tag.Value);
+                }
+            }
+            return ret;
+        }
+
+        public static Dictionary<int, string> GetReducingTags(
+            this IBotStatusContainer status,
+            out List<TagCategory> categoriesCanBeEmpty,
+            out TagCategory category,
+            Dictionary<TagCategory, HashSet<int>> selectedTags = null,
+            IEnumerable<QuestionScoreInfo> questions = null)
+        {
+            selectedTags ??= status.GetSelectedTags();
+            categoriesCanBeEmpty = new List<TagCategory>();
+
+            foreach (var kv in selectedTags)
+            {
+                if (kv.Value == null)
+                {
+                    questions ??= status.GetQuestionMatches();
+                    var res = GetAllTagsForCategory(kv.Key, questions);
+                    if (res.Count > 1)
+                    {
+                        category = kv.Key;
+                        if (res.ContainsKey(-1))
+                        {
+                            res.Remove(-1);
+                        }
+                        return res;
+                    }
+                    else
+                    {
+                        categoriesCanBeEmpty.Add(kv.Key);
+                    }
+                }
+            }
+            category = default;
+            return null;
+        }
+
+        public static StatusId DecideFeedbackOrWelcome(this IBotStatusContainer status)
+        {
+            return StatusId.Welcome;
         }
     }
 }
