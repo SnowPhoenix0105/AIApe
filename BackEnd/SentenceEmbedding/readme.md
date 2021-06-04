@@ -160,6 +160,7 @@
       "status" : "success",
       "message" : "succeed deleting question",
   }
+  ```
 * 响应体各参数含义：
   * `status`：表示处理状态，`success`表示成功，其余表示失败。
   * `message`：对`status`的补充。
@@ -194,6 +195,7 @@
       "message" : "succeed selecting question",
       "prompt" : "prompt1"
   }
+  ```
 * 响应体各参数含义：
   * `status`：表示处理状态，`success`表示成功，其余表示失败。
   * `message`：对`status`的补充。
@@ -232,6 +234,7 @@
         "Other" : 10
       }
   }
+  ```
 * 响应体各参数含义：
   * `status`：表示处理状态，`success`表示成功，其余表示失败。
   * `message`：对`status`的补充。
@@ -264,6 +267,7 @@
       "message" : "succeed selecting question",
       "qids" : [123, 43]
   }
+  ```
 * 响应体各参数含义：
   * `status`：表示处理状态，`success`表示成功，其余表示失败。
   * `message`：对`status`的补充。
