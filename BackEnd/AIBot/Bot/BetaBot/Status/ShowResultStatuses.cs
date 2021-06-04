@@ -252,7 +252,7 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
                     $"小猿为您找到的所有信息都在这里了："
                     ))
                 ;
-            foreach (var qid in status.GetSortedSelectedQuestions())
+            foreach (var qid in status.GetSortedSelectedQuestions().Take(10))
             {
                 context.Sender.AddQuestion(qid);
             }
