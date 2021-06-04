@@ -9,6 +9,11 @@ namespace Buaa.AIBot.Services
 {
     public interface IQuestionService
     {
+        Repository.ITagRepostory TagRepostory { get; }
+        Repository.IQuestionRepository QuestionRepository { get; }
+        Repository.IAnswerRepository AnswerRepository { get; }
+        Repository.ILikeRepository LikeRepository { get; }
+
         /// <summary>
         /// 
         /// </summary>
@@ -49,6 +54,8 @@ namespace Buaa.AIBot.Services
         /// <param name="number"></param>
         /// <returns></returns>
         Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number);
+
+        Task<IEnumerable<int>> SearchQuestionAsync(string content);
 
         Task<IReadOnlyDictionary<string, int>> GetTagListAsync();
 

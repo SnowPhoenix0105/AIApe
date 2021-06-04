@@ -33,7 +33,7 @@ class EmbeddingSet:
     def add(self, language, qid, question):
         if language not in self.data:
             return False
-        with open(self.add_filename, 'a', encoding='utf8') as f:
+        with open(os.path.join(const.CACHE_PATH, self.add_filename), 'a', encoding='utf8') as f:
             f.write('{},{},{}\n'.format(language, qid, question))
         self.data[language][0].append(qid)
         self.data[language][1].append(self.model.embedding(question))
@@ -47,7 +47,7 @@ class EmbeddingSet:
                 continue
             for i, temp_qid in enumerate(records[0]):
                 if qid == temp_qid:
-                    with open(self.delete_filename, 'a', encoding='utf8') as f:
+                    with open(os.path.join(const.CACHE_PATH, self.delete_filename), 'a', encoding='utf8') as f:
                         f.write('{}\n'.format(qid))
                     records[0].pop(i)
                     records[1].pop(i)

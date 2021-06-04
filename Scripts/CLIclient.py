@@ -7,28 +7,28 @@ from utils.Poster import login
 from utils.Poster import signup
 from utils.Poster import NoAuthorization
 
-jwt = ""
+# jwt = ""
 
-class NoAuthorization(Exception):
-    pass
+# class NoAuthorization(Exception):
+#     pass
 
-def post(target: str, body, headers: dict=None):
-    body = json.dumps(body)
-    if headers is None:
-        headers = {}
-    headers["Content-Type"] = "application/json"
-    if len(jwt) != 0:
-        headers["Authorization"] = "Bearer " + jwt
+# def post(target: str, body, headers: dict=None):
+#     body = json.dumps(body)
+#     if headers is None:
+#         headers = {}
+#     headers["Content-Type"] = "application/json"
+#     if len(jwt) != 0:
+#         headers["Authorization"] = "Bearer " + jwt
 
-    origin_host = ["https://aiape.snowphoenix.design", "http://localhost:5000"][1]
-    url = origin_host + target
+#     origin_host = ["https://aiape.snowphoenix.design", "http://localhost:5000"][1]
+#     url = origin_host + target
 
-    req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
+#     req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
 
-    with urllib.request.urlopen(req) as f:
-        raw_json = f.read().decode("utf8")
-    # print("[RAW]:\t", raw_json)
-    return json.loads(raw_json)
+#     with urllib.request.urlopen(req) as f:
+#         raw_json = f.read().decode("utf8")
+#     # print("[RAW]:\t", raw_json)
+#     return json.loads(raw_json)
 
 def signup():
     flag = True

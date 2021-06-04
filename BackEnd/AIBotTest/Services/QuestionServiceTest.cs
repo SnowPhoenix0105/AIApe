@@ -20,9 +20,10 @@ namespace AIBotTest.Services
         private Mock<IAnswerRepository> ansMock = new Mock<IAnswerRepository>();
         private Mock<ITagRepostory> tagMock = new Mock<ITagRepostory>();
         private Mock<ILikeRepository> likeMock = new Mock<ILikeRepository>();
+        private Mock<INLPService> nlpMock = new Mock<INLPService>();
 
         private IQuestionService CreateQuestionService()
-            => new QuestionService(queMock.Object, ansMock.Object, tagMock.Object, likeMock.Object);
+            => new QuestionService(queMock.Object, ansMock.Object, tagMock.Object, likeMock.Object, nlpMock.Object);
 
         #region GetQuestionAsync
 

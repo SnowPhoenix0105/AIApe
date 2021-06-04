@@ -21,9 +21,9 @@ namespace Buaa.AIBot.Repository.Implement
             pool.Set((int)id, value);
         }
 
-        public static void Get<T>(this ICachePool<int> pool, CacheId id)
+        public static T Get<T>(this ICachePool<int> pool, CacheId id)
         {
-            pool.Get<T>((int)id);
+            return pool.Get<T>((int)id);
         }
 
         public static T GetOrDefault<T>(this ICachePool<int> pool, CacheId id)
