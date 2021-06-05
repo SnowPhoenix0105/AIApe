@@ -31,7 +31,7 @@ namespace Buaa.AIBot.Repository
         /// </summary>
         /// <param name="tags"></param>
         /// <returns></returns>
-        Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags);
+        Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags, int maxQid = int.MaxValue, int num = int.MaxValue);
 
         /// <summary>
         /// Returns the most hot questions.

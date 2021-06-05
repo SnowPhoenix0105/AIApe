@@ -128,13 +128,14 @@ namespace Buaa.AIBot.Services
             {
                 Source = cts
             };
-            IQuestionRepository questionRepository = new QuestionRepository(context, serviceProvider.GetRequiredService<ICachePool<int>>(), gcts);
+            ITagRepostory tagRepostory = new TagRepository(context, serviceProvider.GetRequiredService<ICachePool<int>>(), gcts);
+            IQuestionRepository questionRepository = new QuestionRepository(context, serviceProvider.GetRequiredService<ICachePool<int>>(), tagRepostory, gcts);
             ILikeRepository likeRepository = new LikeRepository(context, serviceProvider.GetRequiredService<ICachePool<int>>(), gcts);
             ILogger<HotListService> logger = this.logger;
             DateTime start = DateTime.Now;
             try
             {
-                var questionList = await questionRepository.SelectQuestionsByTagsAsync(new int[0]);
+                var questionList = await questionRepository.SelectQuestionsByTagsAsync(new int[0], int.MaxValue, int.MaxValue);
                 foreach (int qid in questionList)
                 {
                     ct.ThrowIfCancellationRequested();
