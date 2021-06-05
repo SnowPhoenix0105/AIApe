@@ -62,6 +62,12 @@ namespace Buaa.AIBot.Repository.Models
         public DateTime ModifyTime { get; set; }
     }
 
+    public class AnswerIdInfo
+    {
+        public int AnswerId { get; set; }
+        public int QuestionId { get; set; }
+    }
+
     public enum TagCategory
     {
         Lang = 1,

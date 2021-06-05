@@ -403,21 +403,25 @@ namespace Buaa.AIBot.Controllers
             int uid;
             uid = userService.GetUidFromParameters(Request);
             uid = (uid == -1)? userService.GetUidFromToken(Request) : uid;
-            IEnumerable<int> aids = await userRepository.SelectAnswersIdByIdByModifyTimeAsync(uid);
+            var aids = await userRepository.SelectAnswersIdByIdByModifyTimeAsync(uid);
             if (aids == null)
             {
                 return NotFound(new
                 {
                     Status = "userNotExist",
                     Message = "user dose not exist",
-                    Answers = new int[0]
+                    Answers = new object[0]
                 });
             } else {
                 return Ok(new
                 {
                     Status = "success",
                     Message = $"get answers for user{uid} successfully",
-                    Answers = aids
+                    Answers = aids.Select(a => new 
+                    {
+                        Qid = a.QuestionId,
+                        Aid = a.AnswerId
+                    })
                 });
             }
         }
