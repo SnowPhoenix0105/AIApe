@@ -7,85 +7,88 @@
             <el-link v-on:click="goBack">返回</el-link>
         </el-header>
         <!--        <h1>问题详情页面{{ this.$store.state.questionID }}</h1>-->
-        <el-container class="list">
-            <el-main class="question-detail">
-                <div class="user">
-                    <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                               size="small" style="margin-right: 10px"></el-avatar>
-                    {{ creatorName }}
-                </div>
-                <h1>{{ title }}</h1>
-                <div v-if="this.status==='question'">
-                    <mavon-editor class="question" v-model="detail" ref=md
-                                  :subfield="false" defaultOpen="preview"
-                                  :toolbarsFlag="false" :editable="false"
-                                  :scrollStyle="false" :box-shadow="false">
-                    </mavon-editor>
-                    <div class="other-info">
-                        <div class="tags">
-                            <el-tag v-for="(tid, tName) in tags" :key="tid">{{ tName }}</el-tag>
-                        </div>
-                        <div class="recommend-time">
-                            <el-button style="margin-right: 5vw" icon="el-icon-edit" size="mini" circle
-                                       @click="answerAreaMove"></el-button>
-                            <el-button class="recommend" type="text"
-                                       :icon="like? 'el-icon-star-on' : 'el-icon-star-off'"
-                                       @click="like_question()">
-                                推荐{{ likeNum }}
-                            </el-button>
-                            <span>{{ date }}</span>
-                        </div>
-                    </div>
-                </div>
-            </el-main>
-            <el-main class="answers" v-if="this.status==='answers'">
-                <div v-for="answer in answers">
-                    <div>
+        <div style="position:fixed; top: 10vh">
+            <el-container class="list">
+                <el-main class="question-detail">
+                    <div class="user">
                         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                   size="small" style="margin-right: 11px"></el-avatar>
-                        {{ answer.creatorName }}
+                                   size="small" style="margin-right: 10px"></el-avatar>
+                        {{ creatorName }}
                     </div>
-                    <mavon-editor ref=md v-model="answer.content"
-                                  :subfield="false" defaultOpen="preview"
-                                  :toolbarsFlag="false" :editable="false"
-                                  :scrollStyle="false" :box-shadow="false">
-                    </mavon-editor>
-                    <div style="display: flex; justify-content: flex-end; align-items: center">
-                        <el-button class="recommend" type="text"
-                                   :icon="answer.like? 'el-icon-star-on' : 'el-icon-star-off'"
-                                   @click="like_answer(answer)">
-                            推荐{{ answer.likeNum }}
-                        </el-button>
-                        <span>{{ answer.createTime }}</span>
+                    <h1>{{ title }}</h1>
+                    <div v-if="this.status==='question'">
+                        <mavon-editor class="question" v-model="detail" ref=md
+                                      :subfield="false" defaultOpen="preview"
+                                      :toolbarsFlag="false" :editable="false"
+                                      :scrollStyle="false" :box-shadow="false">
+                        </mavon-editor>
+                        <div class="other-info">
+                            <div class="tags">
+                                <el-tag v-for="(tid, tName) in tags" :key="tid">{{ tName }}</el-tag>
+                            </div>
+                            <div class="recommend-time">
+                                <el-button style="margin-right: 5vw" icon="el-icon-edit" size="mini" circle
+                                           @click="answerAreaMove"></el-button>
+                                <el-button class="recommend" type="text"
+                                           :icon="like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                           @click="like_question()">
+                                    推荐{{ likeNum }}
+                                </el-button>
+                                <span>{{ date }}</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <h1><br><br><br><br><br><br><br><br></h1>
-                </div>
-            </el-main>
-            <el-link style="margin-top: 2vh;" :underline="false" v-if="this.status==='question'"
-                     v-on:click="showAnswers">
-                显示回答
-            </el-link>
-            <el-main v-if="this.status === 'edit'">
-                    <div style="display: flex; flex-direction: column">
-<!--                        <mavon-editor :toolbars="toolbars" v-model="myAnswer" ref=md-->
-<!--                                      :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"-->
-<!--                                      :toolbarsFlag="prop.toolbarsFlag" :editable="prop.editable"-->
-<!--                                      :scrollStyle="prop.scrollStyle" :boxShadow="prop.boxShadow"-->
-<!--                                      style="max-height: 0"-->
-<!--                                      placeholder="编辑你的回答...">-->
-<!--                        </mavon-editor>-->
+                </el-main>
+                <el-main class="answers" v-if="this.status==='answers'">
+                    <div v-for="answer in answers">
+                        <div>
+                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                       size="small" style="margin-right: 11px"></el-avatar>
+                            {{ answer.creatorName }}
+                        </div>
+                        <mavon-editor ref=md v-model="answer.content"
+                                      :subfield="false" defaultOpen="preview"
+                                      :toolbarsFlag="false" :editable="false"
+                                      :scrollStyle="false" :box-shadow="false">
+                        </mavon-editor>
+                        <div style="display: flex; justify-content: flex-end; align-items: center">
+                            <el-button class="recommend" type="text"
+                                       :icon="answer.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                       @click="like_answer(answer)">
+                                推荐{{ answer.likeNum }}
+                            </el-button>
+                            <span>{{ answer.createTime }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <h1><br><br><br><br><br><br><br><br></h1>
+                    </div>
+                </el-main>
+                <el-link style="margin-top: 2vh;" :underline="false" v-if="this.status==='question'"
+                         v-on:click="showAnswers">
+                    显示回答
+                </el-link>
+                <el-main v-if="this.status === 'edit'">
+                    <el-container style="display: flex; flex-direction: column">
+                        <!--                        <mavon-editor :toolbars="toolbars" v-model="myAnswer" ref=md-->
+                        <!--                                      :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"-->
+                        <!--                                      :toolbarsFlag="prop.toolbarsFlag" :editable="prop.editable"-->
+                        <!--                                      :scrollStyle="prop.scrollStyle" :boxShadow="prop.boxShadow"-->
+                        <!--                                      style="max-height: 0"-->
+                        <!--                                      placeholder="编辑你的回答...">-->
+                        <!--                        </mavon-editor>-->
                         <el-input
+                            style="margin: 10vw 3vw 3vw 3vw"
                             type="textarea"
-                            :rows="2"
+                            :rows="5"
                             placeholder="请输入内容"
                             v-model="myAnswer">
                         </el-input>
                         <el-button @click="submitAnswer">提交答案</el-button>
-                    </div>
-            </el-main>
-        </el-container>
+                    </el-container>
+                </el-main>
+            </el-container>
+        </div>
     </el-container>
 </template>
 
@@ -165,8 +168,9 @@ export default {
                     _this.title = response.data.question.title;
                     _this.detail = response.data.question.remarks;
                     let creatorId = response.data.question.creator;
+                    _this.creatorId = creatorId;
                     await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + creatorId)
-                        .then(function (response) {
+                        .then(async function (response) {
                             _this.creatorName = response.data.name;
                         })
                     _this.$data.date = response.data.question.createTime;
@@ -174,17 +178,21 @@ export default {
                     _this.like = response.data.question.like;
                     _this.likeNum = response.data.question.likeNum;
                     let aidList = response.data.question.answers;
+                    _this.answers = [];
                     for (let aid of aidList) {
-                        _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
+                        await _this.$axios.get(_this.BASE_URL + "/api/questions/answer?aid=" + aid)
                             .then(async function (response) {
                                 let answer = response.data.answer;
                                 answer.id = aid;
                                 let id = response.data.answer.creator;
+                                if (id === _this.$store.state.uid) {
+                                    _this.myAnswer = answer.content;
+                                    _this.myAnswerId = aid;
+                                }
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + id)
                                     .then(function (response) {
                                         answer.creatorName = response.data.name;
                                     })
-                                answer['id'] = parseInt(response.data.message[response.data.message.indexOf('=') + 1]);
                                 _this.answers.push(answer);
                             })
                             .catch(function (error) {
@@ -315,6 +323,7 @@ export default {
 <style scoped>
 
 .el-header {
+    position: fixed;
     border-bottom: 1px solid #eaecf1;
     width: 100vw;
     align-items: center;
@@ -323,6 +332,8 @@ export default {
 }
 
 .back {
+    position: fixed;
+    top: 5vh;
     border-bottom: 0;
     width: 100vw;
     align-items: center;

@@ -27,10 +27,6 @@
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
                         </el-link>
-
-                        <!--                        <p class="content">-->
-                        <!--                            {{ question.content }}-->
-                        <!--                        </p>-->
                         <div class="other-info">
                             <div class="tags">
                                 <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
