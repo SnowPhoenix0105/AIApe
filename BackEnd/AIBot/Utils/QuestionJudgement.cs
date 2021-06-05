@@ -127,6 +127,12 @@ namespace Buaa.AIBot.Utils
             IReadOnlyDictionary<TagCategory, IEnumerable<int>> Tags { get; }
         }
 
+        public class QuestionTagInfo : IQuestionTagInfo
+        {
+            public int Qid { get; set; }
+            public IReadOnlyDictionary<TagCategory, IEnumerable<int>> Tags { get; set; }
+        }
+
         public static bool ContainsAny<T>(this IEnumerable<T> sups, IEnumerable<T> subs)
         {
             var set = new HashSet<T>(sups);

@@ -64,7 +64,6 @@ namespace Buaa.AIBot.Repository.Models
 
     public enum TagCategory
     {
-        None = default,
         Lang = 1,
         Env = 2,
         Other = 3
@@ -73,7 +72,7 @@ namespace Buaa.AIBot.Repository.Models
     public class TagInfo
     {
         public int TagId { get; set; }
-        public TagCategory Category { get; set; }
+        public TagCategory? Category { get; set; }
         public string Name { get; set; }
         public string Desc { get; set; }
     }

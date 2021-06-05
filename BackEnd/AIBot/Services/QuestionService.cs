@@ -144,10 +144,52 @@ namespace Buaa.AIBot.Services
             }
             return new TagInformation()
             {
-                Category = tag.Category,
+                Category = (TagCategory)tag.Category,
                 Name = tag.Name,
                 Desc = tag.Desc
             };
+        }
+
+        public Task<IReadOnlyDictionary<int, TagCategory>> GetTagCategoryIndexAsync()
+        {
+            return tagRepostory.SelectTagIndexAsync();
+        }
+
+        public async Task<Dictionary<TagCategory, IEnumerable<int>>> ClassifyTagsAsync(IEnumerable<int> tags, IReadOnlyDictionary<int, TagCategory> tagIndex = null)
+        {
+            tagIndex ??= await tagRepostory.SelectTagIndexAsync();
+            var ret = new Dictionary<TagCategory, List<int>>(
+                Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, List<int>>(c, new List<int>())));
+            foreach (var tid in tags)
+            {
+                if (tagIndex.TryGetValue(tid, out var category))
+                {
+                    ret[category].Add(tid);
+                }
+            }
+            return new Dictionary<TagCategory, IEnumerable<int>>(ret.Select(c => new KeyValuePair<TagCategory, IEnumerable<int>>(c.Key, c.Value)));
+        }
+
+        public async Task<IEnumerable<int>> SearchQuestionAsync(string content, IEnumerable<int> tags)
+        {
+            var retruevalTask = nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().ToList());
+            var tagIndex = await tagRepostory.SelectTagIndexAsync();
+            var res = await retruevalTask;
+
+            var questionInfos = new List<Utils.QuestionJudgement.IQuestionTagInfo>();
+            foreach (var q in res)
+            {
+                var qtags = await questionRepository.SelectTagsForQuestionByIdAsync(q.Item1);
+                var qtids = qtags.Select(t => t.Value);
+                questionInfos.Add(new Utils.QuestionJudgement.QuestionTagInfo()
+                {
+                    Qid = q.Item1,
+                    Tags = await ClassifyTagsAsync(qtids)
+                });
+            }
+            return Utils.QuestionJudgement.GetFilteredQuestions(questionInfos, await ClassifyTagsAsync(tags));
+
+                        
         }
 
         public async Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number)
@@ -177,12 +219,6 @@ namespace Buaa.AIBot.Services
                 number--;
             }
             return ret;
-        }
-
-        public async Task<IEnumerable<int>> SearchQuestionAsync(string content)
-        {
-            var res = await nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().ToList());
-            return res.OrderByDescending(t => t.Item2).Select(t => t.Item1).ToList();
         }
 
         public Task<IReadOnlyDictionary<string, int>> GetTagListAsync()
@@ -277,10 +313,10 @@ namespace Buaa.AIBot.Services
                     throw new UnknownTagCategoryException(category);
                 }
             }
-            if (tagCategory == TagCategory.None)
-            {
-                tagCategory = TagCategory.Other;
-            }
+            //if (tagCategory == TagCategory.None)
+            //{
+            //    tagCategory = TagCategory.Other;
+            //}
             try
             {
                 int tid = await tagRepostory.InsertTagAsync(new TagInfo()
@@ -359,21 +395,23 @@ namespace Buaa.AIBot.Services
                     throw new Exceptions.TagNameTooLongException(actual, max);
                 }
             }
-            TagCategory tagCategory = TagCategory.None;
+            TagCategory? tagCategory = null;// = TagCategory.None;
             if (category != null)
             {
-                if (!Enum.TryParse<TagCategory>(category, out tagCategory))
+                if (!Enum.TryParse<TagCategory>(category, out var tmp))
                 {
+                    tagCategory = tmp;
                     category = category.Substring(0, 1).ToUpper() + category.Substring(1);
-                    if (!Enum.TryParse(category, out tagCategory))
+                    if (!Enum.TryParse(category, out tmp))
                     {
+                        tagCategory = tmp;
                         throw new UnknownTagCategoryException(category);
                     }
                 }
-                if (tagCategory == TagCategory.None)
-                {
-                    tagCategory = TagCategory.Other;
-                }
+                //if (tagCategory == TagCategory.None)
+                //{
+                //    tagCategory = TagCategory.Other;
+                //}
             }
             try
             {
