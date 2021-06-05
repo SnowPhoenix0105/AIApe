@@ -198,27 +198,28 @@ namespace Buaa.AIBot.Services
             {
                 return new int[0];
             }
-            var questions = await questionRepository.SelectQuestionsByTagsAsync(tags);
             int upper = pt ?? int.MaxValue;
-            var res = from qid in questions
-                      where qid < upper
-                      orderby qid descending
-                      select qid;
-            var ret = new List<int>();
             if (number > Constants.QuestionListMaxNumber)
             {
                 number = Constants.QuestionListMaxNumber;
             }
-            foreach (var qid in res)
-            {
-                if (number <= 0)
-                {
-                    break;
-                }
-                ret.Add(qid);
-                number--;
-            }
-            return ret;
+            var questions = await questionRepository.SelectQuestionsByTagsAsync(tags, upper, number);
+            return questions;
+            //var res = from qid in questions
+            //          where qid < upper
+            //          orderby qid descending
+            //          select qid;
+            //var ret = new List<int>();
+            //foreach (var qid in res)
+            //{
+            //    if (number <= 0)
+            //    {
+            //        break;
+            //    }
+            //    ret.Add(qid);
+            //    number--;
+            //}
+            //return ret;
         }
 
         public Task<IReadOnlyDictionary<string, int>> GetTagListAsync()
