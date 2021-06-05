@@ -198,7 +198,8 @@ namespace AIBotTest.Services
             {
                 TagId = 1,
                 Name = "tag",
-                Desc = "desc"
+                Desc = "desc",
+                Category = TagCategory.Other
             };
             tagMock
                 .Setup(tr => tr.SelectTagByIdAsync(tagInfo.TagId))

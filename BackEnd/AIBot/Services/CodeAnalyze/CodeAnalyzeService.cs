@@ -5,6 +5,7 @@ using Buaa.AIBot.Utils;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Buaa.AIBot.Services.CodeAnalyze
 {
@@ -45,7 +46,8 @@ namespace Buaa.AIBot.Services.CodeAnalyze
 
         private static readonly IReadOnlySet<string> ignoredCategories = new HashSet<string>()
         {
-            "missingIncludeSystem"
+            "missingIncludeSystem",
+            "missingInclude"
         };
 
         private bool TryGetDescription(CppCheckResult cppCheckResult, out string res)
@@ -65,8 +67,10 @@ namespace Buaa.AIBot.Services.CodeAnalyze
             {
                 await cppcheck.WriteFileAsync(code);
                 await cppcheck.FormatAsync();
-                var res = await cppcheck.CppCheckAnalyzeAsync();
                 var fmtCode = await cppcheck.ReadFileAsync();
+                var safeCode = Regex.Replace(fmtCode, "[ \t]*#[ \t]*include[ \t]*[\"<][\\w\\d \t\\\\/_\\.\\*]+[\">][ \t]*\n", "\n");
+                await cppcheck.WriteFileAsync(safeCode);
+                var res = await cppcheck.CppCheckAnalyzeAsync();
                 await cppcheck.CleanUpAsync();
                 var messages = new List<CodeAnalyzeResult.CodeAnalyzeMessage>();
                 foreach (var message in res)

@@ -84,12 +84,16 @@ namespace Buaa.AIBot.Repository.Implement
             return user.Bcrypt;
         }
 
-        public async Task<IEnumerable<int>> SelectAnswersIdByIdAsync(int userId)
+        public async Task<IEnumerable<AnswerIdInfo>> SelectAnswersIdByIdAsync(int userId)
         {
             var query = await Context
                 .Answers
                 .Where(a => a.UserId == userId)
-                .Select(a => a.AnswerId)
+                .Select(a => new AnswerIdInfo()
+                {
+                    AnswerId = a.AnswerId,
+                    QuestionId = a.QuestionId
+                })
                 .ToListAsync(CancellationToken)
                 ;
             CancellationToken.ThrowIfCancellationRequested();
@@ -105,13 +109,17 @@ namespace Buaa.AIBot.Repository.Implement
             return query;
         }
 
-        public async Task<IEnumerable<int>> SelectAnswersIdByIdByModifyTimeAsync(int userId)
+        public async Task<IEnumerable<AnswerIdInfo>> SelectAnswersIdByIdByModifyTimeAsync(int userId)
         {
             var query = await Context
                 .Answers
                 .Where(a => a.UserId == userId)
                 .OrderByDescending(a => a.ModifyTime)
-                .Select(a => a.AnswerId)
+                .Select(a => new AnswerIdInfo()
+                {
+                    AnswerId = a.AnswerId,
+                    QuestionId = a.QuestionId
+                })
                 .ToListAsync(CancellationToken)
                 ;
             CancellationToken.ThrowIfCancellationRequested();

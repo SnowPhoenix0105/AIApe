@@ -220,7 +220,10 @@ namespace Buaa.AIBot.Services
                 logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
                 return null;
             }
-            return res.Results.Select(l => new Tuple<int, double>((int)l[0], l[1])).ToList();
+            return res.Results
+                .Select(l => new Tuple<int, double>((int)l[0], l[1]))
+                .OrderByDescending(t => t.Item2)
+                .ToList();
         }
 
         #endregion

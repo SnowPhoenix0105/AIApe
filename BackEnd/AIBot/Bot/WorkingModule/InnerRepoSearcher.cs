@@ -27,7 +27,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             public IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>> Tags { get; set; }
         }
 
-        private async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> BuildTagsAsync(Dictionary<int, TagCategory> tagIndex, int qid)
+        private async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> BuildTagsAsync(IReadOnlyDictionary<int, TagCategory> tagIndex, int qid)
         {
             var questionTags = await questionService.QuestionRepository.SelectTagsForQuestionByIdAsync(qid);
             var ret = new Dictionary<TagCategory, Dictionary<int, string>>(
@@ -44,16 +44,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public async Task<IEnumerable<QuestionScoreInfo>> SearchAsync(string question)
         {
             var res = await nlpService.RetrievalAsync(question, 30, Enum.GetValues<NLPService.Languages>().ToList());
-            var tagCategory = await questionService.GetTagCategoryAsync();
-            var tagIndex = new Dictionary<int, TagCategory>();
-            foreach (var c in tagCategory)
-            {
-                TagCategory category = Enum.Parse<TagCategory>(c.Key);
-                foreach (var t in c.Value)
-                {
-                    tagIndex[t.Value] = category;
-                }
-            }
+            var tagIndex = await questionService.GetTagCategoryIndexAsync();
             var ret = new List<QuestionScoreInfo>();
             foreach (var t in res)
             {

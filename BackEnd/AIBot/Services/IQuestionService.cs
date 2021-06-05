@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Buaa.AIBot.Services.Models;
 using Buaa.AIBot.Services.Exceptions;
+using Buaa.AIBot.Repository.Models;
 
 namespace Buaa.AIBot.Services
 {
@@ -46,6 +47,10 @@ namespace Buaa.AIBot.Services
         /// <returns></returns>
         Task<TagInformation> GetTagAsync(int tid);
 
+        Task<IReadOnlyDictionary<int, TagCategory>> GetTagCategoryIndexAsync();
+
+        Task<Dictionary<TagCategory, IEnumerable<int>>> ClassifyTagsAsync(IEnumerable<int> tags, IReadOnlyDictionary<int, TagCategory> tagIndex = null);
+
         /// <summary>
         /// Return qids 
         /// </summary>
@@ -55,7 +60,7 @@ namespace Buaa.AIBot.Services
         /// <returns></returns>
         Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number);
 
-        Task<IEnumerable<int>> SearchQuestionAsync(string content);
+        Task<IEnumerable<int>> SearchQuestionAsync(string content, IEnumerable<int> tags);
 
         Task<IReadOnlyDictionary<string, int>> GetTagListAsync();
 

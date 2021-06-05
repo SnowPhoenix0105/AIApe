@@ -449,7 +449,7 @@ namespace AIBotTest.Controller
         {
             mockServ.Setup(serv => serv.GetUidFromParameters(It.IsAny<HttpRequest>()))
             .Returns(1);
-            IEnumerable<int> aids = null;
+            IEnumerable<AnswerIdInfo> aids = null;
             mockRepo.Setup(repo => repo.SelectAnswersIdByIdByModifyTimeAsync(1)).ReturnsAsync(aids);
             UserController controller = new UserController(mockServ.Object, mockRepo.Object, mockTMO.Object);
 
@@ -465,7 +465,7 @@ namespace AIBotTest.Controller
         {
             mockServ.Setup(serv => serv.GetUidFromParameters(It.IsAny<HttpRequest>()))
             .Returns(1);
-            mockRepo.Setup(repo => repo.SelectAnswersIdByIdByModifyTimeAsync(1)).ReturnsAsync(new int[0]);
+            mockRepo.Setup(repo => repo.SelectAnswersIdByIdByModifyTimeAsync(1)).ReturnsAsync(new AnswerIdInfo[0]);
             UserController controller = new UserController(mockServ.Object, mockRepo.Object, mockTMO.Object);
 
             var ret = await controller.AnswersAsync();
