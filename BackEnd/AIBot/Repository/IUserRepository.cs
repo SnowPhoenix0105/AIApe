@@ -71,7 +71,7 @@ namespace Buaa.AIBot.Repository
         /// <remarks>
         /// No operation if any exception occurs.
         /// </remarks>
-        /// <exception cref="ArgumentNullException">Email, Bcrypt, or Name is null. or Auth is None.</exception>
+        /// <exception cref="ArgumentNullException">Email, Bcrypt, ProfilePhoto, or Name is null. or Auth is None.</exception>
         /// <exception cref="UserEmailToLongException">Email lonnger than <see cref="Constants.UserEmailMaxLength"/>.</exception>
         /// <exception cref="UserNameToLongException">Name longger than <see cref="Constants.UserNameMaxLength"/>.</exception>
         /// <exception cref="UserBycryptLengthException">Bcrypt.length not equals to <see cref="Constants.UserBcryptLength"/>.</exception>

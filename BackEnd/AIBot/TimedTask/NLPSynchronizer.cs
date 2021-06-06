@@ -42,6 +42,7 @@ namespace Buaa.AIBot.TimedTask
 
         private async Task<Dictionary<int, NLPService.Languages>> BuildTransformDictionaryAsync(IndependentDatabaseContext context, CancellationToken ct)
         {
+            logger.LogInformation("Building TransformDictionary for NLPSynchronizer");
             var tags = await context.Tags.Where(t => t.Category == (int)TagCategory.Lang).Select(t => new { t.Name, t.TagId }).ToListAsync(ct);
             var ret = new Dictionary<int, NLPService.Languages>();
             foreach (var tag in tags)
@@ -70,6 +71,10 @@ namespace Buaa.AIBot.TimedTask
 
         public async Task AddQuestion(int qid, INLPService nlpService, string title, IEnumerable<int> tags)
         {
+            if (transformDictionary == null)
+            {
+                return;
+            }
             var langs = new HashSet<NLPService.Languages>();
             foreach (int tid in tags)
             {
@@ -81,6 +86,10 @@ namespace Buaa.AIBot.TimedTask
             if (title == default)
             {
                 return;
+            }
+            if (langs.Count == 0)
+            {
+                await nlpService.AddAsync(qid, title, NLPService.Languages.Other);
             }
             foreach (var lang in langs)
             {

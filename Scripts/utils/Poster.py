@@ -50,6 +50,18 @@ def signup():
         else:
             print(rsp["message"])
 
+def fresh_token(jwt : str=None) -> str:
+    if jwt == None:
+        global default_jwt
+        res = post("/api/user/fresh", {"token": default_jwt})
+        jwt = res["token"]
+        default_jwt = jwt
+        return jwt
+    else:
+        res = post("/api/user/fresh", {"token": jwt})
+        jwt = res["token"]
+        return jwt
+
 def get(target: str, headers: dict=None, jwt: str=None):
     global default_jwt
     jwt = jwt if jwt is not None else default_jwt

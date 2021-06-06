@@ -48,8 +48,8 @@ namespace Buaa.AIBot
                 Log.Information("Host build success!");
 
                 var timedTaskManager = new TimedTaskManager(host);
-                timedTaskManager.RegisterTask(HotValueFresher.DEFAULT.FreshHotValueAsync, TimeSpan.FromMinutes(10));
                 timedTaskManager.RegisterTask(NLPSynchronizer.DEFAULT.SynchronizeQuestionDataAsync, TimeSpan.FromHours(1));
+                timedTaskManager.RegisterTask(HotValueFresher.DEFAULT.FreshHotValueAsync, TimeSpan.FromMinutes(10));
                 Log.Information("TimedTasks build success!");
 
 

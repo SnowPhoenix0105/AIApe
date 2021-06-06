@@ -67,7 +67,8 @@ namespace Buaa.AIBot.Controllers
             {
                 Name = (body.Name == null)? "" : body.Name,
                 Email = (body.Email == null)? "" : body.Email,
-                Password = (body.Password == null) ? "" : body.Password
+                Password = (body.Password == null) ? "" : body.Password,
+                ProfilePhoto = body.ProfilePhoto ?? 1,
             };
             StatusMessageResponse response;
             if (!userService.CheckSignUpBody(body, out response))
@@ -80,7 +81,8 @@ namespace Buaa.AIBot.Controllers
                     Email = body.Email,
                     Name = body.Name,
                     Bcrypt = BNBCrypt.HashPassword(body.Password),
-                    Auth = body.Name.Equals("root")? AuthLevel.Admin : AuthLevel.User
+                    Auth = body.Name.Equals("root")? AuthLevel.Admin : AuthLevel.User,
+                    ProfilePhoto = body.ProfilePhoto
                 };
                 await userRepository.InsertUserAsync(newUser);
                 return Ok(new StatusMessageResponse 
@@ -152,7 +154,8 @@ namespace Buaa.AIBot.Controllers
                 return NotFound(new 
                 {
                     Status = "userNotExist",
-                    Name = "UNKNOWN"
+                    Name = "UNKNOWN",
+                    ProfilePhoto = 0
                 });
             }
             UserInfo userInfo = await userRepository.SelectUserByIdAsync(uid);
@@ -161,13 +164,15 @@ namespace Buaa.AIBot.Controllers
                 return NotFound(new 
                 {
                     Status = "userNotExist",
-                    Name = "UNKNOWN"
+                    Name = "UNKNOWN",
+                    ProfilePhoto = 0
                 });
             }
             return Ok(new 
             {
                 Status = "success",
-                Name = userInfo.Name
+                Name = userInfo.Name,
+                ProfilePhoto = userInfo.ProfilePhoto
             });
         }
 
@@ -189,7 +194,8 @@ namespace Buaa.AIBot.Controllers
                     Status = "userNotExist",
                     Uid = -1,
                     name = "UNKNOWN",
-                    Email = "N@N"
+                    Email = "N@N",
+                    ProfilePhoto = 0
                 });
             } else {
                 return Ok(new 
@@ -197,7 +203,8 @@ namespace Buaa.AIBot.Controllers
                     Status = "success",
                     Uid = userInfo.UserId,
                     Name = userInfo.Name,
-                    Email = userInfo.Email
+                    Email = userInfo.Email,
+                    ProfilePhoto = userInfo.ProfilePhoto
                 });
             }
         }
@@ -224,7 +231,8 @@ namespace Buaa.AIBot.Controllers
                         Uid = -1,
                         Name = "",
                         Email = "",
-                        Auth = intAuth[presentAuth]
+                        Auth = intAuth[presentAuth],
+                        ProfilePhoto = 0
                     });
                 }
             }
@@ -237,7 +245,8 @@ namespace Buaa.AIBot.Controllers
                     Uid = uid,
                     Name = "",
                     Email = "",
-                    Auth = intAuth[AuthLevel.None]
+                    Auth = intAuth[AuthLevel.None],
+                    ProfilePhoto = 0
                 });
             } else {
                 return Ok(new 
@@ -246,7 +255,8 @@ namespace Buaa.AIBot.Controllers
                     Uid = userInfo.UserId,
                     Name = userInfo.Name,
                     Email = userInfo.Email,
-                    Auth = intAuth[userInfo.Auth]
+                    Auth = intAuth[userInfo.Auth],
+                    ProfilePhoto = userInfo.ProfilePhoto
                 });
             }
         }
@@ -345,6 +355,10 @@ namespace Buaa.AIBot.Controllers
                     body.Auth = 1;
                 }
                 userInfo.Auth = AuthLevelFromInt[body.Auth.GetValueOrDefault(0)];
+                if (body.ProfilePhoto != null)
+                {
+                    userInfo.ProfilePhoto = body.ProfilePhoto;
+                }
             }
             try
             {

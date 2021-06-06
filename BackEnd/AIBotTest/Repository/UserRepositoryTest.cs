@@ -46,7 +46,8 @@ namespace AIBotTest.Repository
                     Name = name,
                     Email = email,
                     Bcrypt = bcrypt,
-                    Auth = auth
+                    Auth = auth,
+                    ProfilePhoto = 1
                 };
                 context.Add(user);
                 await context.SaveChangesAsync();
@@ -93,7 +94,8 @@ namespace AIBotTest.Repository
                     Name = name,
                     Email = email,
                     Bcrypt = bcrypt,
-                    Auth = auth
+                    Auth = auth,
+                    ProfilePhoto = 1
                 };
                 context.Add(user);
                 await context.SaveChangesAsync();
@@ -140,7 +142,8 @@ namespace AIBotTest.Repository
                     Name = name,
                     Email = email,
                     Bcrypt = bcrypt,
-                    Auth = auth
+                    Auth = auth,
+                    ProfilePhoto = 1
                 };
                 context.Add(user);
                 await context.SaveChangesAsync();
@@ -186,7 +189,8 @@ namespace AIBotTest.Repository
                     Name = name,
                     Email = email,
                     Bcrypt = BNBCrypt.HashPassword(password),
-                    Auth = auth
+                    Auth = auth,
+                    ProfilePhoto = 1
                 };
                 context.Add(user);
                 await context.SaveChangesAsync();
@@ -228,7 +232,8 @@ namespace AIBotTest.Repository
                     Name = "user1",
                     Email = "user1@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user1);
                 var user2 = new UserData()
@@ -236,7 +241,8 @@ namespace AIBotTest.Repository
                     Name = "user2",
                     Email = "user2@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user2);
                 await context.SaveChangesAsync();
@@ -317,7 +323,8 @@ namespace AIBotTest.Repository
                     Name = "user1",
                     Email = "user1@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user1);
                 var user2 = new UserData()
@@ -325,7 +332,8 @@ namespace AIBotTest.Repository
                     Name = "user2",
                     Email = "user2@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user2);
                 await context.SaveChangesAsync();
@@ -411,7 +419,8 @@ namespace AIBotTest.Repository
                     Name = "user1",
                     Email = "user1@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user1);
                 var user2 = new UserData()
@@ -419,7 +428,8 @@ namespace AIBotTest.Repository
                     Name = "user2",
                     Email = "user2@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user2);
                 await context.SaveChangesAsync();
@@ -500,7 +510,8 @@ namespace AIBotTest.Repository
                     Name = "user1",
                     Email = "user1@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user1);
                 var user2 = new UserData()
@@ -508,7 +519,8 @@ namespace AIBotTest.Repository
                     Name = "user2",
                     Email = "user2@buaa",
                     Bcrypt = "bcrypt",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 context.Add(user2);
                 await context.SaveChangesAsync();
@@ -593,7 +605,8 @@ namespace AIBotTest.Repository
                     Email = "user@buaa",
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 int uid = await userRepository.InsertUserAsync(user);
@@ -621,7 +634,8 @@ namespace AIBotTest.Repository
                 {
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<ArgumentNullException>(async () =>
@@ -644,7 +658,8 @@ namespace AIBotTest.Repository
                 {
                     Email = "user@buaa",
                     Name = "user",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<ArgumentNullException>(async () =>
@@ -668,7 +683,8 @@ namespace AIBotTest.Repository
                 {
                     Email = "user@buaa",
                     Bcrypt = BNBCrypt.HashPassword(password),
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<ArgumentNullException>(async () =>
@@ -693,6 +709,7 @@ namespace AIBotTest.Repository
                     Email = "user@buaa",
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user",
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<ArgumentNullException>(async () =>
@@ -724,7 +741,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user",
                     Email = emailBuilder.ToString() + "t",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<UserEmailToLongException>(async () =>
@@ -741,7 +759,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user",
                     Email = emailBuilder.ToString(),
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 await userRepository.InsertUserAsync(user);
                 Assert.Single(context.Users);
@@ -768,7 +787,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = nameBuilder.ToString() + "n",
                     Email = "user@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<UserNameToLongException>(async () =>
@@ -785,7 +805,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = nameBuilder.ToString(),
                     Email = "user@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 await userRepository.InsertUserAsync(user);
                 Assert.Single(context.Users);
@@ -807,7 +828,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password) + '=',
                     Name = "user",
                     Email = "user@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<UserBycryptLengthException>(async () =>
@@ -824,7 +846,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user",
                     Email = "user@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 await userRepository.InsertUserAsync(user);
                 Assert.Single(context.Users);
@@ -847,7 +870,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user1",
                     Email = email,
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 await userRepository.InsertUserAsync(first);
 
@@ -858,7 +882,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = "user2",
                     Email = email,
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<EmailHasExistException>(async () =>
@@ -884,7 +909,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = name,
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 await userRepository.InsertUserAsync(first);
 
@@ -895,7 +921,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword(password),
                     Name = name,
                     Email = "user2@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
 
                 await Assert.ThrowsAsync<NameHasExistException>(async () =>
@@ -923,7 +950,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = "user1",
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -958,7 +986,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = "user1",
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -993,7 +1022,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = "user1",
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -1028,7 +1058,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password1"),
                     Name = "user1",
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -1063,7 +1094,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password1"),
                     Name = "user1",
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -1100,7 +1132,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = "user1",
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -1151,7 +1184,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = name,
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -1185,7 +1219,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = name,
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -1219,7 +1254,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = name,
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);
@@ -1255,7 +1291,8 @@ namespace AIBotTest.Repository
                     Bcrypt = BNBCrypt.HashPassword("password"),
                     Name = name,
                     Email = "user1@buaa",
-                    Auth = AuthLevel.User
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
                 };
                 int uid = await userRepository.InsertUserAsync(origin);
                 Assert.Single(context.Users);

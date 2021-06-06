@@ -19,6 +19,7 @@ namespace Buaa.AIBot.Repository.Models
         public string Bcrypt { get; set; }
         public string Name { get; set; }
         public AuthLevel Auth { get; set; } = AuthLevel.None;
+        public int? ProfilePhoto { get; set; }
     }
 
     public class QuestionInfo

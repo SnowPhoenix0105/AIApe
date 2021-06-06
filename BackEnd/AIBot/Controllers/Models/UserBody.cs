@@ -14,5 +14,7 @@ namespace Buaa.AIBot.Controllers.Models
         public int? Auth {get; set;}
 
         public string Token {get; set;}
+
+        public int? ProfilePhoto { get; set; }
     }
 }
