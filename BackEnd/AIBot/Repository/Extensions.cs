@@ -26,7 +26,7 @@ namespace Buaa.AIBot.Repository
                 .AddScoped<ITagRepostory, TagRepository>()
                 .AddScoped<ILikeRepository, LikeRepository>()
                 .AddTransient<ICrawlerOuterRepository, BaiduCrawlerRepository>()
-                .AddSingleton<ICachePool<int>, CachePool<int>>()
+                .AddSingleton<ICachePool<int>>(CachePool<int>.DEFAULT)
                 ;
 
             return services;
