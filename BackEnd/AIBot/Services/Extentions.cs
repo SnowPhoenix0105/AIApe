@@ -33,6 +33,7 @@ namespace Buaa.AIBot.Services
                 Password = nlpConfig.GetValue<string>("Password"),
                 BaseUrl = nlpConfig.GetValue<string>("BaseUrl")
             };
+            TimedTask.NLPSynchronizer.DEFAULT.NLPOptions = options;
             services.AddTransient<INLPService>(provider =>
                 new NLPService(
                     provider.GetRequiredService<ILogger<NLPService>>(),
@@ -51,10 +52,8 @@ namespace Buaa.AIBot.Services
                 .AddTransient<IHotListService>(provider =>
                     new HotListService(
                         questionRepository: provider.GetRequiredService<IQuestionRepository>(),
-                        hotValueFreshInterval: valueInterval,
                         hotListFreshInterval: listInterval,
                         logger: provider.GetRequiredService<ILogger<HotListService>>(),
-                        serviceProvider: provider,
                         length: length
                         ))
                 ;

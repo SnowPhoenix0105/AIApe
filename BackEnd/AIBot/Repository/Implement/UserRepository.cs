@@ -29,7 +29,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Email = u.Email,
                     Bcrypt = u.Bcrypt,
                     Name = u.Name,
-                    Auth = u.Auth
+                    Auth = u.Auth,
+                    ProfilePhoto = u.ProfilePhoto
                 })
                 .SingleOrDefaultAsync(user => user.UserId == userId, CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
@@ -46,7 +47,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Email = u.Email,
                     Bcrypt = u.Bcrypt,
                     Name = u.Name,
-                    Auth = u.Auth
+                    Auth = u.Auth,
+                    ProfilePhoto = u.ProfilePhoto
                 })
                 .SingleOrDefaultAsync(user => user.Email == email, CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
@@ -63,7 +65,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Email = u.Email,
                     Bcrypt = u.Bcrypt,
                     Name = u.Name,
-                    Auth = u.Auth
+                    Auth = u.Auth,
+                    ProfilePhoto = u.ProfilePhoto
                 })
                 .SingleOrDefaultAsync(user => user.Name == name, CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
@@ -209,6 +212,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new ArgumentNullException(nameof(user.Email));
             }
+            if (user.ProfilePhoto == null)
+            {
+                throw new ArgumentNullException(nameof(user.ProfilePhoto));
+            }
             if (user.Auth == AuthLevel.None)
             {
                 throw new ArgumentNullException(nameof(user.Auth));
@@ -230,7 +237,8 @@ namespace Buaa.AIBot.Repository.Implement
                 Email = user.Email,
                 Bcrypt = user.Bcrypt,
                 Name = user.Name,
-                Auth = user.Auth
+                Auth = user.Auth,
+                ProfilePhoto = (int)user.ProfilePhoto
             };
             await CheckInsert(user);
             bool success = false;
@@ -277,6 +285,11 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 success = false;
                 target.Auth = user.Auth;
+            }
+            if (user.ProfilePhoto != null)
+            {
+                success = false;
+                target.ProfilePhoto = (int)user.ProfilePhoto;
             }
             while (!success)
             {

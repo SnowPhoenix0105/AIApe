@@ -11,6 +11,7 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Buaa.AIBot.Services
 {
@@ -23,6 +24,7 @@ namespace Buaa.AIBot.Services
         Task<List<Tuple<int, double>>> RetrievalAsync(string question, int num, IEnumerable<NLPService.Languages> languages);
         Task<string> SelectAsync(string reply, IEnumerable<string> prompts);
         Task<string> SelectAsync(string reply, params string[] prompts);
+        Task<List<int>> CheckqidsAsync(IEnumerable<int> qids);
     }
 
     public class NLPService : INLPService
@@ -87,7 +89,8 @@ namespace Buaa.AIBot.Services
                 body["password"] = options.Password;
                 var json = JsonSerializer.Serialize(body);
                 request.ContentType = "application/json";
-                logger.LogInformation("POST to {fullUrl} with body:{body}", fullUrl, json);
+                body["password"] = "__PASSWORD__";
+                logger.LogInformation("POST to {fullUrl} with body:{body}", fullUrl, JsonSerializer.Serialize(body));
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(json));
             }
 
@@ -161,7 +164,7 @@ namespace Buaa.AIBot.Services
             });
             if (res.Status == "fail")
             {
-                logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
                 return null;
             }
             return res.Embeddings;
@@ -185,6 +188,19 @@ namespace Buaa.AIBot.Services
                 }
                 string res = string.Join(", ", Results.Select(t => $"({t[0]}, {t[1]})"));
                 return $"{nameof(RetrievalResult)}{{{nameof(Status)}={Status}, {nameof(Message)}={Message}, {nameof(Results)}=[{res}]}}";
+            }
+        }
+
+        private class QidEqualityComparer : IEqualityComparer<Tuple<int, double>>
+        {
+            public bool Equals(Tuple<int, double> x, Tuple<int, double> y)
+            {
+                return x.Item1 == y.Item2;
+            }
+
+            public int GetHashCode([DisallowNull] Tuple<int, double> obj)
+            {
+                return obj.GetHashCode();
             }
         }
 
@@ -217,11 +233,12 @@ namespace Buaa.AIBot.Services
             });
             if (res.Status == "fail")
             {
-                logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
                 return null;
             }
             return res.Results
                 .Select(l => new Tuple<int, double>((int)l[0], l[1]))
+                .Distinct(new QidEqualityComparer())
                 .OrderByDescending(t => t.Item2)
                 .ToList();
         }
@@ -327,6 +344,39 @@ namespace Buaa.AIBot.Services
             }
             return res.Prompt;
         }
+
+        #endregion
+
+        #region checkqids
+
+        private class CheckqidsResult
+        {
+            public string Status { get; set; }
+            public string Message { get; set; }
+            public List<int> Qids { get; set; }
+        }
+
+        public async Task<List<int>> CheckqidsAsync(IEnumerable<int> qids)
+        {
+            var body = new Dictionary<string, object>()
+            {
+                ["qids"] = qids
+            };
+            var json = await PostResultAsync("/api/checkqids", body);
+            logger.LogInformation("nlp-service response body: {msg}", json);
+
+            var res = JsonSerializer.Deserialize<CheckqidsResult>(json, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            if (res.Status == "fail")
+            {
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
+                return null;
+            }
+            return res.Qids;
+        }
+
 
         #endregion
     }

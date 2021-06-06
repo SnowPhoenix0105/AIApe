@@ -8,6 +8,7 @@ using Buaa.AIBot.Services.Exceptions;
 using Buaa.AIBot.Repository;
 using Buaa.AIBot.Repository.Models;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Services
 {
@@ -260,8 +261,7 @@ namespace Buaa.AIBot.Services
                     Remarks = remarks,
                     Tags = tags
                 });
-                // TODO
-                await nlpService.AddAsync(qid, title, NLPService.Languages.C);
+                await TimedTask.NLPSynchronizer.DEFAULT.AddQuestion(qid, nlpService, title, tags);
                 return qid;
             }
             catch (Repository.Exceptions.UserNotExistException e)
@@ -350,6 +350,14 @@ namespace Buaa.AIBot.Services
                     Remarks = modifyItems.Remarks,
                     Tags = modifyItems.Tags
                 });
+                if (modifyItems.Title != null || modifyItems.Tags != null)
+                {
+                    var deleteTask = nlpService.DeleteAsync(qid);
+                    var title = modifyItems.Title ?? (await questionRepository.SelectQuestionByIdAsync(qid)).Title;
+                    var tags = modifyItems.Tags ?? (await questionRepository.SelectTagsForQuestionByIdAsync(qid)).Select(t => t.Value);
+                    await deleteTask;
+                    await TimedTask.NLPSynchronizer.DEFAULT.AddQuestion(qid, nlpService, title, tags);
+                }
             }
             catch (Repository.Exceptions.TagNotExistException e)
             {

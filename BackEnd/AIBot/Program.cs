@@ -10,6 +10,7 @@ using Serilog;
 using Buaa.AIBot.Utils.Logging;
 using System;
 using System.Threading.Tasks;
+using Buaa.AIBot.TimedTask;
 
 namespace Buaa.AIBot
 {
@@ -32,7 +33,7 @@ namespace Buaa.AIBot
     {
         public static readonly string LOG_FILE_PATH = "";
 
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Information()
@@ -43,14 +44,29 @@ namespace Buaa.AIBot
             try
             {
                 PrintWelcomeInfo();
-                var builder = CreateHostBuilder(args);
-
+                var host = CreateHostBuilder(args).Build();
                 Log.Information("Host build success!");
-                Log.Information("");
-                Log.Information("");
 
-                builder.Build().Run();
+                var timedTaskManager = new TimedTaskManager(host);
+                timedTaskManager.RegisterTask(NLPSynchronizer.DEFAULT.SynchronizeQuestionDataAsync, TimeSpan.FromHours(1));
+                timedTaskManager.RegisterTask(HotValueFresher.DEFAULT.FreshHotValueAsync, TimeSpan.FromMinutes(10));
+                Log.Information("TimedTasks build success!");
 
+
+                Log.Information("Starting...");
+                var hostRunTask = host.RunAsync();
+                await Task.Delay(TimeSpan.FromSeconds(1));
+                timedTaskManager.Start();
+                try
+                {
+                    await hostRunTask;
+                }
+                finally
+                {
+                    timedTaskManager.Stop();
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
                 Log.Information("Host terminated success");
                 return 0;
             }
