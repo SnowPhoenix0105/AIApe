@@ -11,13 +11,6 @@
             </el-steps>
         </el-footer>
         <el-container class="main-body">
-            <!--                                    <el-aside width="100px">-->
-            <!--                                        <el-steps direction="vertical" :active="step">-->
-            <!--                                            <el-step title="问题标题"></el-step>-->
-            <!--                                            <el-step title="选择标签"></el-step>-->
-            <!--                                            <el-step title="问题详情"></el-step>-->
-            <!--                                        </el-steps>-->
-            <!--                                    </el-aside>-->
             <el-main>
                 <div class="edit-title" v-show="step === 1">
                     <el-input v-show="step === 1" v-model="title" placeholder="请输入问题的标题"></el-input>
@@ -32,9 +25,13 @@
 
                 <transition name="slide" enter-active-class="slideInUp" leave-active-class="none">
                     <div class="select-tag" v-show="step === 2">
-                        <div v-for="(ls, type) in tags" class="tag-type">
+                        <div style="margin-left: 10vw" v-for="(ls, type) in tags" class="tag-type">
                             <span>{{ type }}</span>
-                            <el-tag v-for="tag in ls" :key="tag">{{ tag }}</el-tag>
+<!--                            <el-tag v-for="tag in ls" :key="tag">{{ tag }}</el-tag>-->
+                            <el-tag style="margin-bottom: 1vh" class="selector" v-for="(tid, tname) in ls" :key="tid"
+                                    :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid, tname)" v-show="showTag">
+                                {{ tname }}
+                            </el-tag>
                         </div>
                         <el-button type="primary" @click="submitTags">完成</el-button>
                     </div>
@@ -55,7 +52,7 @@
                                       placeholder="详细描述你的问题...">
 
                         </mavon-editor>
-                        <el-button type="primary">提交</el-button>
+                        <el-button type="primary" v-on:click="submitQuestion">提交</el-button>
                     </div>
                 </transition>
             </el-main>
@@ -77,14 +74,13 @@ export default {
     data() {
         return {
             step: 1,
-            title: '这是问题的标题',
+            title: '',
             detail: '',
-            selectTags: ['C', 'Linux', '语法'],
+            selectedTag: [],
             tags: {
-                '语言': ['C', 'Python', 'C++', 'Java'], '环境': ['Linux', 'Windows', 'MacOS'],
-                '类型': ['语法', '代码', '环境', '算法', '题目']
+                '环境': {}, '语言': {}, '其它': {}
             },
-
+            tagState: [],
             toolbars: {
                 bold: true, // 粗体
                 italic: true, // 斜体
@@ -119,7 +115,9 @@ export default {
                 /* 2.2.1 */
                 subfield: false, // 单双栏模式
                 preview: true // 预览
-            }
+            },
+            showTag: true,
+            tid2tname: {}
         }
     },
     methods: {
@@ -128,6 +126,53 @@ export default {
         },
         submitTags() {
             this.step = 3;
+        },
+        initTagState() {
+            let tagList = this.$store.state.tagList;
+            for (let category in tagList) {
+                for (let tag in tagList[category]) {
+                    this.tagState[tagList[category][tag]] = false;
+                    if (category === 'Env') {
+                        this.tags['环境'][tag] = tagList[category][tag];
+                    }
+                    else if (category === 'Lang') {
+                        this.tags['语言'][tag] = tagList[category][tag];
+                    }
+                    else {
+                        this.tags['其它'][tag] = tagList[category][tag];
+                    }
+                    this.tid2tname[tagList[category][tag]] = tag;
+                }
+            }
+        },
+        select(tid) {
+            this.tagState[tid] = !this.tagState[tid];
+            this.showTag = false;
+            this.showTag = true;
+            let selectedTag = [];
+            for (let id in this.tagState) {
+                if (this.tagState[id]) {
+                    selectedTag.push(id);
+                }
+            }
+            this.selectedTag = selectedTag;
+        },
+        submitQuestion() {
+            let _this = this;
+            this.$axios.post(this.BASE_URL + '/api/questions/add_question', {
+                title: _this.title,
+                remarks: _this.detail,
+                tags: _this.selectedTag
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(function (response) {
+                    _this.$store.state.mobileStatus = 'questionList';
+                })
+            this.step = 1;
         }
     },
     computed: {
@@ -142,6 +187,9 @@ export default {
             };
             return data;
         }
+    },
+    created() {
+        this.initTagState();
     }
 }
 </script>
@@ -243,6 +291,11 @@ h1 {
     /*position: absolute;*/
     margin-top: 2vh;
     width: 100vw;
+}
+
+.selector {
+    cursor: pointer;
+    margin-right: 2vw;
 }
 
 /*.markdown-body {*/

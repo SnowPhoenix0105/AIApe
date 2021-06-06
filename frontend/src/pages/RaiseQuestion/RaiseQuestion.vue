@@ -158,6 +158,7 @@ export default {
             .then(function (response) {
                 _this.$changePage(2);
             })
+            this.step = 1;
         }
     },
     computed: {
