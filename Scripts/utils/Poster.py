@@ -17,10 +17,11 @@ base_urls = [
         "test.snowphoenix.design", 
         "localhost:5000", 
         "aiape.snowphoenix.design"]
-base_url = base_urls[0]
+base_url = base_urls[1]
 
 def set_default_jwt(token: str):
     global default_jwt
+    # log("setting default jwt:", token)
     default_jwt = token
 
 def login() -> str:
@@ -49,12 +50,25 @@ def signup():
         else:
             print(rsp["message"])
 
+def fresh_token(jwt : str=None) -> str:
+    if jwt == None:
+        global default_jwt
+        res = post("/api/user/fresh", {"token": default_jwt})
+        jwt = res["token"]
+        default_jwt = jwt
+        return jwt
+    else:
+        res = post("/api/user/fresh", {"token": jwt})
+        jwt = res["token"]
+        return jwt
+
 def get(target: str, headers: dict=None, jwt: str=None):
     global default_jwt
     jwt = jwt if jwt is not None else default_jwt
     if headers is None:
         headers = {}
     if jwt is not None and len(jwt) != 0:
+        # log("using jwt:", jwt)
         headers["Authorization"] = "Bearer " + jwt
 
     origin_host =  protocol + "://" + base_url
@@ -80,11 +94,13 @@ def get(target: str, headers: dict=None, jwt: str=None):
 def post(target: str, body, headers: dict=None, jwt: str=None):
     global default_jwt
     jwt = jwt if jwt is not None else default_jwt
+    # log("jwt =", jwt)
     body = json.dumps(body)
     if headers is None:
         headers = {}
     headers["Content-Type"] = "application/json"
     if jwt is not None and len(jwt) != 0:
+        # log("using jwt:", jwt)
         headers["Authorization"] = "Bearer " + jwt
 
     origin_host =  protocol + "://" + base_url

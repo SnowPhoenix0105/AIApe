@@ -72,6 +72,8 @@ namespace Buaa.AIBot
                 // Add UserServices
                 .AddUserServices(Configuration)
 
+                .AddNLPServices(Configuration) 
+
                 .AddTransient<IQuestionService, QuestionService>()
 
                 .AddCodeAnalyze(Configuration)
@@ -84,8 +86,8 @@ namespace Buaa.AIBot
             services
                 // Add Bot
                 //.AddEchoBot(Configuration)
-                .AddAlphaBot(Configuration)
-                
+                // .AddAlphaBot(Configuration)
+                .AddBetaBot(Configuration)
                 ;
         }
 
@@ -108,7 +110,7 @@ namespace Buaa.AIBot
                 // .UseHttpsRedirection()
 
                 // set global timeout
-                .UseGlobalTimeout(TimeSpan.FromSeconds(3))
+                // .UseGlobalTimeout(TimeSpan.FromSeconds(10))
 
                 .UseRouting();
 

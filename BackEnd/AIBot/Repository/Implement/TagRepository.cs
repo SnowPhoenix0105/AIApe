@@ -20,35 +20,78 @@ namespace Buaa.AIBot.Repository.Implement
         {
             public bool tagListChanged = true;
             public bool tagCategoryChanged = true;
+            public bool tagIndexChanged = true;
             public Dictionary<string, int> cachedList;
             public IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>> cachedCategory;
+            public Dictionary<int, TagCategory> cachedTagIndex;
             public SemaphoreSlim listLock = new SemaphoreSlim(1);
             public SemaphoreSlim categoryLock = new SemaphoreSlim(1);
+            public SemaphoreSlim tagIndexLock = new SemaphoreSlim(1);
         }
 
         public TagRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
             : base(context, cachePool, globalCancellationTokenSource.Token) 
         {
-            var cached = cachePool.GetOrDefault<CachedData>(CacheId.Tag);
-            if (cached == null)
+        }
+
+        private CachedData sharedData;
+
+        private async ValueTask InitSharedDataAsync()
+        {
+            sharedData = CachePool.GetOrDefault<CachedData>(CacheId.Tag);
+            if (sharedData == null)
             {
-                using (cachePool.LockAsync(CacheId.Tag))
+                using (await CachePool.LockAsync(CacheId.Tag))
                 {
-                    cached = cachePool.GetOrDefault<CachedData>(CacheId.Tag);
-                    if (cached == null)
+                    sharedData = CachePool.GetOrDefault<CachedData>(CacheId.Tag);
+                    if (sharedData == null)
                     {
-                        cached = new CachedData();
-                        cachePool.Set(CacheId.Tag, cached);
+                        sharedData = new CachedData();
+                        CachePool.Set(CacheId.Tag, sharedData);
                     }
                 }
             }
-            sharedData = cached;
         }
 
-        private readonly CachedData sharedData;
+        public async Task<IReadOnlyDictionary<int, TagCategory>> SelectTagIndexAsync()
+        {
+            await InitSharedDataAsync();
+            Dictionary<int, TagCategory> ret;
+            if (sharedData.tagIndexChanged)
+            {
+                await sharedData.tagIndexLock.WaitAsync();
+                try
+                {
+                    if (sharedData.tagIndexChanged)
+                    {
+                        var query = await Context.Tags
+                            .Select(t => new { t.TagId, t.Category })
+                            .ToListAsync();
+                        ret = new Dictionary<int, TagCategory>(query.Select(t => 
+                            new KeyValuePair<int, TagCategory>(t.TagId, (TagCategory)t.Category)));
+                        sharedData.tagIndexChanged = false;
+                        sharedData.cachedTagIndex = ret;
+                    }
+                    else
+                    {
+                        ret = sharedData.cachedTagIndex;
+                    }
+                }
+                finally
+                {
+                    sharedData.tagIndexLock.Release();
+                }
+            }
+            else
+            {
+                ret = sharedData.cachedTagIndex;
+            }
+            return ret;
+        }
 
         public async Task<IReadOnlyDictionary<string, int>> SelectAllTagsAsync()
         {
+            await InitSharedDataAsync();
             Dictionary<string, int> ret;
             if (sharedData.tagListChanged)
             {
@@ -87,6 +130,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> SelectAllTagsCategorysAsync()
         {
+            await InitSharedDataAsync();
             IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>> ret;
             if (sharedData.tagCategoryChanged)
             {
@@ -126,19 +170,26 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<TagInfo> SelectTagByIdAsync(int tagId)
         {
+            await InitSharedDataAsync();
             var query = await Context
                 .Tags
-                .Select(t => new TagInfo()
+                .Select(t => new 
                 {
-                    TagId = t.TagId,
-                    Category = (TagCategory)t.Category,
-                    Name = t.Name,
-                    Desc = t.Desc
+                    t.TagId,
+                    t.Category,
+                    t.Name,
+                    t.Desc
                 })
                 .Where(t => t.TagId == tagId)
                 .FirstOrDefaultAsync(CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
-            return query;
+            return new TagInfo()
+            {
+                TagId = query.TagId,
+                Category = (TagCategory)query.Category,
+                Name = query.Name,
+                Desc = query.Desc
+            };
         }
 
         private async Task CheckTagName(string tagName)
@@ -157,6 +208,7 @@ namespace Buaa.AIBot.Repository.Implement
 
         public async Task<int> InsertTagAsync(TagInfo tag)
         {
+            await InitSharedDataAsync();
             if (tag.Name == null)
             {
                 throw new ArgumentNullException(nameof(tag.Name));
@@ -165,10 +217,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new ArgumentNullException(nameof(tag.Desc));
             }
-            if (tag.Category == TagCategory.None)
-            {
-                throw new ArgumentNullException(nameof(tag.Category));
-            }
+            //if (tag.Category == TagCategory.None)
+            //{
+            //    throw new ArgumentNullException(nameof(tag.Category));
+            //}
             if (tag.Name.Length > Constants.TagNameMaxLength)
             {
                 throw new TagNameTooLongException(tag.Name.Length, Constants.TagNameMaxLength);
@@ -193,11 +245,13 @@ namespace Buaa.AIBot.Repository.Implement
             }
             sharedData.tagListChanged = true;
             sharedData.tagCategoryChanged = true;
+            sharedData.tagIndexChanged = true;
             return target.TagId;
         }
 
         public async Task UpdateTagAsync(TagInfo tag)
         {
+            await InitSharedDataAsync();
             bool success = true;
             var target = await Context.Tags.FindAsync(tag.TagId);
             if (target == null)
@@ -218,7 +272,7 @@ namespace Buaa.AIBot.Repository.Implement
                 success = false;
                 target.Desc = tag.Desc;
             }
-            if (tag.Category != TagCategory.None)
+            if (tag.Category != null)
             {
                 target.Category = (int)tag.Category;
             }
@@ -234,10 +288,12 @@ namespace Buaa.AIBot.Repository.Implement
             }
             sharedData.tagListChanged = true;
             sharedData.tagCategoryChanged = true;
+            sharedData.tagIndexChanged = true;
         }
 
         public async Task DeleteTagAsync(int tagId)
         {
+            await InitSharedDataAsync();
             var target = await Context.Tags.FindAsync(tagId);
             if (target != null)
             {
@@ -245,6 +301,7 @@ namespace Buaa.AIBot.Repository.Implement
                 await SaveChangesAgainAndAgainAsync();
                 sharedData.tagListChanged = true;
                 sharedData.tagCategoryChanged = true;
+                sharedData.tagIndexChanged = true;
             }
         }
     }

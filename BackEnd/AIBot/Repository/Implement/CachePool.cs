@@ -21,9 +21,9 @@ namespace Buaa.AIBot.Repository.Implement
             pool.Set((int)id, value);
         }
 
-        public static void Get<T>(this ICachePool<int> pool, CacheId id)
+        public static T Get<T>(this ICachePool<int> pool, CacheId id)
         {
-            pool.Get<T>((int)id);
+            return pool.Get<T>((int)id);
         }
 
         public static T GetOrDefault<T>(this ICachePool<int> pool, CacheId id)
@@ -49,7 +49,8 @@ namespace Buaa.AIBot.Repository.Implement
     {
         private Dictionary<TK, object> dic = new Dictionary<TK, object>();
         private ConcurrentDictionary<TK, SemaphoreSlim> locks = new ConcurrentDictionary<TK, SemaphoreSlim>();
-        private readonly SemaphoreSlim globalLock = new SemaphoreSlim(1);
+        //private readonly SemaphoreSlim globalLock = new SemaphoreSlim(1);
+        public static readonly CachePool<TK> DEFAULT = new CachePool<TK>();
 
         public object this[TK key]
         {

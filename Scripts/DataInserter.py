@@ -10,8 +10,10 @@ import utils.Poster as poster
 from utils.Utils import log
 from utils.Config import Path
 from utils.Utils import pcat
+from utils.Poster import fresh_token
 import json
 import os
+import time
 
 tag_table = {
     "C语言":("Lang", "C语言, 一门面向过程的、抽象化的通用程序设计语言，广泛应用于底层开发。"),
@@ -97,7 +99,11 @@ def try_add_all_questions(question_jwt: str, answer_jwt: str):
         to_add = list(questions)
     added = []
     try:
-        for question in to_add:
+        for i, question in enumerate(to_add):
+            time.sleep(1)
+            if i % 64 == 63:
+                question_jwt = fresh_token(question_jwt)
+                answer_jwt = fresh_token(answer_jwt)
             q = question["q"]
             a = question["a"]
             qid = add_question(q["title"], q["remarks"], q["tags"], question_jwt)

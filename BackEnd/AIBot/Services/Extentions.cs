@@ -24,6 +24,24 @@ namespace Buaa.AIBot.Services
             return services;
         }
 
+        public static IServiceCollection AddNLPServices(this IServiceCollection services, IConfiguration config)
+        {
+            var nlpConfig = config.GetSection("NLPService");
+            var options = new NLPService.Options()
+            {
+                Name = nlpConfig.GetValue<string>("Name"),
+                Password = nlpConfig.GetValue<string>("Password"),
+                BaseUrl = nlpConfig.GetValue<string>("BaseUrl")
+            };
+            TimedTask.NLPSynchronizer.DEFAULT.NLPOptions = options;
+            services.AddTransient<INLPService>(provider =>
+                new NLPService(
+                    provider.GetRequiredService<ILogger<NLPService>>(),
+                    provider.GetRequiredService<Utils.GlobalCancellationTokenSource>(),
+                    options));
+            return services;
+        }
+
         public static IServiceCollection AddHotList(this IServiceCollection services, IConfiguration config)
         {
             var hotConfig = config.GetSection("HotList");
@@ -34,10 +52,8 @@ namespace Buaa.AIBot.Services
                 .AddTransient<IHotListService>(provider =>
                     new HotListService(
                         questionRepository: provider.GetRequiredService<IQuestionRepository>(),
-                        hotValueFreshInterval: valueInterval,
                         hotListFreshInterval: listInterval,
                         logger: provider.GetRequiredService<ILogger<HotListService>>(),
-                        serviceProvider: provider,
                         length: length
                         ))
                 ;

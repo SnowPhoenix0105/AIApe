@@ -28,6 +28,8 @@ namespace Buaa.AIBot.Repository.Models
         [Column(TypeName = "int")]
         public AuthLevel Auth { get; set; }
 
+        public int ProfilePhoto { get; set; }
+
         // relation references
         public List<QuestionData> Questions { get; set; }
         public List<AnswerData> Answers { get; set; }

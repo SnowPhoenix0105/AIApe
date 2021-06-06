@@ -13,15 +13,21 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public static IServiceCollection AddWorkingModule(this IServiceCollection services, IConfiguration config)
         {
             string gccWorkDir = config.GetSection("Path").GetValue<string>("GccWorkDir");
+            double minScore = config.GetSection("BetaBot").GetValue<double>("MinScore");
             services
                 .AddTransient<IWorkingModule, WorkingModule>()
                 .AddTransient<QuestionBuilder>()
                 .AddSingleton<GovernmentInstallingInfo>()
                 .AddSingleton<IdeAndCompilerDocumentCollection>()
-                .AddSingleton<IGccHandlerFactory>(provider => 
+                .AddSingleton<IGccHandlerFactory>(provider =>
                     new GccHandlerFactory(gccWorkDir, provider.GetRequiredService<ILogger<GccHandlerFactory>>()))
                 .AddSingleton<SourceCodeAnalyzer>()
                 .AddSingleton<DocumentCollection>()
+                .AddTransient(provider =>
+                    new InnerRepoSearcher(
+                        provider.GetRequiredService<Services.IQuestionService>(),
+                        provider.GetRequiredService<Services.INLPService>(),
+                        minScore))
                 .AddTransient<OuterRepoSearcher>()
                 ;
             return services;
@@ -30,6 +36,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
 
     public interface IWorkingModule
     {
+        T Get<T>();
         QuestionBuilder GetQuestionBuilder();
         GovernmentInstallingInfo GetGovernmentInstallingInfo();
         IdeAndCompilerDocumentCollection GetIdeAndCompilerDocumentCollection();
@@ -37,50 +44,61 @@ namespace Buaa.AIBot.Bot.WorkingModule
         SourceCodeAnalyzer GetSourceCodeAnalyzer();
         DocumentCollection GetDocumentCollection();
         OuterRepoSearcher GetOuterRepoSearcher();
+        InnerRepoSearcher GetInnerRepoSearcher();
     }
 
     public class WorkingModule : IWorkingModule
     {
-        IServiceProvider services;
+        public IServiceProvider Services { get; }
 
         public WorkingModule(IServiceProvider services)
         {
-            this.services = services;
+            this.Services = services;
+        }
+
+        public T Get<T>()
+        {
+            return Services.GetRequiredService<T>();
         }
 
         public QuestionBuilder GetQuestionBuilder()
         {
-            return services.GetService<QuestionBuilder>();
+            return Services.GetService<QuestionBuilder>();
         }
 
         public GovernmentInstallingInfo GetGovernmentInstallingInfo()
         {
-            return services.GetService<GovernmentInstallingInfo>();
+            return Services.GetService<GovernmentInstallingInfo>();
         }
 
         public IdeAndCompilerDocumentCollection GetIdeAndCompilerDocumentCollection()
         {
-            return services.GetService<IdeAndCompilerDocumentCollection>();
+            return Services.GetService<IdeAndCompilerDocumentCollection>();
         }
 
         public IGccHandlerFactory GetGccHandlerFactory()
         {
-            return services.GetService<IGccHandlerFactory>();
+            return Services.GetService<IGccHandlerFactory>();
         }
 
         public SourceCodeAnalyzer GetSourceCodeAnalyzer()
         {
-            return services.GetService<SourceCodeAnalyzer>();
+            return Services.GetService<SourceCodeAnalyzer>();
         }
 
         public DocumentCollection GetDocumentCollection()
         {
-            return services.GetService<DocumentCollection>();
+            return Services.GetService<DocumentCollection>();
         }
 
         public OuterRepoSearcher GetOuterRepoSearcher()
         {
-            return services.GetService<OuterRepoSearcher>();
+            return Services.GetService<OuterRepoSearcher>();
+        }
+
+        public InnerRepoSearcher GetInnerRepoSearcher()
+        {
+            return Services.GetService<InnerRepoSearcher>();
         }
     }
 }

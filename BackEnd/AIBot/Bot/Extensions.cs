@@ -49,5 +49,24 @@ namespace Buaa.AIBot.Bot
 
             return services;
         }
+
+        public static IServiceCollection AddBetaBot(this IServiceCollection services, IConfiguration config)
+        {
+            var options = new BotRunnerOptions<BetaBot.StatusId>()
+            {
+                StatusPool = new StatusContainerPoolInMemory<BetaBot.StatusId>(),
+                BehaviourPool = new StatusBehaviourPool<BetaBot.StatusId>(BetaBot.Configuration.GetStatusBehaviours()),
+                InitStatus = new BotStatus<BetaBot.StatusId>()
+                {
+                    Status = BetaBot.StatusId.Welcome
+                }
+            };
+            services
+                .AddWorkingModule(config)
+                .AddTransient<IBotRunner>(
+                services => new BotRunner<BetaBot.StatusId>(options, services.GetService<IWorkingModule>()));
+
+            return services;
+        }
     }
 }

@@ -101,7 +101,7 @@ namespace Buaa.AIBot.Services.CodeAnalyze
 
             public Task WriteFileAsync(string code)
             {
-                return File.WriteAllTextAsync(SourcePath, code, System.Text.Encoding.UTF8, ct);
+                return File.WriteAllTextAsync(SourcePath, code + '\n', System.Text.Encoding.UTF8, ct);
             }
 
             public async Task FormatAsync()
