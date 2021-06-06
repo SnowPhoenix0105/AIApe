@@ -164,7 +164,7 @@ namespace Buaa.AIBot.Services
             });
             if (res.Status == "fail")
             {
-                logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
                 return null;
             }
             return res.Embeddings;
@@ -233,7 +233,7 @@ namespace Buaa.AIBot.Services
             });
             if (res.Status == "fail")
             {
-                logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
                 return null;
             }
             return res.Results
@@ -363,6 +363,7 @@ namespace Buaa.AIBot.Services
                 ["qids"] = qids
             };
             var json = await PostResultAsync("/api/checkqids", body);
+            logger.LogInformation("nlp-service response body: {msg}", json);
 
             var res = JsonSerializer.Deserialize<CheckqidsResult>(json, new JsonSerializerOptions()
             {
@@ -370,7 +371,7 @@ namespace Buaa.AIBot.Services
             });
             if (res.Status == "fail")
             {
-                logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
                 return null;
             }
             return res.Qids;

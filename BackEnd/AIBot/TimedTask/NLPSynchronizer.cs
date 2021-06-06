@@ -153,13 +153,15 @@ namespace Buaa.AIBot.TimedTask
                     var localQids = new HashSet<int>(questionList);
                     var deletedQids = Enumerable.Range(nextQid, lastQid - nextQid + 1).Where(qid => !localQids.Contains(qid)).ToList();
                     ct.ThrowIfCancellationRequested();
-                    var remoteQids = new HashSet<int>(await remoteQidsTask);
+                    var notRemoteQids = new HashSet<int>(await remoteQidsTask);
                     ct.ThrowIfCancellationRequested();
-                    foreach (var qid in deletedQids.Where(q => remoteQids.Contains(q)))
+                    // logger.LogInformation("local:{localQids}", localQids);
+                    // logger.LogInformation("not in remote:{remoteQids}", notRemoteQids);
+                    foreach (var qid in deletedQids.Where(q => !localQids.Contains(q)).Where(q => !notRemoteQids.Contains(q)))
                     {
                         await nlpService.DeleteAsync(qid);
                     }
-                    foreach (var qid in localQids.Where(q => !remoteQids.Contains(q)))
+                    foreach (var qid in notRemoteQids.Where(q => localQids.Contains(q)))
                     {
                         await AddQuestionAsync(qid, nlpService, context, ct);
                     }
