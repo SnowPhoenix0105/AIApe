@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import const
+import threading
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 
@@ -12,6 +13,7 @@ class EmbeddingModel:
         self.max_sentences_num = max_sentences_num
         self.device = device
         self.model = SentenceTransformer(os.path.join(const.MODELS_PATH, self.model_name), device=device)
+        self.lock = threading.Lock()
     '''
     returns: ndarray, dtype=float32
     '''
@@ -21,7 +23,8 @@ class EmbeddingModel:
         range_iter = tqdm(range(0, len(sentences), self.max_sentences_num)) if self.debug else range(0, len(sentences), self.max_sentences_num)
         for i in range_iter:
             part_sentences = sentences[i: i + self.max_sentences_num]
-            part_embeddings = self.model.encode(sentences=part_sentences, batch_size=len(part_sentences))
+            with self.lock:
+                part_embeddings = self.model.encode(sentences=part_sentences, batch_size=len(part_sentences))
             if embeddings is None:
                 embeddings = part_embeddings
             else:
