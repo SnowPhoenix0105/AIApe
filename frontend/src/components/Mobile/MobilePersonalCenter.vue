@@ -3,7 +3,7 @@
         <el-header height=5vh>
             AIApe
         </el-header>
-        <el-main class="user-info">
+        <el-main class="user-info" height="15vh">
             <div class="name-avatar">
                 {{ this.$store.state.username }}
                 <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
@@ -25,9 +25,14 @@
                 <el-main class="question-list" v-if="select==='question'">
                     <div class="question-body" v-for="question in questions">
                         <div class="user">
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                       size="small" style="margin-right: 10px"></el-avatar>
-                            {{ question.creator }}
+                            <div>
+                                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                           size="small" style="margin-right: 10px"></el-avatar>
+                                {{ question.creator }}
+                            </div>
+                            <i class="el-icon-delete"
+                               v-show="true"
+                               @click="deleteQuestion(question)"></i>
                         </div>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
@@ -37,7 +42,11 @@
                                 <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
                             </div>
                             <div class="recommend-time">
-                                <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
+                                <el-button class="recommend" type="text"
+                                           :icon="question.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                           @click="like(question)">
+                                    推荐{{ question.likeNum }}
+                                </el-button>
                                 <span>{{ question.date }}</span>
                             </div>
                         </div>
@@ -69,7 +78,7 @@ export default {
         },
         goToDetail(qid) {
             this.$store.commit('setQuestionID', qid);
-            this.$changePage(3);
+            this.$store.state.mobileStatus = 'questionDetail';
         },
         async like(question) {
             if (!this.likeValid) {
@@ -208,7 +217,15 @@ export default {
 
 <style scoped>
 
+.el-icon-delete {
+    color: #F56C6C;
+    cursor: pointer;
+    font-size: 2vh;
+    margin-left: 90vw;
+}
+
 .el-header {
+    position: fixed;
     border-bottom: 1px solid #eaecf1;
     width: 100vw;
     align-items: center;
@@ -217,6 +234,9 @@ export default {
 }
 
 .list {
+    position: fixed;
+    top: 20vh;
+    bottom: 5vh;
     flex-direction: column;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
     border-radius: 2px;
@@ -227,6 +247,9 @@ export default {
 }
 
 .selector {
+    width: 100vw;
+    position: fixed;
+    top: 20vh;
     flex: none;
     align-self: stretch;
     padding-left: 10px;
@@ -238,6 +261,8 @@ export default {
 }
 
 .user-info {
+    position: fixed;
+    top: 5vh;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
     background-color: white;
     border-radius: 2px;
@@ -264,15 +289,18 @@ export default {
 }
 
 .question-list {
+    position: fixed;
+    top: 25vh;
+    bottom: 5vh;
     align-self: stretch;
     flex-direction: column;
 }
 
 .user {
-    align-self: flex-start;
+    align-self: stretch;
     flex-direction: row;
     align-items: center;
-    justify-self: stretch;
+    justify-content: space-between;
 }
 
 .question-body {

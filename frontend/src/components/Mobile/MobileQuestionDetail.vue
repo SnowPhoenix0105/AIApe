@@ -27,8 +27,9 @@
                                 <el-tag v-for="(tid, tName) in tags" :key="tid">{{ tName }}</el-tag>
                             </div>
                             <div class="recommend-time">
-                                <el-button style="margin-right: 5vw" icon="el-icon-edit" size="mini" circle
-                                           @click="answerAreaMove"></el-button>
+                                <el-button style="margin-right: 5vw" icon="el-icon-edit-outline" size="mini"
+                                           @click="answerAreaMove">我要回答
+                                </el-button>
                                 <el-button class="recommend" type="text"
                                            :icon="like? 'el-icon-star-on' : 'el-icon-star-off'"
                                            @click="like_question()">
@@ -41,10 +42,15 @@
                 </el-main>
                 <el-main class="answers" v-if="this.status==='answers'">
                     <div v-for="answer in answers">
-                        <div>
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                       size="small" style="margin-right: 11px"></el-avatar>
-                            {{ answer.creatorName }}
+                        <div class="user">
+                            <div>
+                                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                           size="small" style="margin-right: 11px"></el-avatar>
+                                {{ answer.creatorName }}
+                            </div>
+                            <i style="margin-left: 90vw" class="el-icon-delete"
+                               v-show="authority > 1 || currentUid === answer.creator"
+                               @click="deleteAnswer(answer)"></i>
                         </div>
                         <mavon-editor ref=md v-model="answer.content"
                                       :subfield="false" defaultOpen="preview"
@@ -155,6 +161,42 @@ export default {
                 this.$store.state.mobileStatus = 'questionList';
             }
         },
+        deleteAnswer(answer) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该回答, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_answer', {
+                    data: {
+                        aid: answer.id,
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestionDetail();
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
+        },
         getQuestionDetail() {
             let _this = this;
             let id = this.$store.state.questionID;
@@ -235,7 +277,7 @@ export default {
                             type: 'success'
                         })
                         _this.getQuestionDetail();
-                        location.reload();
+                        _this.status = 'answers';
                     } else {
                         _this.$message({
                             message: '你已经回答过这个问题了！',
@@ -317,10 +359,44 @@ export default {
     mounted() {
         this.getQuestionDetail();
     },
+    computed: {
+        prop() {
+            return {
+                subfield: false,// 单双栏模式
+                defaultOpen: 'edit',//edit： 默认展示编辑区域 ， preview： 默认展示预览区域
+                editable: true,
+                toolbarsFlag: true,
+                scrollStyle: false,
+                boxShadow: true//边框
+            };
+        },
+        currentUid() {
+            return this.$store.state.uid;
+        },
+        authority() {
+            return this.$store.state.auth;
+        },
+        questionId() {
+            return this.$store.state.questionID;
+        }
+    },
 }
 </script>
 
 <style scoped>
+
+.user {
+    align-self: stretch;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.el-icon-delete {
+    color: #F56C6C;
+    cursor: pointer;
+    font-size: 2vh;
+}
 
 .el-header {
     position: fixed;
