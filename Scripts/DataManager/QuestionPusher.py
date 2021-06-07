@@ -105,7 +105,7 @@ def push_all_question_to_remote():
             qid = add_question(q["title"], q["remarks"], q["tags"], question_jwt)
             if qid < 0:
                 continue
-            aid = add_answer(qid, q["content"], answer_jwt)
+            aid = add_answer(qid, q["answer"], answer_jwt)
             if aid < 0:
                 continue
             added.append(question)
