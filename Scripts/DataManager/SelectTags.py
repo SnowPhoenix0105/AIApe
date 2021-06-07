@@ -22,6 +22,7 @@ def _get_categore2namelist_dict()->Dict[str, List[str]]:
             ret[category].append(tag_name)
         else:
             ret[category] = [tag_name]
+    ret["Lang"].append("删除")
     return ret
         
 

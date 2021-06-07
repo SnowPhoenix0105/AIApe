@@ -75,7 +75,8 @@ def _build_all_questions() -> List[Dict[str, object]]:
                 for to_remove in select_tags["delete_tags"]:
                     tags.remove(to_remove)
             pure_info["tags"] = list(tags)
-            ret.append(pure_info)
+            if "删除" not in tags:
+                ret.append(pure_info)
     return ret
 
 
