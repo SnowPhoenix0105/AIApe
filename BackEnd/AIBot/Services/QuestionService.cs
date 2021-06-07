@@ -181,6 +181,10 @@ namespace Buaa.AIBot.Services
             foreach (var q in res)
             {
                 var qtags = await questionRepository.SelectTagsForQuestionByIdAsync(q.Item1);
+                if (qtags == null)
+                {
+                    continue;
+                }
                 var qtids = qtags.Select(t => t.Value);
                 questionInfos.Add(new Utils.QuestionJudgement.QuestionTagInfo()
                 {
