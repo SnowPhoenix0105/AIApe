@@ -25,14 +25,14 @@
                 <el-main class="question-list" v-if="select==='question'">
                     <div class="question-body" v-for="question in questions">
                         <div class="user">
-                            <div>
+                            <div style="width: 100vw">
                                 <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                                            size="small" style="margin-right: 10px"></el-avatar>
                                 {{ question.creator }}
+                                <i class="el-icon-delete"
+                                   v-show="true"
+                                   @click="deleteQuestion(question)"></i>
                             </div>
-                            <i class="el-icon-delete"
-                               v-show="true"
-                               @click="deleteQuestion(question)"></i>
                         </div>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
@@ -51,6 +51,9 @@
                             </div>
                         </div>
                     </div>
+                </el-main>
+                <el-main class="question-list" v-else>
+                    啊啊啊
                 </el-main>
             </div>
         </el-container>
@@ -206,8 +209,38 @@ export default {
                 }
             })
                 .then(async function (response) {
+                    // console.log(response.data.answers);
+                    let answers = response.data.answers;
+                    for (let pair of answers) {
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + pair.aid, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
+                            .then(async function (response) {
+                                let data = response.data.answer;
+                                let ans = {
+                                    aid: pair.aid,
+                                    qid: pair.qid,
+                                    content: data.content,
+                                    createTime: data.createTime,
+                                    like: data.like,
+                                    modifyTime: data.modifyTime,
+                                };
+                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + data.creator)
+                                    .then(function (response) {
+                                        ans.creator = response.data.name;
+                                    })
+                                _this.answers.push(ans);
+                            })
+                    }
                 })
-        }
+                .catch(function (error) {
+                    // console.log("lalala");
+                    // console.log(error);
+                })
+        },
     },
     created() {
         this.getQuestions();
@@ -218,10 +251,14 @@ export default {
 <style scoped>
 
 .el-icon-delete {
+    position: absolute;
+    /*right: 10vw;*/
+    left: 87vw;
     color: #F56C6C;
     cursor: pointer;
     font-size: 2vh;
-    margin-left: 90vw;
+    margin-top: 1.5vh;
+    /*margin-left: 90vw;*/
 }
 
 .el-header {

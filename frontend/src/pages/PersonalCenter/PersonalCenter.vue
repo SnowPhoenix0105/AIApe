@@ -5,15 +5,19 @@
                 AIApe
             </el-header>
             <el-main class="selector">
-                <el-button type="text" :class="{'unselected': select === 'answer'}" @click="handleSelect('question')">我的提问
+                <el-button type="text" :class="{'unselected': select === 'answer'}" @click="handleSelect('question')">
+                    我的提问
                 </el-button>
-                <el-button type="text" :class="{'unselected': select === 'question'}" @click="handleSelect('answer')">我的回答
+                <el-button type="text" :class="{'unselected': select === 'question'}" @click="handleSelect('answer')">
+                    我的回答
                 </el-button>
             </el-main>
             <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body">
                 <el-main class="question-list" v-if="select==='question'">
                     <div class="question-body" v-for="question in questions">
-                        <i class="el-icon-delete" v-show="this.$store.state.auth > 1 || this.$store.state.uid === this.$store.state.questionID" @click="deleteQuestion(question)"></i>
+                        <i class="el-icon-delete"
+                           v-show="this.$store.state.auth > 1 || this.$store.state.uid === this.$store.state.questionID"
+                           @click="deleteQuestion(question)"></i>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
                         </el-link>
@@ -158,19 +162,19 @@ export default {
                         type: 'application/json;charset=utf-8'
                     }
                 })
-                .then(response => {
-                    this.$message({
-                        type: 'success',
-                        message: '删除成功!'
-                    });
-                    this.getQuestions();
-                })
-                .catch(error => {
-                    this.$message({
-                        type: 'error',
-                        message: '删除失败!'
-                    });
-                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestions();
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
 
             }).catch(() => {
                 this.$message({
@@ -211,7 +215,7 @@ export default {
                                 let question = {
                                     id: qid,
                                     title: response.data.question.title,
-                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g,""),
+                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
                                     tags: response.data.question.tags,
                                     date: response.data.question.createTime,
                                     likeNum: response.data.question.likeNum,
@@ -236,11 +240,42 @@ export default {
                 }
             })
                 .then(async function (response) {
+                    // console.log(response.data.answers);
+                    let answers = response.data.answers;
+                    for (let pair of answers) {
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + pair.aid, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
+                            .then(async function (response) {
+                                let data = response.data.answer;
+                                let ans = {
+                                    aid: pair.aid,
+                                    qid: pair.qid,
+                                    content: data.content,
+                                    createTime: data.createTime,
+                                    like: data.like,
+                                    modifyTime: data.modifyTime,
+                                };
+                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + data.creator)
+                                    .then(function (response) {
+                                        ans.creator = response.data.name;
+                                    })
+                                _this.answers.push(ans);
+                            })
+                    }
+                })
+                .catch(function (error) {
+                    // console.log("lalala");
+                    // console.log(error);
                 })
         }
     },
     created() {
         this.getQuestions();
+        this.getAnswers();
     }
 }
 </script>

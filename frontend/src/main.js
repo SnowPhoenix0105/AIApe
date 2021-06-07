@@ -42,6 +42,7 @@ axios.interceptors.response.use(response => {
         alert('登录超时!');
         router.replace('/login');
         this.$store.state.mobileStatus = 'login';
+        this.$store.state.username = '';
     }
     else {
         axios.post( BASE_URL + '/api/user/fresh', {
