@@ -1,22 +1,32 @@
 <template>
     <el-container class="shell">
         <el-container class="code">
+            <el-header>
+                AIApe
+            </el-header>
+            <el-main class="selector">
+                <span>代码分析器</span>
+            </el-main>
             <codemirror ref="codeBox" style="width: 50vw;" v-if="show" v-model="code" :options="cmOptions"
                         class="editor"></codemirror>
             <div style="height: 90vh" v-else></div>
             <div class="tip-submit">
                 <i class="el-icon-info">可以直接拖拽源代码文件至文本框噢~</i>
-                <el-button id="submit-button" type="primary" @click="submitCode">Format&Check</el-button>
+                <el-button id="submit-button" type="primary" @click="submitCode">提交</el-button>
             </div>
         </el-container>
         <el-container class="issues">
             <div>
-            <el-main class="issue" v-for="issue in issues" :key="issue.desc" :class="issue.level">
-                <div>
-                    {{ issue.desc}}
-                </div>
-                <el-link id="position" :underline="false" @click="gotoPosition(issue.line - 1, issue.column - 1)">{{ issue.line }}:{{ issue.column }}</el-link>
-            </el-main>
+                <el-main class="issue" v-for="issue in issues" :key="issue.desc" :class="issue.level">
+                    <div>
+                        {{ issue.desc }}
+                    </div>
+                    <el-link id="position" :underline="false"
+                             @click="gotoPosition(issue.line - 1, issue.column - 1)">{{
+                            issue.line
+                        }}:{{ issue.column }}
+                    </el-link>
+                </el-main>
             </div>
             <el-main class="info">
                 <span>AIApe</span>
@@ -133,7 +143,7 @@ export default {
     margin-right: 5px;
     align-items: stretch;
     flex-grow: 1;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .editor {
@@ -170,6 +180,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding-left: 10px;
+    margin-top: 1px;
 }
 
 .info {
@@ -212,5 +223,19 @@ export default {
 #position {
     color: #409eff;
 }
-</style>
 
+.el-header {
+    padding-top: 10px;
+    font-size: 30px;
+    justify-content: center;
+}
+
+.selector {
+    flex: none;
+    align-self: stretch;
+    padding-left: 10px;
+    border-bottom: 1px solid lightgrey;
+    padding-bottom: 10px;
+}
+
+</style>

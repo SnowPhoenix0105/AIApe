@@ -200,51 +200,148 @@ export default {
                     }
                 })
         },
-        getAnswers() {
+        async getAnswers() {
+            if (!this.getAnswerValid) {
+                return;
+            }
+
+            this.getQuestionValid = false;
             let _this = this;
-            this.$axios.get(this.BASE_URL + '/api/user/answers', {
+            await this.$axios.get(this.BASE_URL + '/api/user/answers', {
                 headers: {
                     Authorization: 'Bearer ' + _this.$store.state.token,
                     type: 'application/json;charset=utf-8'
                 }
             })
                 .then(async function (response) {
-                    // console.log(response.data.answers);
-                    let answers = response.data.answers;
-                    for (let pair of answers) {
-                        await _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + pair.aid, {
+                    _this.answers = [];
+                    let QAList = response.data.answers;
+                    for (let qa of QAList) {
+                        let answer = {
+                            questionId: qa.qid,
+                            answerId: qa.aid
+                        };
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qa.qid, {
                             headers: {
                                 Authorization: 'Bearer ' + _this.$store.state.token,
                                 type: 'application/json;charset=utf-8'
                             }
                         })
-                            .then(async function (response) {
-                                let data = response.data.answer;
-                                let ans = {
-                                    aid: pair.aid,
-                                    qid: pair.qid,
-                                    content: data.content,
-                                    createTime: data.createTime,
-                                    like: data.like,
-                                    modifyTime: data.modifyTime,
-                                };
-                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + data.creator)
-                                    .then(function (response) {
-                                        ans.creator = response.data.name;
-                                    })
-                                _this.answers.push(ans);
+                            .then(function (response) {
+                                answer.title = response.data.question.title;
+                                answer.tags = response.data.question.tags;
                             })
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + qa.aid, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
+                            .then(function (response) {
+                                answer.content = response.data.answer.content;
+                                answer.createTime = response.data.answer.createTime;
+                                answer.likeNum = response.data.answer.likeNum;
+                                answer.like = response.data.answer.like;
+                                answer.creatorId = response.data.answer.creator;
+                            })
+                        _this.answers.push(answer);
                     }
                 })
-                .catch(function (error) {
-                    // console.log("lalala");
-                    // console.log(error);
+            this.getAnswerValid = true;
+        },
+        async likeAnswer(answer) {
+            if (!this.likeValid) {
+                this.$message({
+                    message: '操作过于频繁!',
+                    type: 'warning'
+                });
+            }
+            this.likeValid = false;
+            let _this = this;
+            let aid = answer.answerId;
+            let markAsLike = !answer.like;
+            this.$axios.post(this.BASE_URL + '/api/questions/like_answer', {
+                aid: aid,
+                markAsLike: markAsLike
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    answer.like = response.data.like;
+                    answer.likeNum = response.data.likeNum;
                 })
+                .catch(function (error) {
+                    _this.$message({
+                        message: '登录后才可以点赞~!',
+                        type: 'warning'
+                    })
+                })
+            this.likeValid = true;
+        },
+        deleteAnswer(answer) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该回答, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_answer', {
+                    data: {
+                        aid: answer.answerId
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestions();
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
         },
     },
     created() {
+        let _this = this;
         this.getQuestions();
-    }
+        this.getAnswers();
+        this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
+            headers: {
+                Authorization: 'Bearer ' + _this.$store.state.token,
+                type: 'application/json;charset=utf-8'
+            }
+        })
+            .then(function (response) {
+                _this.email = response.data.email;
+                _this.uid = response.data.uid;
+            })
+    },
+    computed: {
+        authority() {
+            return this.$store.state.auth;
+        },
+        currentUid() {
+            return this.$store.state.uid;
+        }
+    },
 }
 </script>
 

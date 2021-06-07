@@ -27,7 +27,8 @@ export default new Vuex.Store({
         },
         questionList: {
             tagState: {},
-            selectedTag: []
+            selectedTag: [],
+            tagSelectValid: true
         }
     },
     mutations: {

@@ -15,9 +15,13 @@
             <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body">
                 <el-main class="question-list" v-if="select==='question'">
                     <div class="question-body" v-for="question in questions">
+<<<<<<< HEAD
                         <i class="el-icon-delete"
                            v-show="this.$store.state.auth > 1 || this.$store.state.uid === this.$store.state.questionID"
                            @click="deleteQuestion(question)"></i>
+=======
+                        <i class="el-icon-delete" v-show="authority > 1 || currentUid === question.creatorId" @click="deleteQuestion(question)"></i>
+>>>>>>> f47dfd0b464534da6fde72513d1c7031c9a9ceed
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
                         </el-link>
@@ -40,29 +44,25 @@
                     </div>
                 </el-main>
                 <el-main class="question-list" v-else>
-                    <div class="question-body" v-for="question in answers">
-                        <div class="user">
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                       size="small" style="margin-right: 10px"></el-avatar>
-                            {{ question.creator }}
-                        </div>
-                        <el-link class='title' @click="goToDetail(question.id)" :underline="false">
-                            {{ question.title }}
+                    <div class="question-body" v-for="answer in answers">
+                        <i class="el-icon-delete" v-show="authority > 1 || currentUid === answer.creatorId" @click="deleteAnswer(answer)"></i>
+                        <el-link class='title' @click="goToDetail(answer.questionId)" :underline="false">
+                            {{ answer.title }}
                         </el-link>
                         <div class="content">
-                            {{ question.content }}
+                            {{ answer.content }}
                         </div>
                         <div class="other-info">
                             <div class="tags">
-                                <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
+                                <el-tag v-for="(tid, tName) in answer.tags" :key="tid">{{ tName }}</el-tag>
                             </div>
                             <div class="recommend-time">
                                 <el-button class="recommend" type="text"
-                                           :icon="question.like? 'el-icon-star-on' : 'el-icon-star-off'"
-                                           @click="like(question)">
-                                    推荐{{ question.likeNum }}
+                                           :icon="answer.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                           @click="likeAnswer(answer)">
+                                    推荐{{ answer.likeNum }}
                                 </el-button>
-                                <span>{{ question.date }}</span>
+                                <span>{{ answer.createTime }}</span>
                             </div>
                         </div>
                     </div>
@@ -102,13 +102,21 @@ export default {
             question: '',
             email: '',
             uid: 0,
-            likeValid: true
+            likeValid: true,
+            getQuestionValid: true,
+            getAnswerValid: true
         }
     },
     methods: {
         handleSelect(selector) {
             this.$refs['scroll-body'].scrollTop = 0;
             this.select = selector;
+            if (selector === 'answer') {
+                this.getAnswers();
+            }
+            else if (selector === 'question') {
+                this.getQuestions();
+            }
         },
         goToDetail(qid) {
             this.$store.commit('setQuestionID', qid);
@@ -183,19 +191,15 @@ export default {
                 });
             })
         },
-        getQuestions() {
+        async getQuestions() {
+            if (!this.getQuestionValid) {
+                return;
+            }
+
+            this.getQuestionValid = false;
             let _this = this;
-            this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
-                headers: {
-                    Authorization: 'Bearer ' + _this.$store.state.token,
-                    type: 'application/json;charset=utf-8'
-                }
-            })
-                .then(function (response) {
-                    _this.email = response.data.email;
-                    _this.uid = response.data.uid;
-                })
-            this.$axios.get(this.BASE_URL + '/api/user/questions', {
+
+            await this.$axios.get(this.BASE_URL + '/api/user/questions', {
                 headers: {
                     Authorization: 'Bearer ' + _this.$store.state.token,
                     type: 'application/json;charset=utf-8'
@@ -219,7 +223,8 @@ export default {
                                     tags: response.data.question.tags,
                                     date: response.data.question.createTime,
                                     likeNum: response.data.question.likeNum,
-                                    like: response.data.question.like
+                                    like: response.data.question.like,
+                                    creatorId: response.data.question.creator
                                 };
                                 let uid = response.data.question.creator;
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
@@ -230,52 +235,149 @@ export default {
                             });
                     }
                 })
+            this.getQuestionValid = true;
         },
-        getAnswers() {
+        async getAnswers() {
+            if (!this.getAnswerValid) {
+                return;
+            }
+
+            this.getQuestionValid = false;
             let _this = this;
-            this.$axios.get(this.BASE_URL + '/api/user/answers', {
+            await this.$axios.get(this.BASE_URL + '/api/user/answers', {
                 headers: {
                     Authorization: 'Bearer ' + _this.$store.state.token,
                     type: 'application/json;charset=utf-8'
                 }
             })
                 .then(async function (response) {
-                    // console.log(response.data.answers);
-                    let answers = response.data.answers;
-                    for (let pair of answers) {
-                        await _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + pair.aid, {
+                    _this.answers = [];
+                    let QAList = response.data.answers;
+                    for (let qa of QAList) {
+                        let answer = {
+                            questionId: qa.qid,
+                            answerId: qa.aid
+                        };
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qa.qid, {
                             headers: {
                                 Authorization: 'Bearer ' + _this.$store.state.token,
                                 type: 'application/json;charset=utf-8'
                             }
                         })
-                            .then(async function (response) {
-                                let data = response.data.answer;
-                                let ans = {
-                                    aid: pair.aid,
-                                    qid: pair.qid,
-                                    content: data.content,
-                                    createTime: data.createTime,
-                                    like: data.like,
-                                    modifyTime: data.modifyTime,
-                                };
-                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + data.creator)
-                                    .then(function (response) {
-                                        ans.creator = response.data.name;
-                                    })
-                                _this.answers.push(ans);
-                            })
+                        .then(function (response) {
+                            answer.title = response.data.question.title;
+                            answer.tags = response.data.question.tags;
+                        })
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + qa.aid, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
+                        .then(function (response) {
+                            answer.content = response.data.answer.content;
+                            answer.createTime = response.data.answer.createTime;
+                            answer.likeNum = response.data.answer.likeNum;
+                            answer.like = response.data.answer.like;
+                            answer.creatorId = response.data.answer.creator;
+                        })
+                        _this.answers.push(answer);
                     }
                 })
-                .catch(function (error) {
-                    // console.log("lalala");
-                    // console.log(error);
+            this.getAnswerValid = true;
+        },
+        async likeAnswer(answer) {
+            if (!this.likeValid) {
+                this.$message({
+                    message: '操作过于频繁!',
+                    type: 'warning'
+                });
+            }
+            this.likeValid = false;
+            let _this = this;
+            let aid = answer.answerId;
+            let markAsLike = !answer.like;
+            this.$axios.post(this.BASE_URL + '/api/questions/like_answer', {
+                aid: aid,
+                markAsLike: markAsLike
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    answer.like = response.data.like;
+                    answer.likeNum = response.data.likeNum;
                 })
-        }
+                .catch(function (error) {
+                    _this.$message({
+                        message: '登录后才可以点赞~!',
+                        type: 'warning'
+                    })
+                })
+            this.likeValid = true;
+        },
+        deleteAnswer(answer) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该回答, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_answer', {
+                    data: {
+                        aid: answer.answerId
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestions();
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
+        },
     },
     created() {
+        let _this = this;
         this.getQuestions();
         this.getAnswers();
+        this.$axios.get(this.BASE_URL + '/api/user/internal_info', {
+            headers: {
+                Authorization: 'Bearer ' + _this.$store.state.token,
+                type: 'application/json;charset=utf-8'
+            }
+        })
+            .then(function (response) {
+                _this.email = response.data.email;
+                _this.uid = response.data.uid;
+            })
+    },
+    computed: {
+        authority() {
+            return this.$store.state.auth;
+        },
+        currentUid() {
+            return this.$store.state.uid;
+        }
     }
 }
 </script>

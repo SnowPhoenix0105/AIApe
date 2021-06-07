@@ -1,8 +1,8 @@
 {
   "name": "aiape",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A program QA bot",
-  "author": "HuangSiwei & DongJunjie",
+  "author": "DengXinyu & LiMingxin & LiHaoxuan & HuangSiwei & DongJunjie",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",

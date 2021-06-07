@@ -4,18 +4,21 @@
             AIApe
         </el-header>
         <el-container class="main-body">
-            <el-aside width="100px">
-                <el-steps direction="vertical" :active="step">
-                    <el-step title="问题标题"></el-step>
-                    <el-step title="选择标签"></el-step>
-                    <el-step title="问题详情"></el-step>
-                </el-steps>
-            </el-aside>
+            <el-steps :active="step" align-center>
+                <el-step title="问题标题" @click.native="gotoStep(1)"
+                         style="cursor: pointer"></el-step>
+                <el-step title="选择标签" @click.native="gotoStep(2)"
+                         style="cursor: pointer"></el-step>
+                <el-step title="问题详情" @click.native="gotoStep(3)"
+                         style="cursor: pointer"></el-step>
+            </el-steps>
             <el-main>
-                <div class="edit-title" v-show="step === 1">
-                    <el-input v-show="step === 1" v-model="title"></el-input>
-                    <el-button v-show="step === 1" @click="submitTitle">提交</el-button>
-                </div>
+                <transition name="slide" enter-active-class="slideInUp" leave-active-class="none">
+                    <div class="edit-title" v-show="step === 1">
+                        <el-input v-show="step === 1" v-model="title"></el-input>
+                        <el-button v-show="step === 1" @click="submitTitle" type="primary">提交</el-button>
+                    </div>
+                </transition>
                 <transition name="fade">
                     <div class="title" v-show="step > 1">
                         <h1>{{ title }}</h1>
@@ -26,7 +29,8 @@
                         <div v-for="(ls, type) in tags" class="tag-type">
                             <span>{{ type }}</span>
                             <el-tag class="selector" v-for="(tid, tname) in ls" :key="tid"
-                                    :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid, tname)" v-show="showTag">
+                                    :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid, tname)"
+                                    v-show="showTag">
                                 {{ tname }}
                             </el-tag>
                         </div>
@@ -38,7 +42,7 @@
                         <el-tag v-for="tid in selectedTag" :key="tid">{{ tid2tname[tid] }}</el-tag>
                     </div>
                 </transition>
-                <transition name="slide" enter-active-class="slideInUp">
+                <transition name="slide" enter-active-class="slideInUp" leave-active-class="slideOutDown">
                     <div class="edit-detail" v-show="step === 3">
                         <mavon-editor :toolbars="toolbars" v-model="detail" ref=md
                                       :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"
@@ -108,6 +112,13 @@ export default {
     },
     methods: {
         submitTitle() {
+            if (this.title === '') {
+                this.$message({
+                    message: '问题标题不能为空',
+                    type: 'warning'
+                })
+                return;
+            }
             this.step = 2;
         },
         submitTags() {
@@ -120,11 +131,9 @@ export default {
                     this.tagState[tagList[category][tag]] = false;
                     if (category === 'Env') {
                         this.tags['环境'][tag] = tagList[category][tag];
-                    }
-                    else if (category === 'Lang') {
+                    } else if (category === 'Lang') {
                         this.tags['语言'][tag] = tagList[category][tag];
-                    }
-                    else {
+                    } else {
                         this.tags['其它'][tag] = tagList[category][tag];
                     }
                     this.tid2tname[tagList[category][tag]] = tag;
@@ -145,20 +154,52 @@ export default {
         },
         submitQuestion() {
             let _this = this;
-            this.$axios.post(this.BASE_URL + '/api/questions/add_question', {
-                title: _this.title,
-                remarks: _this.detail,
-                tags: _this.selectedTag
-            }, {
-                headers: {
-                    Authorization: 'Bearer ' + _this.$store.state.token,
-                    type: 'application/json;charset=utf-8'
-                }
-            })
-            .then(function (response) {
-                _this.$changePage(2);
-            })
-            this.step = 1;
+            if (this.detail === '') {
+                this.$message({
+                    message: '问题详情不能为空',
+                    type: 'warning'
+                });
+                return;
+            }
+            this.$confirm('是否提交你的问题？', '提交确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+            }).then(() =>
+                this.$axios.post(this.BASE_URL + '/api/questions/add_question', {
+                    title: _this.title,
+                    remarks: _this.detail,
+                    tags: _this.selectedTag
+                }, {
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(function (response) {
+                        _this.title = '';
+                        _this.detail = '';
+                        _this.selectedTag = [];
+                        _this.step = 1;
+                        _this.initTagState();
+                        _this.$message({
+                            message: '提问成功',
+                            type: 'success'
+                        })
+                        _this.$changePage(2);
+                    })
+            )
+                .catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '取消提交'
+                    });
+                })
+        },
+        gotoStep(step) {
+            if (step > 1 && this.title === '') {
+                return;
+            }
+            this.step = step;
         }
     },
     computed: {
@@ -186,7 +227,7 @@ export default {
     top: 0;
     width: 95vw;
     height: 100vh;
-    background-color: rgba(246, 246, 246, 1);
+    background-color: rgba(246, 246, 246, 0.5);
     flex-direction: column;
     align-items: stretch;
     padding: 50px 0;
@@ -198,9 +239,8 @@ export default {
 }
 
 .main-body {
-    flex-direction: row;
+    flex-direction: column;
     align-items: stretch;
-    margin-right: 150px;
 }
 
 .el-main {
@@ -219,7 +259,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    margin: 0 100px;
+    margin: 0 200px;
 }
 
 .el-button {
@@ -231,16 +271,17 @@ h1 {
     margin: 0;
     font-size: 20px;
 }
+
 .edit-title {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .title {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .select-tag {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .tag-type {
@@ -250,11 +291,13 @@ h1 {
 
 .tag {
     flex-direction: row;
-    margin-top: 40px;
+    margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .tag .el-tag {
     cursor: default;
+    margin-top: 10px;
 }
 
 .el-tag {
@@ -262,7 +305,7 @@ h1 {
 }
 
 .edit-detail {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .markdown-body {

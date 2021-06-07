@@ -137,6 +137,6 @@ body {
 }
 
 .CodeMirror {
-    height: 90vh!important;
+    height: 80vh!important;
 }
 </style>

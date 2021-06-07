@@ -9,7 +9,8 @@
             <span>环境</span>
             <div class="tag-selector">
                 <el-tag v-for="(tid, tname) in this.$store.state.tagList.Env" :key="tid"
-                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag">
+                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag"
+                        :class="{'unclickable': !tagSelectValid}">
                     {{ tname }}
                 </el-tag>
             </div>
@@ -18,7 +19,8 @@
             <span>语言</span>
             <div class="tag-selector">
                 <el-tag v-for="(tid, tname) in this.$store.state.tagList.Lang" :key="tid"
-                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag">
+                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag"
+                        :class="{'unclickable': !tagSelectValid}">
                     {{ tname }}
                 </el-tag>
             </div>
@@ -27,7 +29,8 @@
             <span>其它</span>
             <div class="tag-selector">
                 <el-tag v-for="(tid, tname) in this.$store.state.tagList.Other" :key="tid"
-                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag">
+                        :effect="tagState[tid]? 'dark' : 'light'" @click="select(tid)" v-show="showTag"
+                        :class="{'unclickable': !tagSelectValid}">
                     {{ tname }}
                 </el-tag>
             </div>
@@ -56,6 +59,9 @@ export default {
             this.$search(this.question);
         },
         select(tid) {
+            if (!this.tagSelectValid) {
+                return;
+            }
             this.$store.state.questionList.tagState[tid] = !this.$store.state.questionList.tagState[tid];
             this.showTag = false;
             this.showTag = true;
@@ -72,6 +78,9 @@ export default {
     computed: {
         tagState() {
             return this.$store.state.questionList.tagState;
+        },
+        tagSelectValid() {
+            return this.$store.state.questionList.tagSelectValid;
         }
     }
 }
@@ -125,4 +134,7 @@ i:hover {
     color: #6dfff3;
 }
 
+.unclickable {
+    cursor: default;
+}
 </style>

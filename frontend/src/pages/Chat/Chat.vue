@@ -194,6 +194,10 @@ export default {
     },
     watch: {
         username: function (username) {
+            if (username === '') {
+                this.$store.state.logs = [{id: 2, content: '你好，我是AIApe！请先登录！', prompts:[], promptValid: false}];
+                return;
+            }
             let _this = this;
             this.waitTag = true;
             this.$store.commit('addAImessage', {

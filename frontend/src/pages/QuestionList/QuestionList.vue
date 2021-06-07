@@ -134,6 +134,7 @@ export default {
             }
 
             this.getQuestionsValid = false;
+            this.$store.state.questionList.tagSelectValid = false;
             let _this = this;
 
             let post_data = {
@@ -180,10 +181,7 @@ export default {
                 .catch(function (error) {
                 });
             this.getQuestionsValid = true;
-        },
-        goToDetail(qid) {
-            this.$store.commit('setQuestionID', qid);
-            this.$changePage(3);
+            this.$store.state.questionList.tagSelectValid = true;
         },
         gotoAdministration() {
             this.$router.replace('/administration');
@@ -343,6 +341,10 @@ export default {
                     message: '已取消删除'
                 });
             })
+        },
+        goToDetail(qid) {
+            this.$store.commit('setQuestionID', qid);
+            this.$changePage(3);
         },
     },
     computed: {
@@ -513,6 +515,7 @@ export default {
 
 .tags {
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .other-info {
@@ -524,6 +527,7 @@ export default {
 .recommend-time {
     flex-direction: row;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .el-tag {
