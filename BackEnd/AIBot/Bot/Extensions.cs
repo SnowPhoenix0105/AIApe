@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Buaa.AIBot.Bot.Framework;
 using Buaa.AIBot.Bot.WorkingModule;
 using Microsoft.Extensions.Configuration;
+using Buaa.AIBot.Bot.BetaBot;
 
 namespace Buaa.AIBot.Bot
 {
@@ -52,9 +53,10 @@ namespace Buaa.AIBot.Bot
 
         public static IServiceCollection AddBetaBot(this IServiceCollection services, IConfiguration config)
         {
+            var statusPool = new StatusContainerPoolInMemory<BetaBot.StatusId>();
             var options = new BotRunnerOptions<BetaBot.StatusId>()
             {
-                StatusPool = new StatusContainerPoolInMemory<BetaBot.StatusId>(),
+                StatusPool = statusPool,
                 BehaviourPool = new StatusBehaviourPool<BetaBot.StatusId>(BetaBot.Configuration.GetStatusBehaviours()),
                 InitStatus = new BotStatus<BetaBot.StatusId>()
                 {
@@ -64,7 +66,9 @@ namespace Buaa.AIBot.Bot
             services
                 .AddWorkingModule(config)
                 .AddTransient<IBotRunner>(
-                services => new BotRunner<BetaBot.StatusId>(options, services.GetService<IWorkingModule>()));
+                services => new BotRunner<BetaBot.StatusId>(options, services.GetService<IWorkingModule>()))
+                .AddTransient(services => new QuestionTemplateGenerater(statusPool))
+                ;
 
             return services;
         }

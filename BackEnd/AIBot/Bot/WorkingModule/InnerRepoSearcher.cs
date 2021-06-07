@@ -30,6 +30,10 @@ namespace Buaa.AIBot.Bot.WorkingModule
         private async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> BuildTagsAsync(IReadOnlyDictionary<int, TagCategory> tagIndex, int qid)
         {
             var questionTags = await questionService.QuestionRepository.SelectTagsForQuestionByIdAsync(qid);
+            if (questionTags == null)
+            {
+                return null;
+            }
             var ret = new Dictionary<TagCategory, Dictionary<int, string>>(
                 Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, Dictionary<int, string>>(c, new Dictionary<int, string>())));
             foreach (var kv in questionTags)
@@ -52,12 +56,16 @@ namespace Buaa.AIBot.Bot.WorkingModule
                 {
                     continue;
                 }
-                ret.Add(new QuestionScoreInfo()
+                var tags = await BuildTagsAsync(tagIndex, t.Item1);
+                if (tags != null)
                 {
-                    Qid = t.Item1,
-                    Score = t.Item2,
-                    Tags = await BuildTagsAsync(tagIndex, t.Item1)
-                });
+                ret.Add(new QuestionScoreInfo()
+                    {
+                        Qid = t.Item1,
+                        Score = t.Item2,
+                        Tags = tags
+                    });
+                }
             }
             return ret;
         }

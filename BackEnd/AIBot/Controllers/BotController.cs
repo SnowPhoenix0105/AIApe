@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Buaa.AIBot.Bot.Framework;
 using Buaa.AIBot.Services;
 using Buaa.AIBot.Controllers.Models;
+using Buaa.AIBot.Bot.BetaBot;
 
 namespace Buaa.AIBot.Controllers
 {
@@ -24,11 +25,13 @@ namespace Buaa.AIBot.Controllers
     {
         private readonly IBotRunner botRunner;
         private readonly IUserService userService;
+        private readonly QuestionTemplateGenerater questionTemplateGenerater = null;
 
-        public BotController(IBotRunner botRunner, IUserService userService)
+        public BotController(IBotRunner botRunner, IUserService userService, QuestionTemplateGenerater questionTemplateGenerater)
         {
             this.botRunner = botRunner;
             this.userService = userService;
+            this.questionTemplateGenerater = questionTemplateGenerater;
         }
 
         [Authorize(Policy = "UserAdmin")]
@@ -52,6 +55,33 @@ namespace Buaa.AIBot.Controllers
                 Message = message
             });
             return Ok(info);
+        }
+
+        [Authorize(Policy = "UserAdmin")]
+        [HttpGet("question_template")]
+        public async Task<IActionResult> QuestionTemplateAsync()
+        {
+            if (questionTemplateGenerater == null)
+            {
+                return NotFound(new
+                {
+                    Status = "notSupport",
+                    Message = "question template is disabled"
+                });
+            }
+            bool force = false;
+            if (HttpContext.Request.Query.TryGetValue("f", out var f))
+            {
+                force = (f == "1");
+            }
+            int uid = userService.GetUidFromToken(Request);
+            var res = await questionTemplateGenerater.GenerateAsync(uid, force);
+            return Ok(new
+            {
+                Status = "success",
+                Message = "get question template success",
+                Template = res
+            });
         }
     }
 }
