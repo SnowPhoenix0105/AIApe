@@ -51,6 +51,13 @@ export default {
         },
         showCodeAnalysis() {
             this.$store.state.mobileStatus = 'codeAnalysis';
+        },
+        login() {
+            if(this.$store.state.username === '') {
+                this.$store.state.mobileStatus = 'login';
+            } else {
+                this.$store.state.mobileStatus = 'personalCenter';
+            }
         }
     }
 }

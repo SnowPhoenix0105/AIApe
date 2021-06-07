@@ -41,6 +41,7 @@ axios.interceptors.response.use(response => {
     if (existTime > store.state.timeout) {
         alert('登录超时!');
         router.replace('/login');
+        this.$store.state.mobileStatus = 'login';
     }
     else {
         axios.post( BASE_URL + '/api/user/fresh', {
