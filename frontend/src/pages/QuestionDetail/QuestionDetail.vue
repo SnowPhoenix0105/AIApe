@@ -53,7 +53,7 @@
                                   :subfield="prop.subfield" :defaultOpen="prop.defaultOpen"
                                   :toolbarsFlag="prop.toolbarsFlag" :editable="prop.editable"
                                   :scrollStyle="prop.scrollStyle" :boxShadow="prop.boxShadow"
-                                  style="max-height: 0; z-index: 1"
+                                  style="max-height: 0; z-index: 20"
                                   placeholder="编辑你的回答...">
                     </mavon-editor>
                     <el-button @click="submitAnswer" class="submit">提交答案</el-button>
@@ -230,6 +230,20 @@ export default {
         },
         submitAnswer() {
             let answer = this.myAnswer;
+            if (this.$store.state.username === '') {
+                this.$message({
+                    message: '登录后才能回答~！',
+                    type: 'warning'
+                })
+                return;
+            }
+            if (this.myAnswer === '') {
+                this.$message({
+                    message: '回答不能为空！',
+                    type: 'warning'
+                })
+                return;
+            }
             let _this = this;
             if (this.myAnswerId > 0) {
                 this.$confirm('你已经回答过这个问题，确认修改你的答案吗？', '修改确认', {

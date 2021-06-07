@@ -1,13 +1,24 @@
 <template>
     <el-aside width="5vw">
+        <el-popover placement="right-end" trigger="hover" :title="this.$store.state.username" content="欢迎使用AIApe" v-if="this.$store.state.username !== ''">
+            <el-button type="text" @click="logout" style="float: right">退出登录</el-button>
+            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                       size="large" @click.native="login" slot="reference"></el-avatar>
+        </el-popover>
+        <el-popover placement="right-end" trigger="hover" v-else title="点击登录" content="登录后查看更多精彩内容！">
         <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                   size="large" @click.native="login"></el-avatar>
+                   size="large" @click.native="login" slot="reference"></el-avatar>
+        </el-popover>
         <i class="el-icon-chat-dot-round" :class="(index === 0)? 'selected' : 'unselected'" @click="changePage(0);"></i>
-        <i class="el-icon-edit" :class="(index === 1)? 'selected' : 'unselected'" @click="changePage(1);"></i>
         <i class="el-icon-notebook-2" :class="(index === 2)? 'selected' : 'unselected'" @click="changePage(2);"></i>
-        <i class="el-icon-paperclip" :class="(index === 3)? 'selected' : 'unselected'" @click="changePage(3);" v-show="questionDetailExist"></i>
-        <i class="el-icon-search" :class="(index === 4)? 'selected' : 'unselected'" @click="changePage(4);" v-show="searchResultExist"></i>
-        <i class="el-icon-cpu" :class="(index === 5)? 'selected' : 'unselected'" @click="changePage(5);"></i>
+        <i class="el-icon-edit" :class="(index === 1)? 'selected' : 'unselected'" @click="changePage(1);"
+           v-show="this.$store.state.username !== ''"></i>
+        <i class="el-icon-paperclip" :class="(index === 3)? 'selected' : 'unselected'" @click="changePage(3);"
+           v-show="questionDetailExist"></i>
+        <i class="el-icon-search" :class="(index === 4)? 'selected' : 'unselected'" @click="changePage(4);"
+           v-show="searchResultExist"></i>
+        <i class="el-icon-cpu" :class="(index === 5)? 'selected' : 'unselected'" @click="changePage(5);"
+        v-show="this.$store.state.username !== ''"></i>
     </el-aside>
 </template>
 
@@ -33,13 +44,18 @@ export default {
         login() {
             if (this.$store.state.username === '') {
                 this.$store.state.show.login = true;
-            }
-            else {
+            } else {
                 this.$changePage(6);
             }
         },
         changePage(index) {
             this.$changePage(index);
+        },
+        logout() {
+            this.$store.state.username = '';
+            this.$store.state.uid = 0;
+            this.$store.state.token = '';
+            this.$changePage(0);
         }
     }
 }
