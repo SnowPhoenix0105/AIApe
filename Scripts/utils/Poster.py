@@ -17,7 +17,10 @@ base_urls = [
         "test.snowphoenix.design", 
         "localhost:5000", 
         "aiape.snowphoenix.design"]
-base_url = base_urls[1]
+
+# 修改这里来选择一个合适的远端
+base_url = base_urls[0]
+log(f"using base_url: {base_url}")
 
 def set_default_jwt(token: str):
     global default_jwt
