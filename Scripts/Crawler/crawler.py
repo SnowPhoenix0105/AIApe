@@ -113,5 +113,6 @@ if __name__ == '__main__':
     DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
     logging.basicConfig(filename=os.path.join(const.LOG_PATH, '{}.log'.format(datetime.datetime.now().strftime('%Y-%m-%d'))),
                         level=logging.INFO, format=LOG_FORMAT, datefmt=DATE_FORMAT)
-    crawler = Crawler()
-    crawler.start()
+    # crawler = Crawler()
+    # crawler.start()
+    HTMLParser().fix_dataset()
