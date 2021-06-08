@@ -146,7 +146,7 @@ class MyFrame(wx.Frame):
             next_page = wx.Button(self.panel, label="下一条")
 
         self.Bind(wx.EVT_BUTTON, lambda event: self.jump_to_page(self.current_index - 1), front_page)
-        self.Bind(wx.EVT_BUTTON, lambda event: self.jump_to_page(self.index_text.GetValue()), jump_to)
+        self.Bind(wx.EVT_BUTTON, lambda event: self.jump_to_page(int(self.index_text.GetValue())), jump_to)
         self.Bind(wx.EVT_BUTTON, lambda event: self.jump_to_page(self.current_index + 1), next_page)
 
         origin_hsizer.Add(front_page, flag=wx.ALL, border=2)

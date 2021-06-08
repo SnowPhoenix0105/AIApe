@@ -54,6 +54,9 @@ def _build_all_questions() -> List[Dict[str, object]]:
         for question in questions:
             with open(pcat(pure_lang, question), 'r', encoding='utf8') as f:
                 pure_info = json.load(f)
+            # TODO
+            if len(pure_info["remarks"]) >= (65535/4):
+                continue
             tags = set(pure_info["tags"])
             auto_path = pcat(auto_tag_lang, question)
             if not os.path.exists(auto_path):
