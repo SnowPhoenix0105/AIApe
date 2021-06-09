@@ -374,7 +374,7 @@ namespace Buaa.AIBot.Controllers
             } catch (NameHasExistException) {
                 return Conflict(new
                 {
-                    Status = "NameExisted",
+                    Status = "nameExisted",
                     Message = "name has been used by other user"
                 });
             }

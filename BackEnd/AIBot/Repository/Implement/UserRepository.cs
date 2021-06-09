@@ -299,12 +299,12 @@ namespace Buaa.AIBot.Repository.Implement
                         .Where(u => u.Name == user.Name)
                         .FirstOrDefaultAsync(CancellationToken);
                     CancellationToken.ThrowIfCancellationRequested();
-                    if (old != null)
+                    if (old != null && old.UserId != user.UserId)
                     {
                         throw new NameHasExistException(user.Name);
                     }
                 } 
-                if ((await Context.Users.FindAsync(user.UserId)) == null)
+                if ((await Context.Users.Where(u => u.UserId == user.UserId).FirstOrDefaultAsync(CancellationToken)) == null)
                 {
                     throw new UserNotExistException(user.UserId);
                 }
