@@ -53,7 +53,34 @@
                     </div>
                 </el-main>
                 <el-main class="question-list" v-else>
-                    啊啊啊
+                    <div class="question-body" v-for="answer in answers">
+                        <i class="el-icon-delete"
+                           v-show="true"
+                           @click="deleteAnswer(answer)">
+                        </i>
+                        <br/>
+                        <div>
+                            <el-link class='title' @click="goToDetail(answer.questionId)" :underline="false">
+                                {{ answer.title }}
+                            </el-link>
+                        </div>
+                        <div class="content">
+                            {{ answer.content }}
+                        </div>
+                        <div class="other-info">
+                            <div class="tags">
+                                <el-tag v-for="(tid, tName) in answer.tags" :key="tid">{{ tName }}</el-tag>
+                            </div>
+                            <div class="recommend-time">
+                                <el-button class="recommend" type="text"
+                                           :icon="answer.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                           @click="likeAnswer(answer)">
+                                    推荐{{ answer.likeNum }}
+                                </el-button>
+                                <span>{{ answer.createTime }}</span>
+                            </div>
+                        </div>
+                    </div>
                 </el-main>
             </div>
         </el-container>
@@ -72,7 +99,8 @@ export default {
             question: '',
             email: '',
             uid: 0,
-            likeValid: true
+            likeValid: true,
+            getAnswerValid: true,
         }
     },
     methods: {
@@ -448,13 +476,18 @@ export default {
     font-size: 20px;
     font-weight: bold;
     margin-top: 10px;
-    margin-left: 30px;
+    margin-left: 5vw;
     /*white-space: nowrap;*/
     /*overflow: hidden;*/
     /*text-overflow: ellipsis;*/
     /*display: block;*/
     margin-right: 20px;
     overflow: hidden;
+}
+
+.content {
+    margin-left: 5vw;
+    margin-top: 1.5vh;
 }
 
 .tags {
