@@ -287,6 +287,10 @@ namespace Buaa.AIBot.Controllers
                     });
                 }
             }
+            var modifyInfo = new UserInfo()
+            {
+                UserId = uid
+            };
             UserInfo userInfo = await userRepository.SelectUserByIdAsync(uid);
             if (userInfo == null)
             {
@@ -306,7 +310,7 @@ namespace Buaa.AIBot.Controllers
                         Message = "either contains illegal characters or length of name is too long or too short"
                     });
                 }
-                userInfo.Name = body.Name;
+                modifyInfo.Name = body.Name;
             }
             if (body.Password != null)
             {
@@ -326,7 +330,7 @@ namespace Buaa.AIBot.Controllers
                         Message = "new password can not be the same as original one"
                     });
                 }
-                userInfo.Bcrypt = BNBCrypt.HashPassword(body.Password);
+                modifyInfo.Bcrypt = BNBCrypt.HashPassword(body.Password);
             }
             if (body.Auth != null)
             {
@@ -354,15 +358,19 @@ namespace Buaa.AIBot.Controllers
                 {
                     body.Auth = 1;
                 }
-                userInfo.Auth = AuthLevelFromInt[body.Auth.GetValueOrDefault(0)];
-                if (body.ProfilePhoto != null)
-                {
-                    userInfo.ProfilePhoto = body.ProfilePhoto;
-                }
+                modifyInfo.Auth = AuthLevelFromInt[body.Auth.GetValueOrDefault(0)];
+            }
+            else
+            {
+                modifyInfo.Auth = AuthLevel.None;
+            }
+            if (body.ProfilePhoto != null)
+            {
+                modifyInfo.ProfilePhoto = body.ProfilePhoto;
             }
             try
             {
-                await userRepository.UpdateUserAsync(userInfo);
+                await userRepository.UpdateUserAsync(modifyInfo);
             } catch (NameHasExistException) {
                 return Conflict(new
                 {
