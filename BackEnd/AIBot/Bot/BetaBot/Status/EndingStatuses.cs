@@ -19,8 +19,8 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             context.Sender.AddMessage(SentenceGeneration.Choose(
                 $"小猿已经帮您创建好提问模板，请通过导航栏前往提问页面完善您的问题"
                 ))
-                .AddMessage("已经完成提问")
-                .AddMessage("我不想提问")
+                .AddPrompt("已经完成提问")
+                .AddPrompt("我不想提问")
                 ;
             return Task.CompletedTask;
         }

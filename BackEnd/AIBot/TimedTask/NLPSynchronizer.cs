@@ -159,11 +159,25 @@ namespace Buaa.AIBot.TimedTask
                     // logger.LogInformation("not in remote:{remoteQids}", notRemoteQids);
                     foreach (var qid in deletedQids.Where(q => !localQids.Contains(q)).Where(q => !notRemoteQids.Contains(q)))
                     {
-                        await nlpService.DeleteAsync(qid);
+                        try
+                        {
+                            await nlpService.DeleteAsync(qid);
+                        }
+                        catch (System.Exception e)
+                        {
+                            logger.LogError("NLPSychronizer calling nlpService.DeleteAsync with exception: {e}", e);
+                        }
                     }
                     foreach (var qid in notRemoteQids.Where(q => localQids.Contains(q)))
                     {
-                        await AddQuestionAsync(qid, nlpService, context, ct);
+                        try
+                        {
+                            await AddQuestionAsync(qid, nlpService, context, ct);
+                        }
+                        catch (System.Exception e)
+                        {
+                            logger.LogError("NLPSychronizer calling nlpService.AddQuestionAsync with exception: {e}", e);
+                        }
                     }
                     lastQid = nextQid;
                 }
