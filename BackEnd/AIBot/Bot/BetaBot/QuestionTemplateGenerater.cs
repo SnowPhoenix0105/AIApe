@@ -26,6 +26,14 @@ namespace Buaa.AIBot.Bot.BetaBot
         public async Task<QuestionTemplate> GenerateAsync (int qid, bool force)
         {
             var status = await statusPool.GetStatusAsync(qid);
+            if (status == null)
+            {
+                if (force)
+                {
+                    return new QuestionTemplate();
+                }
+                return null;
+            }
             if (!force && status.Status != StatusId.CreateQuestion)
             {
                 return null;
