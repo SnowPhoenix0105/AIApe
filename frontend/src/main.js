@@ -72,7 +72,8 @@ Vue.prototype.$search = function (key) {
     })
         .then(async function (response) {
             console.log(response);
-            let questions = response.data.questions;
+            let questions = response.data;
+            console.log(questions)
             for (let qid of questions) {
                 await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
                     .then(async function (response) {
