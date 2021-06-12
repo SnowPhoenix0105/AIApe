@@ -12,6 +12,7 @@ import App from './App'
 import store from "./vuex/store";
 import axios from 'axios';
 import router from './router';
+import {windows} from "codemirror/src/util/browser";
 
 Vue.prototype.$axios = axios;
 // const BASE_URL = 'https://aiape.snowphoenix.design';
@@ -40,12 +41,20 @@ axios.interceptors.response.use(response => {
 
     if (existTime > store.state.timeout) {
         alert('登录超时!');
-        router.replace('/login');
-        this.$store.state.mobileStatus = 'login';
-        this.$store.state.username = '';
-    }
-    else {
-        axios.post( BASE_URL + '/api/user/fresh', {
+        store.state.username = '';
+        store.state.uid = 0;
+        store.state.token = '';
+        store.state.routerIndex = 0;
+        if (store.state.isMobile) {
+            window.location.reload();
+        } else {
+            router.replace('/chat');
+        }
+        // router.replace('/login');
+        // this.$store.state.mobileStatus = 'login';
+        // this.$store.state.username = '';
+    } else {
+        axios.post(BASE_URL + '/api/user/fresh', {
             token: store.state.token
         })
             .then(function (ret) {

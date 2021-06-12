@@ -72,6 +72,7 @@ export default {
         this.system.mac = p.indexOf("Mac") == 0;
         this.system.xll = p.indexOf("Xll") == 0;
         this.isMobile = !(this.system.win || this.system.mac || this.system.xll);
+        this.$store.state.isMobile = this.isMobile;
         // this.isMobile = true;
         // this.$store.state.mobileStatus = 'questionList';
 

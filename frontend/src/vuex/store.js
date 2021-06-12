@@ -29,7 +29,8 @@ export default new Vuex.Store({
             tagState: {},
             selectedTag: [],
             tagSelectValid: true
-        }
+        },
+        isMobile: false,
     },
     mutations: {
         setUsername(state, value) {
