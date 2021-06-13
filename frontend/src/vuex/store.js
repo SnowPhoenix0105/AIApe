@@ -35,7 +35,8 @@ export default new Vuex.Store({
             title: '',
             tags: [],
             remarks: ''
-        }
+        },
+        isMobile: false,
     },
     mutations: {
         setUsername(state, value) {

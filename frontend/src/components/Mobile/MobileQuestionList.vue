@@ -74,7 +74,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="question-body" v-for="question in searchResult" :key="question.id"
+                    <div class="question-body" v-for="question in this.$store.state.searchResult" :key="question.id"
                          v-if="select==='search'">
                         <div class="user">
                             <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
@@ -137,38 +137,7 @@ export default {
     },
     methods: {
         search() {
-            // alert('here')
-            // this.$search(this.question);
-            let _this = this;
-            this.$data.searchResult = [];
-            this.$axios.post(this.BASE_URL + '/api/questions/search', {
-                content: _this.question
-            })
-                .then(async function (response) {
-                    console.log(response);
-                    let questions = response.data.questions;
-                    for (let qid of questions) {
-                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
-                            .then(async function (response) {
-                                let question = {
-                                    id: qid,
-                                    title: response.data.question.title,
-                                    content: response.data.question.remarks,
-                                    tags: response.data.question.tags,
-                                    date: response.data.question.createTime
-                                };
-                                let uid = response.data.question.creator;
-                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
-                                    .then(function (response) {
-                                        question.creator = response.data.name;
-                                    })
-                                _this.data.searchResult.push(question);
-                            });
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                })
+            this.$search(this.question);
             this.handleSelect('search');
         },
         handleSelect(selector) {
