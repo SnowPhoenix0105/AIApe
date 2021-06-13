@@ -4,11 +4,11 @@
     </div>
     <div v-else>
         <el-container>
-            <div class="background">
+            <div class="background" v-if="!$route.meta.welcome">
                 <img :src="imgSrc" width="100%" height="100%" alt=""/>
             </div>
             <Login v-show="this.$store.state.show.login"></Login>
-            <SideBar/>
+            <SideBar v-if="!$route.meta.welcome"></SideBar>
             <transition
                 name="zoom"
                 enter-active-class="zoomInLeft"
@@ -27,6 +27,7 @@
     </div>
 </template>
 
+<script src="https://cdn.bootcss.com/showdown/1.3.0/showdown.min.js"></script>
 <script>
 import Chat from './pages/Chat/Chat.vue'
 import SideBar from "./components/SideBar/SideBar";
@@ -71,8 +72,9 @@ export default {
         this.system.mac = p.indexOf("Mac") == 0;
         this.system.xll = p.indexOf("Xll") == 0;
         this.isMobile = !(this.system.win || this.system.mac || this.system.xll);
+        this.$store.state.isMobile = this.isMobile;
         // this.isMobile = true;
-        // this.$store.state.mobileStatus = 'login';
+        // this.$store.state.mobileStatus = 'questionList';
 
         //在页面加载时读取localStorage里的状态信息
         if (sessionStorage.getItem("store")) {
@@ -99,7 +101,8 @@ export default {
 
 body {
     margin: 0;
-    overflow: hidden;
+    overflow-y: scroll;
+    overflow-x: hidden;
     font-family: msyh, Georgia;
 }
 
@@ -123,12 +126,12 @@ body {
 }
 
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 0!important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: #eaecf1;
-    border-radius: 3px;
+    border-radius: 5px!important;
 }
 
 .v-show-content {
@@ -136,6 +139,6 @@ body {
 }
 
 .CodeMirror {
-    height: 90vh!important;
+    height: 80vh!important;
 }
 </style>

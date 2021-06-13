@@ -1,34 +1,21 @@
 <template>
     <el-aside width="30vw">
-        <el-main class="search-question">
-            <el-input placeholder="搜索你的问题" v-model="question">
-                <i slot="suffix" class="el-input__icon el-icon-search" @click="search" style="cursor: pointer"></i>
-            </el-input>
-        </el-main>
-        <el-main class="category">
-            <span>环境</span>
-<!--            <div class="tag-selector">-->
-<!--                <el-tag v-for="(tid, tname) in this.EnvTag" :key="tid">-->
-<!--                    {{ tname }}-->
-<!--                </el-tag>-->
-<!--            </div>-->
-        </el-main>
-        <el-main class="category">
-            <span>语言</span>
-<!--            <div class="tag-selector">-->
-<!--                <el-tag v-for="(tid, tname) in this.LangTag" :key="tid">-->
-<!--                    {{ tname }}-->
-<!--                </el-tag>-->
-<!--            </div>-->
-        </el-main>
-        <el-main class="category">
-            <span>其它</span>
-<!--            <div class="tag-selector">-->
-<!--                <el-tag v-for="(tid, tname) in this.tags" :key="tid">-->
-<!--                    {{ tname }}-->
-<!--                </el-tag>-->
-<!--            </div>-->
-        </el-main>
+        <div>
+            <el-main class="search-question">
+                <el-input placeholder="搜索你的问题" v-model="question">
+                    <i slot="suffix" class="el-input__icon el-icon-search" @click="search" style="cursor: pointer"></i>
+                </el-input>
+            </el-main>
+            <el-main class="hots">
+                <h1 style="margin-top: 0">大家都在看：</h1>
+                <div class="hot" v-for="(question, index) in hots.slice(0, 10)">
+                    {{ index + 1 }}.
+                    <span class="title" @click="goToDetail(question.id)">
+                    {{ question.title }}
+                </span>
+                </div>
+            </el-main>
+        </div>
         <el-main class="info">
             <span>AIApe</span>
             <span>京ICP备 2021007509号-1</span>
@@ -40,16 +27,55 @@
 </template>
 
 <script>
+import marked from "marked";
+
 export default {
     data() {
         return {
-            question: ''
+            question: '',
+            hots: []
         }
     },
     methods: {
         search() {
             this.$search(this.question);
-        }
+        },
+        goToDetail(qid) {
+            this.$store.commit('setQuestionID', qid);
+            this.$changePage(3);
+        },
+    },
+    created() {
+        let _this = this;
+        this.$axios.get(_this.BASE_URL + '/api/questions/hotlist')
+            .then(async function (response) {
+                let hotList = response.data;
+                for (let qid of hotList) {
+                    await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid, {
+                        headers: {
+                            Authorization: 'Bearer ' + _this.$store.state.token,
+                            type: 'application/json;charset=utf-8'
+                        }
+                    })
+                        .then(async function (response) {
+                            let question = {
+                                id: qid,
+                                title: response.data.question.title,
+                                content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
+                                tags: response.data.question.tags,
+                                date: response.data.question.createTime,
+                                likeNum: response.data.question.likeNum,
+                                like: response.data.question.like
+                            };
+                            let uid = response.data.question.creator;
+                            await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
+                                .then(function (response) {
+                                    question.creator = response.data.name;
+                                })
+                            _this.hots.push(question);
+                        })
+                }
+            });
     }
 }
 </script>
@@ -59,6 +85,7 @@ export default {
     flex-direction: column;
     height: 95vh;
     overflow: visible;
+    justify-content: space-between;
 }
 
 .el-main {
@@ -83,9 +110,10 @@ export default {
     flex-grow: 0;
 }
 
-.category {
+.hots {
     flex-direction: column;
     padding: 20px;
+    flex-grow: 0;
 }
 
 .el-tag {
@@ -102,4 +130,19 @@ i:hover {
     color: #6dfff3;
 }
 
+.hot {
+    width: 25vw;
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 10px;
+}
+
+.title {
+    cursor: pointer;
+}
+
+.title:hover {
+    color: #409EFF;
+}
 </style>

@@ -12,7 +12,6 @@
 
         </el-main>
         <el-main>
-
         </el-main>
         <el-main class="info">
             <span>AIApe</span>

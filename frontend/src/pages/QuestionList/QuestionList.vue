@@ -15,9 +15,15 @@
                 <el-main class="question-list" v-if="select==='new'">
                     <div class="question-body" v-for="question in questionList">
                         <div class="user">
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                       size="small" style="margin-right: 10px"></el-avatar>
-                            {{ question.creator }}
+                            <div style="display: flex; align-items: center">
+                                <el-avatar :src="'http://81.70.211.128/aiape/icon-avatar' + question.avatarIndex + '.png'"
+                                           size="small" style="margin-right: 10px"></el-avatar>
+                                {{ question.creator }}
+                                {{ question.avatarIndex }}
+                            </div>
+                            <i class="el-icon-delete"
+                               v-show="authority > 1 || currentUId === question.creatorId"
+                               @click="deleteQuestion(question)"></i>
                         </div>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
@@ -43,9 +49,11 @@
                 <el-main class="question-list" v-else>
                     <div class="question-body" v-for="question in hots">
                         <div class="user">
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                       size="small" style="margin-right: 10px"></el-avatar>
-                            {{ question.creator }}
+                            <div style="display: flex; align-items: center">
+                                <el-avatar :src="'http://81.70.211.128/aiape/icon-avatar' + question.avatarIndex + '.png'"
+                                           size="small" style="margin-right: 10px"></el-avatar>
+                                {{ question.creator }}
+                            </div>
                         </div>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
@@ -76,7 +84,8 @@
 
 <script>
 import ListSideBar from "./ListSideBar";
-import 'markdown-it-vue/dist/markdown-it-vue.css'
+import 'markdown-it-vue/dist/markdown-it-vue.css';
+import marked from 'marked';
 
 export default {
     components: {
@@ -126,10 +135,11 @@ export default {
             }
 
             this.getQuestionsValid = false;
+            this.$store.state.questionList.tagSelectValid = false;
             let _this = this;
 
             let post_data = {
-                number: 16,
+                number: 8,
                 tags: this.selectedTag
             }
             if (pt > 0) {
@@ -139,7 +149,7 @@ export default {
                 .then(async function (response) {
                     let questionIdList = response.data;
                     _this.last_index = questionIdList[questionIdList.length - 1];
-                    if (questionIdList.length < 16) {
+                    if (questionIdList.length < 8) {
                         _this.no_more = true;
                     }
                     for (let qid of questionIdList) {
@@ -153,16 +163,18 @@ export default {
                                 let question = {
                                     id: qid,
                                     title: response.data.question.title,
-                                    content: response.data.question.remarks,
+                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
                                     tags: response.data.question.tags,
                                     date: response.data.question.createTime,
                                     likeNum: response.data.question.likeNum,
-                                    like: response.data.question.like
+                                    like: response.data.question.like,
+                                    creatorId: response.data.question.creator
                                 };
                                 let uid = response.data.question.creator;
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
                                     .then(function (response) {
                                         question.creator = response.data.name;
+                                        question.avatarIndex = response.data.profilePhoto;
                                     })
                                 _this.questionList.push(question);
                             });
@@ -171,15 +183,8 @@ export default {
                 .catch(function (error) {
                 });
             this.getQuestionsValid = true;
+            this.$store.state.questionList.tagSelectValid = true;
         },
-        goToDetail(qid) {
-            this.$store.commit('setQuestionID', qid);
-            this.$changePage(3);
-        },
-        goToPersonalCenter() {
-            this.$router.replace('PersonalCenter');
-        },
-
         gotoAdministration() {
             this.$router.replace('/administration');
         },
@@ -204,6 +209,7 @@ export default {
             }
             let e = this.$refs['scroll-body'];
             if (e.scrollTop + e.offsetHeight > e.scrollHeight - 10 && !this.loading && !this.no_more) {
+
                 this.loading = true;
                 await this.getQuestions(this.last_index);
                 this.loading = false;
@@ -238,7 +244,7 @@ export default {
             this.hots = [];
             this.getHotValid = false;
             let _this = this;
-            this.$axios.get(_this.BASE_URL + '/api/questions/hotlist')
+            await this.$axios.get(_this.BASE_URL + '/api/questions/hotlist')
                 .then(async function (response) {
                     let hotList = response.data;
                     for (let qid of hotList) {
@@ -252,7 +258,7 @@ export default {
                                 let question = {
                                     id: qid,
                                     title: response.data.question.title,
-                                    content: response.data.question.remarks,
+                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
                                     tags: response.data.question.tags,
                                     date: response.data.question.createTime,
                                     likeNum: response.data.question.likeNum,
@@ -262,6 +268,7 @@ export default {
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
                                     .then(function (response) {
                                         question.creator = response.data.name;
+                                        question.avatarIndex = response.data.profilePhoto;
                                     })
                                 _this.hots.push(question);
                             })
@@ -300,7 +307,48 @@ export default {
                     })
                 })
             this.likeValid = true;
-        }
+        },
+        deleteQuestion(question) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该问题, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_question', {
+                    data: {
+                        qid: question.id,
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestions(0, true);
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
+        },
+        goToDetail(qid) {
+            this.$store.commit('setQuestionID', qid);
+            this.$changePage(3);
+        },
     },
     computed: {
         username() {
@@ -308,6 +356,12 @@ export default {
         },
         selectedTag() {
             return this.$store.state.questionList.selectedTag;
+        },
+        currentUId() {
+            return this.$store.state.uid;
+        },
+        authority() {
+            return this.$store.state.auth;
         }
     },
     watch: {
@@ -339,6 +393,7 @@ export default {
             }
         },
         selectedTag: function () {
+            this.no_more = false;
             this.getQuestions(0, true);
         }
     }
@@ -400,9 +455,10 @@ export default {
 }
 
 .user {
-    align-self: flex-start;
+    align-self: stretch;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 }
 
 .el-link {
@@ -438,12 +494,12 @@ export default {
     margin: 10px 30px;
 }
 
-i {
+.el-icon-search {
     color: #409eff;
     font-size: 30px;
 }
 
-i:hover {
+.el-icon-search:hover {
     color: #6dfff3;
 }
 
@@ -461,6 +517,7 @@ i:hover {
 
 .tags {
     flex-direction: row;
+    flex-wrap: wrap;
 }
 
 .other-info {
@@ -472,6 +529,7 @@ i:hover {
 .recommend-time {
     flex-direction: row;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .el-tag {
@@ -495,4 +553,10 @@ i:hover {
     text-overflow: ellipsis;
 }
 
+.el-icon-delete {
+    display: flex;
+    justify-self: flex-end;
+    color: #F56C6C;
+    cursor: pointer;
+}
 </style>

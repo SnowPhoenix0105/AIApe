@@ -5,14 +5,15 @@
         </el-header>
         <el-container class="list">
             <el-main class="selector">
-                <el-button type="text" :class="{'unselected': select === 'hot'}" @click="handleSelect('new')">最新
+                <el-button type="text" :class="{'unselected': select !== 'new'}" @click="handleSelect('new')">最新
                 </el-button>
-                <el-button type="text" :class="{'unselected': select === 'new'}" @click="handleSelect('hot')">热门
+                <el-button type="text" :class="{'unselected': select !== 'hot'}" @click="handleSelect('hot')">热门
                 </el-button>
-
+                <el-button type="text" :class="{'unselected': select !== 'search'}" @click="handleSelect('search')">搜索结果
+                </el-button>
             </el-main>
             <el-input placeholder="搜索你的问题" v-model="question">
-                <i slot="suffix" class="el-input__icon el-icon-search"></i>
+                <i slot="suffix" class="el-input__icon el-icon-search" v-on:click="search"></i>
             </el-input>
             <div style="height: auto; overflow: auto; width: 100vw" ref="scroll-body" id="scroll-body"
                  @scroll="loadMore">
@@ -20,17 +21,49 @@
                     <div class="question-body" v-for="question in questionList" :key="question.id"
                          v-if="select==='new'">
                         <div class="user">
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                       size="small" style="margin-right: 10px"></el-avatar>
-                            {{ question.creator }}
+                            <div>
+                                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                           size="small" style="margin-right: 10px"></el-avatar>
+                                {{ question.creator }}
+                            </div>
+                            <i class="el-icon-delete"
+                               v-show="authority > 1 || currentUId === question.creatorId"
+                               @click="deleteQuestion(question)"></i>
                         </div>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
                         </el-link>
-
-                        <!--                        <p class="content">-->
-                        <!--                            {{ question.content }}-->
-                        <!--                        </p>-->
+                        <div class="other-info">
+                            <div class="tags">
+                                <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
+                            </div>
+                            <div class="recommend-time">
+                                <el-button class="recommend" type="text"
+                                           :icon="question.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                           @click="like(question)">
+                                    推荐{{ question.likeNum }}
+                                </el-button>
+                                <span>{{ question.date }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="question-body" v-for="question in hots" :key="question.id" v-if="select==='hot'">
+                        <div class="user">
+                            <div>
+                                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                           size="small" style="margin-right: 10px"></el-avatar>
+                                {{ question.creator }}
+                            </div>
+                            <i class="el-icon-delete"
+                               v-show="authority > 1 || currentUId === question.creatorId"
+                               @click="deleteQuestion(question)"></i>
+                        </div>
+                        <el-link class='title' @click="goToDetail(question.id)" :underline="false">
+                            {{ question.title }}
+                        </el-link>
+                        <div class="content">
+                            {{ question.content }}
+                        </div>
                         <div class="other-info">
                             <div class="tags">
                                 <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
@@ -41,7 +74,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="question-body" v-for="question in hots" :key="question.id" v-else>
+                    <div class="question-body" v-for="question in this.$store.state.searchResult" :key="question.id"
+                         v-if="select==='search'">
                         <div class="user">
                             <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
                                        size="small" style="margin-right: 10px"></el-avatar>
@@ -72,6 +106,7 @@
 <script>
 
 import 'markdown-it-vue/dist/markdown-it-vue.css'
+import marked from "marked";
 
 export default {
     name: "MobileQuestionList",
@@ -80,60 +115,84 @@ export default {
             question: '',
             hots: [],
             questionList: [],
+            searchResult: [],
             last_index: 0,
-            selectedTag: [],
-            tagState: {},
             showTag: true,
             isAdmin: false,
             showResearchInput: false,
             select: 'new',
             loading: false,
-            no_more: false
+            no_more: false,
+            likeValid: true,
+            getHotValid: true,
+            getQuestionsValid: true,
         }
     },
     mounted() {
-        this.getQuestions();
         this.initTagState();
         this.isAdmin = (this.$store.state.auth === 2);
     },
+    created() {
+        this.getQuestions();
+    },
     methods: {
+        search() {
+            this.$search(this.question);
+            this.handleSelect('search');
+        },
         handleSelect(selector) {
-            if (selector === this.select) {
-                return;
+            this.$refs['scroll-body'].scrollTop = 0;
+            this.select = selector;
+            if (selector === 'hot') {
+                this.getHot();
             }
             if (selector === 'new') {
-                this.select = 'new';
-            } else {
-                this.select = 'hot';
+                this.getQuestions(0, true);
             }
         },
-        getQuestions(pt) {
-            // console.log("getQuestions!");
+        async getQuestions(pt, reset) {
+            if (!this.getQuestionsValid) {
+                return;
+            }
+
+            if (reset) {
+                this.questionList = [];
+            }
+
+            this.getQuestionsValid = false;
             let _this = this;
 
             let post_data = {
-                number: 10,
-                tags: _this.selectedTag,
+                number: 8,
+                tags: this.selectedTag
             }
             if (pt > 0) {
                 post_data['pt'] = pt;
             }
-            _this.$axios.post(_this.BASE_URL + '/api/questions/questionlist', post_data)
+            await _this.$axios.post(_this.BASE_URL + '/api/questions/questionlist', post_data)
                 .then(async function (response) {
                     let questionIdList = response.data;
                     _this.last_index = questionIdList[questionIdList.length - 1];
-                    if (questionIdList.length < 64) {
+                    if (questionIdList.length < 8) {
                         _this.no_more = true;
                     }
                     for (let qid of questionIdList) {
-                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
                             .then(async function (response) {
                                 let question = {
                                     id: qid,
                                     title: response.data.question.title,
-                                    content: response.data.question.remarks,
+                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
                                     tags: response.data.question.tags,
-                                    date: response.data.question.createTime
+                                    date: response.data.question.createTime,
+                                    likeNum: response.data.question.likeNum,
+                                    like: response.data.question.like,
+                                    creatorId: response.data.question.creator
                                 };
                                 let uid = response.data.question.creator;
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
@@ -142,13 +201,11 @@ export default {
                                     })
                                 _this.questionList.push(question);
                             });
-
                     }
                 })
                 .catch(function (error) {
-
                 });
-
+            this.getQuestionsValid = true;
         },
         goToDetail(qid) {
             this.$store.commit('setQuestionID', qid);
@@ -170,25 +227,27 @@ export default {
             }
         },
         initTagState() {
-            let tagList = this.$store.state.tagList;
-            for (let tagName in tagList) {
-                this.$data.tagState[tagList[tagName]] = false;
-            }
+            // let tagList = this.$store.state.tagList;
+            // for (let category in tagList) {
+            //     for (let tag in tagList[category]) {
+            //         this.$store.state.questionList.tagState[tagList[category][tag]] = false;
+            //     }
+            // }
         },
         tagClick(tid) {
-            if (!this.tagState[tid]) {
-                this.tagState[tid] = true;
-                this.selectedTag.push(tid);
-            } else {
-                this.tagState[tid] = false;
-                let index = this.selectedTag.indexOf(tid);
-                this.selectedTag.splice(index, 1);
-            }
-            this.showTag = false;
-            this.$nextTick(function () {
-                this.showTag = true;
-            })
-            this.getQuestions();
+            // if (!this.tagState[tid]) {
+            //     this.tagState[tid] = true;
+            //     this.selectedTag.push(tid);
+            // } else {
+            //     this.tagState[tid] = false;
+            //     let index = this.selectedTag.indexOf(tid);
+            //     this.selectedTag.splice(index, 1);
+            // }
+            // this.showTag = false;
+            // this.$nextTick(function () {
+            //     this.showTag = true;
+            // })
+            // this.getQuestions();
         },
         close() {
             this.$store.state.show.questionList = false;
@@ -197,18 +256,138 @@ export default {
             this.$store.state.maxZIndex += 1
             this.zIndex = this.$store.state.maxZIndex;
         },
+        async getHot() {
+            if (!this.getHotValid) {
+                return;
+            }
+            this.hots = [];
+            this.getHotValid = false;
+            let _this = this;
+            await this.$axios.get(_this.BASE_URL + '/api/questions/hotlist')
+                .then(async function (response) {
+                    let hotList = response.data;
+                    for (let qid of hotList) {
+                        await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid, {
+                            headers: {
+                                Authorization: 'Bearer ' + _this.$store.state.token,
+                                type: 'application/json;charset=utf-8'
+                            }
+                        })
+                            .then(async function (response) {
+                                let question = {
+                                    id: qid,
+                                    title: response.data.question.title,
+                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
+                                    tags: response.data.question.tags,
+                                    date: response.data.question.createTime,
+                                    likeNum: response.data.question.likeNum,
+                                    like: response.data.question.like
+                                };
+                                let uid = response.data.question.creator;
+                                await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
+                                    .then(function (response) {
+                                        question.creator = response.data.name;
+                                    })
+                                _this.hots.push(question);
+                            })
+                    }
+                });
+            this.getHotValid = true;
+        },
+        async like(question) {
+            if (!this.likeValid) {
+                this.$message({
+                    message: '操作过于频繁!',
+                    type: 'warning'
+                });
+            }
+            this.likeValid = false;
+            let _this = this;
+            let qid = question.id;
+            let markAsLike = !question.like;
+            this.$axios.post(this.BASE_URL + '/api/questions/like_question', {
+                qid: qid,
+                markAsLike: markAsLike
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    question.like = response.data.like;
+                    question.likeNum = response.data.likeNum;
+                })
+                .catch(function (error) {
+                    _this.$message({
+                        message: '登录后才可以点赞~!',
+                        type: 'warning'
+                    })
+                })
+            this.likeValid = true;
+        },
         async loadMore(e) {
-
+            if (this.select !== 'new') {
+                return;
+            }
             if (e.srcElement.scrollTop + e.srcElement.clientHeight == e.srcElement.scrollHeight) {
-            // if (true) {
+                // if (true) {
                 this.loading = true;
                 await this.getQuestions(this.last_index);
                 this.loading = false;
                 // alert('here')
             }
         },
-        getHot() {
+        deleteQuestion(question) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该问题, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_question', {
+                    data: {
+                        qid: question.id,
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestions(0, true);
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
 
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
+        },
+    },
+    computed: {
+        username() {
+            return this.$store.state.username;
+        },
+        selectedTag() {
+            return this.$store.state.questionList.selectedTag;
+        },
+        currentUId() {
+            return this.$store.state.uid;
+        },
+        authority() {
+            return this.$store.state.auth;
         }
     },
 }
@@ -273,9 +452,10 @@ export default {
 }
 
 .user {
-    align-self: flex-start;
+    align-self: stretch;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 }
 
 .el-link {
@@ -373,6 +553,12 @@ i:hover {
 
 .detail {
     text-overflow: ellipsis;
+}
+
+.el-icon-delete {
+    color: #F56C6C;
+    cursor: pointer;
+    font-size: 2vh;
 }
 
 </style>

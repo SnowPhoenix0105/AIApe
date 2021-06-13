@@ -3,30 +3,32 @@
         <el-header height="5vh">
             AIApe
         </el-header>
-        <el-main class="log">
-            <div style="width: 100vw; margin-top: 1vh">
-                <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
-                    <el-avatar
-                        :src="msg.id === 1? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png': bot_avatar"
-                        size="medium"></el-avatar>
-                    <span class="chat-content" v-html="msg.content">
+        <div style="position: fixed; top: 5vh">
+            <el-main class="log" id="scroll">
+                <div style="width: 100vw; margin-top: 1vh">
+                    <div v-for="msg in this.$store.state.logs" class="content" :class="msg.id === 1? 'user':'bot'">
+                        <el-avatar
+                            :src="msg.id === 1? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png': bot_avatar"
+                            size="medium"></el-avatar>
+                        <span class="chat-content" v-html="msg.content">
                         {{ msg.content }}
                     </span>
-                    <br/>
-                    <el-button class="prompt" v-for="prompt in msg.prompts"
-                               :key="prompt" v-show="msg.promptValid"
-                               @click="choosePrompt(prompt, msg)">
-                        {{ prompt }}
-                    </el-button>
+                        <br/>
+                        <el-button class="prompt" v-for="prompt in msg.prompts"
+                                   :key="prompt" v-show="msg.promptValid"
+                                   @click="choosePrompt(prompt, msg)">
+                            {{ prompt }}
+                        </el-button>
+                    </div>
                 </div>
-            </div>
-        </el-main>
-        <el-main class="send-area">
-            <div style="width: 100vw; height: 20vh">
-                <el-input class="textarea" type="textarea" resize="none" v-model="message"></el-input>
-                <el-button type="primary">发送</el-button>
-            </div>
-        </el-main>
+            </el-main>
+            <el-main class="send-area">
+                <div style="width: 100vw; height: 20vh">
+                    <el-input class="textarea" type="textarea" resize="none" v-model="message"></el-input>
+                    <el-button type="primary" v-on:click="send">发送</el-button>
+                </div>
+            </el-main>
+        </div>
     </div>
 </template>
 
@@ -36,7 +38,7 @@ export default {
     data() {
         return {
             message: '',
-            bot_avatar: require('../../assets/bot.jpg'),
+            bot_avatar: require('../../assets/bot.png'),
         }
     },
     computed: {
@@ -55,7 +57,7 @@ export default {
             let _this = this;
             let message = this.message;
             if (this.$store.state.username === '') {
-                this.$store.commit('addAImessage', {id: 2, content: '你好,请先登录！看右边→', prompts:[], promptValid: false});
+                this.$store.commit('addAImessage', {id: 2, content: '你好，请先登录！', prompts: [], promptValid: false});
                 return;
             }
             if (this.$data.message === '') {
@@ -73,15 +75,16 @@ export default {
                 }
             }
 
-            this.$store.commit('addUserMessage', this.$data.message);
-
+            message = this.return2Br(this.html2Escape(message));
+            this.$store.state.logs[this.$store.state.logs.length - 1].promptValid = false;
+            this.$store.commit('addUserMessage', message);
 
             this.$axios.post(this.BASE_URL + '/api/bot/message', {
                 message: this.$data.message
             }, {
                 headers: {
-                    Authorization : 'Bearer ' + _this.$store.state.token,
-                    type : 'application/json;charset=utf-8'
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
                 }
             })
                 .then(function (response) {
@@ -93,8 +96,7 @@ export default {
                         if (i === response.data.messages.length - 1) {
                             payload['prompts'] = response.data.prompt;
                             payload['promptValid'] = response.data.prompt.length > 0;
-                        }
-                        else {
+                        } else {
                             payload['prompts'] = [];
                             payload['promptValid'] = false;
                         }
@@ -104,43 +106,18 @@ export default {
                             location.reload();
                         }
                     }
+                    // let ss = document.getElementById("scroll");
+                    // ss.scrollTop = ss.scrollHeight;
                 })
                 .catch(function (error) {
                 })
             this.$data.message = '';
-        },
-        choosePrompt(prompt, msg) {
-            msg.promptValid = false;
-            this.$store.commit("addUserMessage", prompt);
-            let _this = this;
-            this.$axios.post(this.BASE_URL + '/api/bot/message', {
-                message: prompt
-            }, {
-                headers: {
-                    Authorization : 'Bearer ' + _this.$store.state.token,
-                    type : 'application/json;charset=utf-8'
-                }
-            })
-                .then(function (response) {
-                    let i = 0;
-                    for (let message of response.data.messages) {
-                        message = _this.transform(message);
-                        let payload = {};
-                        payload['content'] = message;
-                        if (i === response.data.messages.length - 1) {
-                            payload['prompts'] = response.data.prompt;
-                            payload['promptValid'] = response.data.prompt.length > 0;
-                        }
-                        else {
-                            payload['prompts'] = [];
-                            payload['promptValid'] = false;
-                        }
-                        i++;
-                        _this.$store.commit('addAImessage', payload);
-                    }
-                })
-                .catch(function (error) {
-                })
+
+            setTimeout(function () {
+                let ss = document.getElementById("scroll");
+                ss.scrollTop = ss.scrollHeight;
+            },50);
+
         },
         getTagList() {
             let _this = this;
@@ -164,12 +141,10 @@ export default {
                     type = msg.substring(left + 1, left + space);
                     if (type === 'question') {
                         id = msg.substring(left + space + 1, right);
-                    }
-                    else {
+                    } else {
                         url = msg.substring(left + space + 1, right);
                     }
-                }
-                else {
+                } else {
                     url = msg.substring(left + 1, right);
                 }
                 if (type === 'question') {
@@ -177,15 +152,105 @@ export default {
                     msg = msg.substring(0, left) +
                         '<el-link type="text" @click="gotoQuestionDetail()">' +
                         'Question' + id + '</el-link>' + msg.substring(right + 1);
-                }
-                else {
-                    msg = msg.substring(0, left) + '<a target="_blank" style="color: white" href="' + url + '">' + url + '</a>' + msg.substring(right + 1);
+                } else {
+                    msg = msg.substring(0, left) + '<a style="color: #409eff" href="' + url + '" target="_blank">' + url + '</a>' + msg.substring(right + 1);
                 }
                 left = msg.indexOf('[');
                 right = msg.indexOf(']');
             }
             return msg;
         },
+        choosePrompt(prompt, msg) {
+            msg.promptValid = false;
+            this.$store.commit("addUserMessage", prompt);
+            let _this = this;
+            this.$axios.post(this.BASE_URL + '/api/bot/message', {
+                message: prompt
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(function (response) {
+                    let i = 0;
+                    for (let message of response.data.messages) {
+                        message = _this.transform(message);
+                        let payload = {};
+                        payload['content'] = message;
+                        if (i === response.data.messages.length - 1) {
+                            payload['prompts'] = response.data.prompt;
+                            payload['promptValid'] = response.data.prompt.length > 0;
+                        } else {
+                            payload['prompts'] = [];
+                            payload['promptValid'] = false;
+                        }
+                        i++;
+                        _this.$store.commit('addAImessage', payload);
+                    }
+                })
+                .catch(function (error) {
+                })
+        },
+        gotoQuestionDetail() {
+            this.$store.state.mobileStatus = 'questionState';
+        },
+        html2Escape(sHtml) {
+            return sHtml.replace(/[<>&"]/g, function (c) {
+                return {'<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;'}[c];
+            });
+        },
+        return2Br(str) {
+            return str.replace(/\r?\n/g, "<br />");
+        }
+    },
+    watch: {
+        username: function (username) {
+            let _this = this;
+            this.waitTag = true;
+            this.$store.commit('addAImessage', {
+                id: 2,
+                content: '你好，' + username + '！',
+                prompts: [],
+                promptValid: false
+            });
+            _this.$axios.post(_this.BASE_URL + '/api/bot/start', {}, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(function (response) {
+                    let i = 0;
+                    for (let message of response.data.messages) {
+                        message = _this.transform(message);
+                        let payload = {};
+                        payload['content'] = message;
+                        if (i === response.data.messages.length - 1) {
+                            payload['prompts'] = response.data.prompt;
+                            payload['promptValid'] = response.data.prompt.length > 0;
+                        } else {
+                            payload['prompts'] = [];
+                            payload['promptValid'] = false;
+                        }
+                        i++;
+                        _this.$store.commit('addAImessage', payload);
+                    }
+                })
+        },
+        logs: function () {
+            this.$nextTick(() => {
+                this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
+            })
+        }
+    },
+    mounted() {
+
+    },
+    created() {
+        this.$nextTick(() => {
+            this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
+        })
     }
 }
 </script>
@@ -193,6 +258,7 @@ export default {
 <style scoped>
 
 .el-header {
+    position: fixed;
     border-bottom: 1px solid #eaecf1;
     width: 100vw;
     align-items: center;

@@ -3,30 +3,31 @@
         <el-header height=5vh>
             AIApe
         </el-header>
-        <el-header v-if="analysis" height=5vh class="back">
-            <el-link v-on:click="goBack">返回</el-link>
-        </el-header>
-        <el-container style="flex-direction: column;" v-if="analysis">
-            <h1>问题列表</h1>
-            <el-container class="issues">
-                <el-main v-for="issue in issues" :key="issue.desc" class="issue">
-                    {{ issue.desc }}
-                </el-main>
+        <el-main style="position: fixed; top: 5vh; bottom: 5vh;">
+            <el-header v-if="analysis" height=5vh class="back">
+                <el-link v-on:click="goBack">返回</el-link>
+            </el-header>
+            <el-container style="flex-direction: column;" v-if="analysis">
+                <h1>问题列表</h1>
+                <el-container class="issues">
+                    <el-main v-for="issue in issues" :key="issue.desc" class="issue">
+                        {{ issue.desc }}
+                    </el-main>
+                </el-container>
             </el-container>
-        </el-container>
-        <el-container v-else class="code">
-            <!--            <codemirror style="width: 50vw;" v-if="show" v-model="code" :options="cmOptions"-->
-            <!--                        class="editor"></codemirror>-->
-            <!--            <div style="height: 90vh" v-else></div>-->
-            <div>
-                <el-button style="float: left" id="submit-button" type="primary" size="small" @click="submitCode">
-                    Format&Check
-                </el-button>
-            </div>
-            <codemirror style="width: 100vw; z-index: 1" v-if="show" v-model="code" :options="cmOptions"
-                        class="editor"></codemirror>
-        </el-container>
-
+            <el-container v-else class="code">
+                <!--            <codemirror style="width: 50vw;" v-if="show" v-model="code" :options="cmOptions"-->
+                <!--                        class="editor"></codemirror>-->
+                <!--            <div style="height: 90vh" v-else></div>-->
+                <div>
+                    <el-button style="float: left" id="submit-button" type="primary" size="small" @click="submitCode">
+                        Format&Check
+                    </el-button>
+                </div>
+                <codemirror style="width: 100vw; z-index: 1" v-if="show" v-model="code" :options="cmOptions"
+                            class="editor"></codemirror>
+            </el-container>
+        </el-main>
     </el-container>
 </template>
 
@@ -113,6 +114,7 @@ export default {
 <style scoped>
 
 .el-header {
+    position: fixed;
     border-bottom: 1px solid #eaecf1;
     width: 100vw;
     align-items: center;

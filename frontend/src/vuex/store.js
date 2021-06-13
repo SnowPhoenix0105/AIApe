@@ -13,6 +13,7 @@ export default new Vuex.Store({
         username: '',
         uid: 0,
         token: '',
+        avatarIndex: 0,
         auth: 0,
         timeout: 0,
         tagList: {},
@@ -27,8 +28,15 @@ export default new Vuex.Store({
         },
         questionList: {
             tagState: {},
-            selectedTag: []
-        }
+            selectedTag: [],
+            tagSelectValid: true
+        },
+        template: {
+            title: '',
+            tags: [],
+            remarks: ''
+        },
+        isMobile: false,
     },
     mutations: {
         setUsername(state, value) {

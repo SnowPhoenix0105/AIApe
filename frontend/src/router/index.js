@@ -3,11 +3,11 @@ import Router from 'vue-router';
 import QuestionList from "../pages/QuestionList/QuestionList";
 import QuestionDetail from "../pages/QuestionDetail/QuestionDetail";
 import PersonalCenter from "../pages/PersonalCenter/PersonalCenter";
-import Administration from "../pages/Administration/Administration";
 import Chat from "../pages/Chat/Chat";
 import RaiseQuestion from "../pages/RaiseQuestion/RaiseQuestion";
 import SearchResult from "../pages/SearchResult/SearchResult";
 import CodeAnalysis from "../pages/CodeAnalysis/CodeAnalysis";
+import Welcome from "../pages/Welcome/Welcome";
 
 Vue.use(Router)
 
@@ -54,10 +54,6 @@ export default new Router({
             component: PersonalCenter
         },
         {
-            path: '/administration',
-            component: Administration
-        },
-        {
             path: '/chat',
             component: Chat,
             meta: {keepAlive: true},
@@ -78,6 +74,12 @@ export default new Router({
             path: '/personalCenter',
             component: PersonalCenter,
             name: 'personalCenter'
+        },
+        {
+            path: '/welcome',
+            component: Welcome,
+            name: 'welcome',
+            meta: {welcome: true}
         }
     ]
 })
