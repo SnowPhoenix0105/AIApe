@@ -19,7 +19,6 @@
                         </el-button>
                     </div>
                 </div>
-
             </div>
         </el-main>
         <el-main class="send-area">
@@ -87,10 +86,10 @@ export default {
                     type: 'application/json;charset=utf-8'
                 }
             })
-                .then(function (response) {
+                .then(async function (response) {
                     let i = 0;
                     for (let message of response.data.messages) {
-                        message = _this.transform(message);
+                        message = await _this.transform(message);
                         let payload = {};
                         payload['content'] = message;
                         if (i === response.data.messages.length - 1) {
@@ -112,10 +111,10 @@ export default {
                                     type: 'application/json;charset=utf-8'
                                 }
                             })
-                            .then((response) => {
-                                _this.$store.state.template = response.data.template;
-                                _this.$store.state.templateExist = true;
-                            })
+                                .then((response) => {
+                                    _this.$store.state.template = response.data.template;
+                                    _this.$store.state.templateExist = true;
+                                })
                         }
                     }
                 })
@@ -132,7 +131,8 @@ export default {
                     _this.$store.commit('setTagList', tagList);
                 })
         },
-        transform(msg) {
+        async transform(msg) {
+            let _this = this;
             msg = msg.replaceAll('\n', '<br/>');
             let left, right;
             left = msg.indexOf('[');
@@ -153,10 +153,14 @@ export default {
                     url = msg.substring(left + 1, right);
                 }
                 if (type === 'question') {
-                    this.$store.commit('setQuestionID', id);
+                    let title = '';
+                    await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + id)
+                        .then(function (response) {
+                            title = response.data.question.title;
+                        })
                     msg = msg.substring(0, left) +
-                        '<el-link type="text" @click="gotoQuestionDetail()">' +
-                        'Question' + id + '</el-link>' + msg.substring(right + 1);
+                        '<a style="color: #409eff; cursor: pointer" onclick="gotoQuestionDetail(' + id + ')">' +
+                        title + '</a>' + msg.substring(right + 1);
                 } else {
                     msg = msg.substring(0, left) + '<a style="color: #409eff" href="' + url + '" target="_blank">' + url + '</a>' + msg.substring(right + 1);
                 }
@@ -177,10 +181,10 @@ export default {
                     type: 'application/json;charset=utf-8'
                 }
             })
-                .then(function (response) {
+                .then(async function (response) {
                     let i = 0;
                     for (let message of response.data.messages) {
-                        message = _this.transform(message);
+                        message = await _this.transform(message);
                         let payload = {};
                         payload['content'] = message;
                         if (i === response.data.messages.length - 1) {
@@ -197,8 +201,9 @@ export default {
                 .catch(function (error) {
                 })
         },
-        gotoQuestionDetail() {
-            this.$router.replace('/questionDetail');
+        gotoQuestionDetail(id) {
+            this.$store.state.questionID = id;
+            this.$changePage(3);
         },
         html2Escape(sHtml) {
             return sHtml.replace(/[<>&"]/g, function (c) {
@@ -206,13 +211,13 @@ export default {
             });
         },
         return2Br(str) {
-            return str.replace(/\r?\n/g,"<br />");
+            return str.replace(/\r?\n/g, "<br />");
         }
     },
     watch: {
         username: function (username) {
             if (username === '') {
-                this.$store.state.logs = [{id: 2, content: '你好，我是AIApe！请先登录！', prompts:[], promptValid: false}];
+                this.$store.state.logs = [{id: 2, content: '你好，我是AIApe！请先登录！', prompts: [], promptValid: false}];
                 return;
             }
             let _this = this;
@@ -229,10 +234,10 @@ export default {
                     type: 'application/json;charset=utf-8'
                 }
             })
-                .then(function (response) {
+                .then(async function (response) {
                     let i = 0;
                     for (let message of response.data.messages) {
-                        message = _this.transform(message);
+                        message = await _this.transform(message);
                         let payload = {};
                         payload['content'] = message;
                         if (i === response.data.messages.length - 1) {
@@ -256,6 +261,7 @@ export default {
     mounted() {
     },
     created() {
+        window.gotoQuestionDetail = this.gotoQuestionDetail;
     }
 }
 </script>
