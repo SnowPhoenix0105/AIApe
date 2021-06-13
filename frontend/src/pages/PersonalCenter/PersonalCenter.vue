@@ -5,15 +5,18 @@
                 AIApe
             </el-header>
             <el-main class="selector">
-                <el-button type="text" :class="{'unselected': select === 'answer'}" @click="handleSelect('question')">我的提问
+                <el-button type="text" :class="{'unselected': select === 'answer'}" @click="handleSelect('question')">
+                    我的提问
                 </el-button>
-                <el-button type="text" :class="{'unselected': select === 'question'}" @click="handleSelect('answer')">我的回答
+                <el-button type="text" :class="{'unselected': select === 'question'}" @click="handleSelect('answer')">
+                    我的回答
                 </el-button>
             </el-main>
             <div style="height: auto; overflow: auto; width: 51vw" ref="scroll-body" id="scroll-body">
                 <el-main class="question-list" v-if="select==='question'">
                     <div class="question-body" v-for="question in questions">
-                        <i class="el-icon-delete" v-show="authority > 1 || currentUid === question.creatorId" @click="deleteQuestion(question)"></i>
+                        <i class="el-icon-delete" v-show="authority > 1 || currentUid === question.creatorId"
+                           @click="deleteQuestion(question)"></i>
                         <el-link class='title' @click="goToDetail(question.id)" :underline="false">
                             {{ question.title }}
                         </el-link>
@@ -37,7 +40,8 @@
                 </el-main>
                 <el-main class="question-list" v-else>
                     <div class="question-body" v-for="answer in answers">
-                        <i class="el-icon-delete" v-show="authority > 1 || currentUid === answer.creatorId" @click="deleteAnswer(answer)"></i>
+                        <i class="el-icon-delete" v-show="authority > 1 || currentUid === answer.creatorId"
+                           @click="deleteAnswer(answer)"></i>
                         <el-link class='title' @click="goToDetail(answer.questionId)" :underline="false">
                             {{ answer.title }}
                         </el-link>
@@ -65,8 +69,25 @@
             <el-main class="user-info">
                 <div class="name-avatar">
                     {{ this.$store.state.username }}
-                    <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                               :size="80"></el-avatar>
+                    <el-popover
+                        placement="bottom-start"
+                        width="175"
+                        trigger="click">
+                        <div>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar1.png" style="cursor: pointer" @click.native="changeAvatar(1)"></el-avatar>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar2.png" style="cursor: pointer" @click.native="changeAvatar(2)"></el-avatar>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar3.png" style="cursor: pointer" @click.native="changeAvatar(3)"></el-avatar>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar4.png" style="cursor: pointer" @click.native="changeAvatar(4)"></el-avatar>
+                        </div>
+                        <div>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar5.png" style="cursor: pointer" @click.native="changeAvatar(5)"></el-avatar>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar6.png" style="cursor: pointer" @click.native="changeAvatar(6)"></el-avatar>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar7.png" style="cursor: pointer" @click.native="changeAvatar(7)"></el-avatar>
+                            <el-avatar src="http://81.70.211.128/aiape/icon-avatar8.png" style="cursor: pointer" @click.native="changeAvatar(8)"></el-avatar>
+                        </div>
+                        <el-avatar :src="avatarSrc"
+                                   :size="80" slot="reference" style="cursor: pointer"></el-avatar>
+                    </el-popover>
                 </div>
                 {{ email }}
             </el-main>
@@ -100,13 +121,37 @@ export default {
         }
     },
     methods: {
+        changeAvatar(index) {
+            let _this = this;
+            this.$axios.put(this.BASE_URL + '/api/user/modify', {
+                profilePhoto: index,
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+            .then((response) => {
+                _this.$message({
+                    message: '头像更换成功!',
+                    type: 'success'
+                });
+                this.$store.state.avatarIndex = index;
+            })
+            .catch((error) => {
+                console.log(error);
+                _this.$message({
+                    message: '头像更换失败!',
+                    type: 'error'
+                })
+            })
+        },
         handleSelect(selector) {
             this.$refs['scroll-body'].scrollTop = 0;
             this.select = selector;
             if (selector === 'answer') {
                 this.getAnswers();
-            }
-            else if (selector === 'question') {
+            } else if (selector === 'question') {
                 this.getQuestions();
             }
         },
@@ -162,19 +207,19 @@ export default {
                         type: 'application/json;charset=utf-8'
                     }
                 })
-                .then(response => {
-                    this.$message({
-                        type: 'success',
-                        message: '删除成功!'
-                    });
-                    this.getQuestions();
-                })
-                .catch(error => {
-                    this.$message({
-                        type: 'error',
-                        message: '删除失败!'
-                    });
-                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                        this.getQuestions();
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
 
             }).catch(() => {
                 this.$message({
@@ -211,7 +256,7 @@ export default {
                                 let question = {
                                     id: qid,
                                     title: response.data.question.title,
-                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g,""),
+                                    content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
                                     tags: response.data.question.tags,
                                     date: response.data.question.createTime,
                                     likeNum: response.data.question.likeNum,
@@ -256,23 +301,23 @@ export default {
                                 type: 'application/json;charset=utf-8'
                             }
                         })
-                        .then(function (response) {
-                            answer.title = response.data.question.title;
-                            answer.tags = response.data.question.tags;
-                        })
+                            .then(function (response) {
+                                answer.title = response.data.question.title;
+                                answer.tags = response.data.question.tags;
+                            })
                         await _this.$axios.get(_this.BASE_URL + '/api/questions/answer?aid=' + qa.aid, {
                             headers: {
                                 Authorization: 'Bearer ' + _this.$store.state.token,
                                 type: 'application/json;charset=utf-8'
                             }
                         })
-                        .then(function (response) {
-                            answer.content = response.data.answer.content;
-                            answer.createTime = response.data.answer.createTime;
-                            answer.likeNum = response.data.answer.likeNum;
-                            answer.like = response.data.answer.like;
-                            answer.creatorId = response.data.answer.creator;
-                        })
+                            .then(function (response) {
+                                answer.content = response.data.answer.content;
+                                answer.createTime = response.data.answer.createTime;
+                                answer.likeNum = response.data.answer.likeNum;
+                                answer.like = response.data.answer.like;
+                                answer.creatorId = response.data.answer.creator;
+                            })
                         _this.answers.push(answer);
                     }
                 })
@@ -369,6 +414,9 @@ export default {
         },
         currentUid() {
             return this.$store.state.uid;
+        },
+        avatarSrc() {
+            return 'http://81.70.211.128/aiape/icon-avatar' + this.$store.state.avatarIndex + '.png'
         }
     }
 }
@@ -566,5 +614,10 @@ export default {
     font-size: 25px;
     align-self: stretch;
     margin-bottom: 20px;
+}
+
+.el-popover {
+    display: flex;
+    justify-content: space-between;
 }
 </style>

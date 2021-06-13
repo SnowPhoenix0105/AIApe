@@ -159,6 +159,7 @@ export default {
                             .then(function (response) {
                                 _this.$store.commit('setUsername', response.data.name);
                                 _this.$store.commit('setUid', response.data.uid);
+                                _this.$store.state.avatarIndex = response.data.profilePhoto;
                             })
                             .catch(function (error) {
                                 console.log(error);

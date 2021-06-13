@@ -13,6 +13,7 @@
                          style="cursor: pointer"></el-step>
             </el-steps>
             <el-main>
+                <el-button type="primary" @click="getTemplate">获取问题模板</el-button>
                 <transition name="slide" enter-active-class="slideInUp" leave-active-class="none">
                     <div class="edit-title" v-show="step === 1">
                         <el-input v-show="step === 1" v-model="title"></el-input>
@@ -200,6 +201,35 @@ export default {
                 return;
             }
             this.step = step;
+        },
+        getTemplate() {
+            if (this.$store.state.template.title === '') {
+                this.$message({
+                    message: '没有可用的模板',
+                    type: 'warning'
+                })
+                return;
+            }
+            let _this = this;
+            this.$confirm('获取问题模板将清空当前内容，是否继续？', '操作确认', {
+                cancelButtonText: '取消',
+                confirmButtonText: '确定',
+            })
+            .then(() => {
+                if (_this.$store.state.template.title !== '') {
+                    _this.title = _this.$store.state.template.title;
+                }
+                _this.initTagState();
+                for (let tid of _this.$store.state.template.tags) {
+                    _this.tagState[tid] = true;
+                }
+                _this.selectedTag = _this.$store.state.template.tags;
+                if (_this.$store.state.template.remarks !== '' && _this.$store.state.template.remarks !== null) {
+                    _this.detail = _this.$store.state.template.remarks;
+                }
+                _this.step = 3;
+            })
+
         }
     },
     computed: {

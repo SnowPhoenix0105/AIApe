@@ -42,6 +42,7 @@ export default {
         },
         goToDetail(qid) {
             this.$store.commit('setQuestionID', qid);
+            this.$changePage(3);
         },
     },
     created() {

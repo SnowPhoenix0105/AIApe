@@ -4,11 +4,11 @@
     </div>
     <div v-else>
         <el-container>
-            <div class="background">
+            <div class="background" v-if="!$route.meta.welcome">
                 <img :src="imgSrc" width="100%" height="100%" alt=""/>
             </div>
             <Login v-show="this.$store.state.show.login"></Login>
-            <SideBar/>
+            <SideBar v-if="!$route.meta.welcome"></SideBar>
             <transition
                 name="zoom"
                 enter-active-class="zoomInLeft"
@@ -100,7 +100,8 @@ export default {
 
 body {
     margin: 0;
-    overflow: hidden;
+    overflow-y: scroll;
+    overflow-x: hidden;
     font-family: msyh, Georgia;
 }
 
@@ -124,12 +125,12 @@ body {
 }
 
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 0!important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: #eaecf1;
-    border-radius: 3px;
+    border-radius: 5px!important;
 }
 
 .v-show-content {

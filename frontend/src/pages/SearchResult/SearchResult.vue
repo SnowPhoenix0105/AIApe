@@ -8,13 +8,19 @@
                 <el-button type="text" style="cursor: default">搜索结果</el-button>
             </el-main>
             <el-main class="question-list">
-                <div class="question-body" v-for="question in this.$store.state.searchResult" :key="question.id">
+                <div class="question-body" v-for="question in questions">
                     <div class="user">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-                                   size="small" style="margin-right: 10px"></el-avatar>
-                        {{ question.creator }}
+                        <div style="display: flex; align-items: center">
+                            <el-avatar :src="'http://81.70.211.128/aiape/icon-avatar' + question.avatarIndex + '.png'"
+                                       size="small" style="margin-right: 10px"></el-avatar>
+                            {{ question.creator }}
+                        </div>
+                        <i class="el-icon-delete"
+                           v-show="authority > 1 || currentUId === question.creatorId"
+                           @click="deleteQuestion(question)"></i>
                     </div>
-                    <el-link class='title' @click="goToDetail(question.id)" :underline="false">{{ question.title }}
+                    <el-link class='title' @click="goToDetail(question.id)" :underline="false">
+                        {{ question.title }}
                     </el-link>
                     <div class="content">
                         {{ question.content }}
@@ -24,27 +30,117 @@
                             <el-tag v-for="(tid, tName) in question.tags" :key="tid">{{ tName }}</el-tag>
                         </div>
                         <div class="recommend-time">
-                            <el-button class="recommend" type="primary" icon="el-icon-thumb">推荐</el-button>
+                            <el-button class="recommend" type="text"
+                                       :icon="question.like? 'el-icon-star-on' : 'el-icon-star-off'"
+                                       @click="like(question)">
+                                推荐{{ question.likeNum }}
+                            </el-button>
                             <span>{{ question.date }}</span>
                         </div>
                     </div>
                 </div>
             </el-main>
         </el-container>
-        <ResultSideBar/>
+        <DetailSideBar/>
     </el-container>
 </template>
 <script>
 import ResultSideBar from "./ResultSideBar";
+import DetailSideBar from "../QuestionDetail/DetailSideBar";
 
 export default {
     components: {
-        ResultSideBar
+        DetailSideBar
     },
     data() {
         return {
-            questionList: []
+            likeValid: true
         }
+    },
+    computed: {
+        questions() {
+            return this.$store.state.searchResult;
+        },
+        authority() {
+            return this.$store.state.auth;
+        },
+        currentUId() {
+          return this.$store.state.uid;
+        }
+    },
+    methods: {
+        goToDetail(qid) {
+            this.$store.commit('setQuestionID', qid);
+            this.$changePage(3);
+        },
+        deleteQuestion(question) {
+            let _this = this;
+            this.$confirm('此操作将永久删除该问题, 是否继续?', '删除确认', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$axios.delete(this.BASE_URL + '/api/questions/delete_question', {
+                    data: {
+                        qid: question.id,
+                    },
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
+                    .then(response => {
+                        this.$message({
+                            type: 'success',
+                            message: '删除成功!'
+                        });
+                    })
+                    .catch(error => {
+                        this.$message({
+                            type: 'error',
+                            message: '删除失败!'
+                        });
+                    })
+
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消删除'
+                });
+            })
+        },
+        async like(question) {
+            if (!this.likeValid) {
+                this.$message({
+                    message: '操作过于频繁!',
+                    type: 'warning'
+                });
+            }
+            this.likeValid = false;
+            let _this = this;
+            let qid = question.id;
+            let markAsLike = !question.like;
+            this.$axios.post(this.BASE_URL + '/api/questions/like_question', {
+                qid: qid,
+                markAsLike: markAsLike
+            }, {
+                headers: {
+                    Authorization: 'Bearer ' + _this.$store.state.token,
+                    type: 'application/json;charset=utf-8'
+                }
+            })
+                .then(async function (response) {
+                    question.like = response.data.like;
+                    question.likeNum = response.data.likeNum;
+                })
+                .catch(function (error) {
+                    _this.$message({
+                        message: '登录后才可以点赞~!',
+                        type: 'warning'
+                    })
+                })
+            this.likeValid = true;
+        },
     }
 }
 </script>
@@ -100,9 +196,10 @@ export default {
 }
 
 .user {
-    align-self: flex-start;
+    align-self: stretch;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
 }
 
 .el-link {
@@ -136,15 +233,6 @@ export default {
     line-height: 20px;
     height: 60px;
     margin: 10px 30px;
-}
-
-i {
-    color: #409eff;
-    font-size: 30px;
-}
-
-i:hover {
-    color: #6dfff3;
 }
 
 .title {
@@ -188,7 +276,6 @@ i:hover {
     line-height: 20px;
     background-color: rgb(255, 255, 255);
     border-color: rgb(255, 255, 255);
-    color: #966dff;
     padding: 3px 3px;
     margin-right: 20px;
     align-items: center;
@@ -196,5 +283,12 @@ i:hover {
 
 .detail {
     text-overflow: ellipsis;
+}
+
+.el-icon-delete {
+    display: flex;
+    justify-self: flex-end;
+    color: #F56C6C;
+    cursor: pointer;
 }
 </style>

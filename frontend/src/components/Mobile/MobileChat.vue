@@ -38,7 +38,7 @@ export default {
     data() {
         return {
             message: '',
-            bot_avatar: require('../../assets/bot.jpg'),
+            bot_avatar: require('../../assets/bot.png'),
         }
     },
     computed: {

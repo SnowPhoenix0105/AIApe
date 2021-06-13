@@ -8,8 +8,8 @@
                 <div v-for="msg in this.$store.state.logs" class="content">
                     <div :class="msg.id === 1? 'user':'bot'">
                         <el-avatar
-                            :src="msg.id === 1? 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png': bot_avatar"
-                            size="medium"></el-avatar>
+                            :src="msg.id === 1? 'http://81.70.211.128/aiape/icon-avatar' + avatarIndex + '.png': bot_avatar"
+                            size="medium" style="background-color: #fff"></el-avatar>
                         <span class="chat-content" v-html="msg.content"></span>
                     </div>
                     <div class="prompts" v-show="msg.promptValid">
@@ -32,11 +32,13 @@
 </template>
 
 <script>
+import $ from 'jquery';
+
 export default {
     data() {
         return {
             message: '',
-            bot_avatar: require('../../assets/bot.jpg')
+            bot_avatar: require('../../assets/bot.png')
         }
     },
     computed: {
@@ -45,6 +47,9 @@ export default {
         },
         logs() {
             return this.$store.state.logs;
+        },
+        avatarIndex() {
+            return this.$store.state.avatarIndex;
         }
     },
     methods: {
@@ -97,8 +102,20 @@ export default {
                         }
                         i++;
                         _this.$store.commit('addAImessage', payload);
-                        if (message.indexOf('el-link') !== -1) {
-                            location.reload();
+                        // if (message.indexOf('el-link') !== -1) {
+                        //     location.reload();
+                        // }
+                        if (message.indexOf('小猿已经帮您创建好提问模板') !== -1) {
+                            _this.$axios.get(_this.BASE_URL + '/api/bot/question_template', {
+                                headers: {
+                                    Authorization: 'Bearer ' + _this.$store.state.token,
+                                    type: 'application/json;charset=utf-8'
+                                }
+                            })
+                            .then((response) => {
+                                _this.$store.state.template = response.data.template;
+                                _this.$store.state.templateExist = true;
+                            })
                         }
                     }
                 })
@@ -232,17 +249,13 @@ export default {
         },
         logs: function () {
             this.$nextTick(() => {
-                this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
+                $('#words').animate({scrollTop: $('#words')[0].scrollHeight}, 800);
             })
         }
     },
     mounted() {
-
     },
     created() {
-        this.$nextTick(() => {
-            this.$refs['words'].scrollTop = this.$refs['words'].scrollHeight;
-        })
     }
 }
 </script>

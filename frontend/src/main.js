@@ -6,18 +6,23 @@ import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
 import Meta from 'vue-meta';
 import ElementUI from 'element-ui';
+Vue.use(ElementUI);
 import 'element-ui/lib/theme-chalk/index.css';
 import Vue from 'vue'
 import App from './App'
 import store from "./vuex/store";
 import axios from 'axios';
 import router from './router';
+import marked from "marked";
+import VueParticles from 'vue-particles';
+import './common/font/font.css';
 
+Vue.use(VueParticles);
 Vue.prototype.$axios = axios;
 // const BASE_URL = 'https://aiape.snowphoenix.design';
 const BASE_URL = 'http://test.snowphoenix.design';
 Vue.prototype.BASE_URL = BASE_URL;
-Vue.use(ElementUI);
+
 Vue.use(mavonEditor);
 Vue.use(Meta);
 Vue.prototype.$store = store;
@@ -71,21 +76,30 @@ Vue.prototype.$search = function (key) {
     })
         .then(async function (response) {
             console.log(response);
-            let questions = response.data.questions;
+            let questions = response.data;
             for (let qid of questions) {
-                await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid)
+                await _this.$axios.get(_this.BASE_URL + '/api/questions/question?qid=' + qid, {
+                    headers: {
+                        Authorization: 'Bearer ' + _this.$store.state.token,
+                        type: 'application/json;charset=utf-8'
+                    }
+                })
                     .then(async function (response) {
                         let question = {
                             id: qid,
                             title: response.data.question.title,
-                            content: response.data.question.remarks,
+                            content: marked(response.data.question.remarks).replace(/<[^>]+>/g, ""),
                             tags: response.data.question.tags,
-                            date: response.data.question.createTime
+                            date: response.data.question.createTime,
+                            likeNum: response.data.question.likeNum,
+                            like: response.data.question.like,
+                            creatorId: response.data.question.creator
                         };
                         let uid = response.data.question.creator;
                         await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
                             .then(function (response) {
                                 question.creator = response.data.name;
+                                question.avatarIndex = response.data.profilePhoto;
                             })
                         _this.$store.state.searchResult.push(question);
                     });

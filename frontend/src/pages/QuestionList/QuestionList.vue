@@ -16,9 +16,10 @@
                     <div class="question-body" v-for="question in questionList">
                         <div class="user">
                             <div style="display: flex; align-items: center">
-                                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                <el-avatar :src="'http://81.70.211.128/aiape/icon-avatar' + question.avatarIndex + '.png'"
                                            size="small" style="margin-right: 10px"></el-avatar>
                                 {{ question.creator }}
+                                {{ question.avatarIndex }}
                             </div>
                             <i class="el-icon-delete"
                                v-show="authority > 1 || currentUId === question.creatorId"
@@ -49,7 +50,7 @@
                     <div class="question-body" v-for="question in hots">
                         <div class="user">
                             <div style="display: flex; align-items: center">
-                                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                                <el-avatar :src="'http://81.70.211.128/aiape/icon-avatar' + question.avatarIndex + '.png'"
                                            size="small" style="margin-right: 10px"></el-avatar>
                                 {{ question.creator }}
                             </div>
@@ -173,6 +174,7 @@ export default {
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
                                     .then(function (response) {
                                         question.creator = response.data.name;
+                                        question.avatarIndex = response.data.profilePhoto;
                                     })
                                 _this.questionList.push(question);
                             });
@@ -266,6 +268,7 @@ export default {
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + uid)
                                     .then(function (response) {
                                         question.creator = response.data.name;
+                                        question.avatarIndex = response.data.profilePhoto;
                                     })
                                 _this.hots.push(question);
                             })
@@ -456,7 +459,6 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-
 }
 
 .el-link {

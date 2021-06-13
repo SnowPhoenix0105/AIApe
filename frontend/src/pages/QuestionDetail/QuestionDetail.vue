@@ -4,7 +4,7 @@
             <el-main class="question-detail">
                 <div v-show="questionState === 'preview'" class="user">
                     <div style="display: flex; align-items: center">
-                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                        <el-avatar :src="'http://81.70.211.128/aiape/icon-avatar' + avatarIndex + '.png'"
                                    size="small" style="margin-right: 10px"></el-avatar>
                         {{ creatorName }}
                     </div>
@@ -63,7 +63,7 @@
                 <div class="answer" v-for="answer in answers">
                     <div class="user">
                         <div style="display: flex; align-items: center">
-                            <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+                            <el-avatar :src="'http://81.70.211.128/aiape/icon-avatar' + answer.avatarIndex + '.png'"
                                        size="small" style="margin-right: 10px"></el-avatar>
                             {{ answer.creatorName }}
                         </div>
@@ -122,6 +122,7 @@ export default {
             like: false,
             likeNum: 0,
             showAnswerArea: false,
+            avatarIndex: 0,
             toolbars: {
                 bold: true, // 粗体
                 italic: true, // 斜体
@@ -187,6 +188,7 @@ export default {
                     await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + creatorId)
                         .then(async function (response) {
                             _this.creatorName = response.data.name;
+                            _this.avatarIndex = response.data.profilePhoto;
                         })
                     _this.$data.date = response.data.question.createTime;
                     _this.$data.tags = response.data.question.tags;
@@ -207,6 +209,7 @@ export default {
                                 await _this.$axios.get(_this.BASE_URL + '/api/user/public_info?uid=' + id)
                                     .then(function (response) {
                                         answer.creatorName = response.data.name;
+                                        answer.avatarIndex = response.data.profilePhoto;
                                     })
                                 _this.answers.push(answer);
                             })

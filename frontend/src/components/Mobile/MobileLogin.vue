@@ -3,7 +3,7 @@
         <h1 class="title">欢迎来到AIAPE</h1>
         <el-image
             class="image"
-            :src="require('../../assets/bot.jpg')"
+            :src="require('../../assets/bot.png')"
             :fit="fit"></el-image>
         <div class="form">
             <el-form label-position="left" label-width="20%" :model="loginForm">
