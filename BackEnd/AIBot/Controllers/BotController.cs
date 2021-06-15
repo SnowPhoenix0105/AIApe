@@ -107,7 +107,11 @@ namespace Buaa.AIBot.Controllers
             }
             await naturalAnswerGenerator.AddQuestionAndAnswersAsync(body.Questions, body.Answers);
             // TODO
-            return Ok();
+            return Ok(new 
+            {
+                Status = "success",
+                Message = "success"
+            });
         }
     }
 }

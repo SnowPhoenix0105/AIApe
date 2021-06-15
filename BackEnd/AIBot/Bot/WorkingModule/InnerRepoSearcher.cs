@@ -86,7 +86,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             }
             if (ret.Count <= continueCount)
             {
-                var average = ret.Select(q => q.Score).Average();
+                var average = res.Select(q => q.Item2).Average();
                 double secondLimitScore = average * secondLimitScoreTimes;
                 if (secondLimitScore <= minScore)
                 {

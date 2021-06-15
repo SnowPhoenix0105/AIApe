@@ -6,6 +6,8 @@ using Buaa.AIBot.Repository.Models;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Buaa.AIBot.Services;
+using Microsoft.Extensions.Logging;
+using Buaa.AIBot.Bot.Framework;
 
 namespace Buaa.AIBot.Bot.WorkingModule
 {
@@ -14,12 +16,14 @@ namespace Buaa.AIBot.Bot.WorkingModule
         private DatabaseContext context;
         private INLPService nlpService;
         private CancellationToken cancellationToken;
+        private ILogger<NaturalAnswerGenerator> logger;
 
-        public NaturalAnswerGenerator(DatabaseContext context, INLPService nlpService, Utils.GlobalCancellationTokenSource gcts)
+        public NaturalAnswerGenerator(DatabaseContext context, INLPService nlpService, Utils.GlobalCancellationTokenSource gcts, ILogger<NaturalAnswerGenerator> logger)
         {
             this.context = context;
             this.cancellationToken = gcts.Token;
             this.nlpService = nlpService;
+            this.logger = logger;
         }
 
         public async Task AddQuestionAndAnswersAsync(IEnumerable<string> questions, IEnumerable<string> answers)
@@ -27,12 +31,12 @@ namespace Buaa.AIBot.Bot.WorkingModule
             var questionInfos = questions.Select(content => new NaturalQuestion() 
             { 
                 Content = content,
-                // NatrualQuestionAnswerRelations = new List<NatrualQuestionAnswerRelation>()
+                NatrualQuestionAnswerRelations = new List<NatrualQuestionAnswerRelation>()
             }).ToList();
             var answerInfos = answers.Select(content => new NatrualAnswer() 
             { 
                 Content = content,
-                // NatrualQuestionAnswerRelations = new List<NatrualQuestionAnswerRelation>() 
+                NatrualQuestionAnswerRelations = new List<NatrualQuestionAnswerRelation>() 
             }).ToList();
             var relations = new List<NatrualQuestionAnswerRelation>();
             foreach (var q in questionInfos)
@@ -44,18 +48,38 @@ namespace Buaa.AIBot.Bot.WorkingModule
                         NatrualAnswer = a,
                         NaturalQuestion = q
                     };
-                    // a.NatrualQuestionAnswerRelations.Add(r);
-                    // q.NatrualQuestionAnswerRelations.Add(r);
+                    a.NatrualQuestionAnswerRelations.Add(r);
+                    q.NatrualQuestionAnswerRelations.Add(r);
                 }
             }
-            context.AddRange(questionInfos);
-            context.AddRange(answerInfos);
-            context.AddRange(relations);
+            context.NatrualQuestions.AddRange(questionInfos);
+            context.NatrualAnswers.AddRange(answerInfos);
+            context.NatrualQuestionAnswerRelations.AddRange(relations);
             await context.SaveChangesAsync(cancellationToken);
             foreach (var q in questionInfos)
             {
                 await nlpService.AddAsync(-q.NaturalQuestionId, q.Content, NLPService.Languages.Natrual);
             }
+        }
+
+        private string GenerateDate()
+        {
+            var date = DateTime.Now;
+            return $"现在是北京时间{date.Year}年{date.Month}月{date.Day}日{date.Hour}时{date.Minute}分{date.Second}秒哟{Kaomojis.Happy}";
+        }
+
+        private async Task<string> FinalProduceAsync(string origin)
+        {
+            if (origin == "[call date]")
+            {
+                return GenerateDate();
+            }
+            origin = origin
+                .Replace("[Happy]", Kaomojis.Happy)
+                .Replace("[Sad]", Kaomojis.Sad)
+                .Replace("[Cute]", Kaomojis.Cute)
+                ;
+            return origin;
         }
 
         public async Task<string> GetAnswerAsync(int qid)
@@ -73,15 +97,15 @@ namespace Buaa.AIBot.Bot.WorkingModule
             {
                 return "小猿出了点问题呜呜呜";
             }
-            // TODO
+            logger.LogInformation("qid={qid}, answers={aids}", qid, answers);
             Random rnd = new Random();
             int aid = answers[rnd.Next(answers.Count)];
             var ret = await context
                 .NatrualAnswers
-                .Where(na => na.NatrualAnswerId == qid)
+                .Where(na => na.NatrualAnswerId == aid)
                 .Select(na => na.Content)
                 .SingleAsync(cancellationToken);
-            return ret;
+            return await FinalProduceAsync(ret);
         }
     }
 }

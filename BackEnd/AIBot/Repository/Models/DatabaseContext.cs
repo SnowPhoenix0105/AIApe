@@ -39,7 +39,7 @@ namespace Buaa.AIBot.Repository.Models
         public DbSet<QuestionTagRelation> QuestionTagRelations { get; set; }
         public DbSet<QuestionHotData> QuestionHotDatas { get; set; }
         public DbSet<NatrualAnswer> NatrualAnswers { get; set; }
-        public DbSet<NaturalQuestion> NaturalQuestions { get; set; }
+        public DbSet<NaturalQuestion> NatrualQuestions { get; set; }
         public DbSet<NatrualQuestionAnswerRelation> NatrualQuestionAnswerRelations { get; set; }
 
         // public string ConnectString { get; }

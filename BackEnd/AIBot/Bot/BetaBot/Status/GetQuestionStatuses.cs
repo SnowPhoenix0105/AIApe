@@ -18,9 +18,12 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
         {
             var sender = context.Sender;
 
-            sender
-                .AddMessage(SentenceGeneration.Choose($"你好，我是小猿，有关编程的问题都可以来问我{Kaomojis.Happy}"))
-                ;
+            if (status.GetCount(Id) == 0)
+            {
+                sender
+                    .AddMessage(SentenceGeneration.Choose($"你好，我是小猿，有关编程的问题都可以来问我{Kaomojis.Happy}"))
+                    ;
+            }
 
             return Task.CompletedTask;
         }
@@ -58,9 +61,11 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
                 var ans = await worker.GetNaturalAnswerGenerator().GetAnswerAsync(first.Qid);
                 context.Sender.AddMessage(ans);
                 status.Clear();
+                status.IncreaseCount(Id);
                 return Id;
             }
-            
+
+            status.ClearCount(Id);
             status.Put(Constants.Key.QuestionMatches, res);
             var questions = status.CalculateSortedSelectedQuestions(null, res);
             logger.LogInformation("SortedSelectedQuestionMatches:\n[{sortedSelectedQuestionMatches}]", string.Join(", ", questions));
