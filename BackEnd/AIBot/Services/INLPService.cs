@@ -84,6 +84,7 @@ namespace Buaa.AIBot.Services
         private async Task<string> PostResultAsync(string url, Dictionary<string, object> body)
         {
             await semaphoreSlim.WaitAsync();
+            await Task.Delay(TimeSpan.FromSeconds(1));
             try
             {
                 var fullUrl = options.BaseUrl + url;

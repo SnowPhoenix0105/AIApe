@@ -65,7 +65,6 @@ namespace Buaa.AIBot.Bot.WorkingModule
             await context.SaveChangesAsync(cancellationToken);
             foreach (var q in questionInfos)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1));
                 await nlpService.AddAsync(-q.NaturalQuestionId, q.Content, NLPService.Languages.Natrual);
             }
         }
