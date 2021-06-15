@@ -35,12 +35,12 @@ namespace Buaa.AIBot.Services
             public string BaseUrl { get; set; }
             public string Name { get; set; }
             public string Password { get; set; }
+            public readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         }
 
         private ILogger<NLPService> logger;
         private GlobalCancellationTokenSource globalCancellationTokenSource;
         private Options options;
-        private SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
 
 
         public NLPService(ILogger<NLPService> logger, GlobalCancellationTokenSource globalCancellationTokenSource, Options options)
@@ -83,7 +83,7 @@ namespace Buaa.AIBot.Services
 
         private async Task<string> PostResultAsync(string url, Dictionary<string, object> body)
         {
-            await semaphoreSlim.WaitAsync();
+            await options.semaphoreSlim.WaitAsync();
             await Task.Delay(TimeSpan.FromSeconds(1));
             try
             {
@@ -144,7 +144,7 @@ namespace Buaa.AIBot.Services
             }
             finally
             {
-                semaphoreSlim.Release();
+                options.semaphoreSlim.Release();
             }
         }
 
