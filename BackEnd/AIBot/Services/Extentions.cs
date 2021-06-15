@@ -34,7 +34,7 @@ namespace Buaa.AIBot.Services
                 BaseUrl = nlpConfig.GetValue<string>("BaseUrl")
             };
             TimedTask.NLPSynchronizer.DEFAULT.NLPOptions = options;
-            services.AddSingleton<INLPService>(provider =>
+            services.AddTransient<INLPService>(provider =>
                 new NLPService(
                     provider.GetRequiredService<ILogger<NLPService>>(),
                     provider.GetRequiredService<Utils.GlobalCancellationTokenSource>(),
