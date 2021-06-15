@@ -82,6 +82,19 @@ namespace Buaa.AIBot.TimedTask
             }
         }
 
+        private Dictionary<int, double> cachedDamping = new Dictionary<int, double>();
+
+        private double CalculateDamping(int times)
+        {
+            if (cachedDamping.TryGetValue(times, out var ret))
+            {
+                return ret;
+            }
+            ret = Math.Pow(0.9995, times);
+            cachedDamping[times] = ret;
+            return ret;
+        }
+
         private async Task<int> CalculateHotValueAsync(
             int qid,
             IQuestionRepository questionRepository,
@@ -122,7 +135,7 @@ namespace Buaa.AIBot.TimedTask
                 }
                 questionLikeCount++;
                 int decreaseTimes = (DateTime.Now - oldHot.ModifyTime).Minutes;
-                double newBase = oldHot.HotValue * Math.Pow(0.9995, decreaseTimes); // 0.9995^(24 * 60) = 0.48
+                double newBase = oldHot.HotValue * CalculateDamping(decreaseTimes); // 0.9995^(24 * 60) = 0.48
                 double newHots = (answerCount * questionLikeCount * 0.5 / Math.Log10(questionLikeCount + 10) + answerLikeCount) * 100000;
                 double ret = newBase + newHots;
                 // logger.LogInformation("new hot-value for question[{qid}] is {hot}", qid, ret);

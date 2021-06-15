@@ -84,7 +84,7 @@ def _build_all_questions() -> List[Dict[str, object]]:
 
 
 def push_all_question_to_remote():
-    to_add_file = pcat(Path.Script, "questions_to_add.json")
+    to_add_file = pcat(Path.Scripte_DataManager_Datas, "questions_to_add.json")
     to_add = None
     if os.path.exists(to_add_file):
         with open(to_add_file, 'r', encoding='utf8') as f:
@@ -100,7 +100,7 @@ def push_all_question_to_remote():
         print("please login with answer account")
         answer_jwt = login()
         for i, question in enumerate(to_add):
-            time.sleep(1)
+            time.sleep(0.1)
             if i % 64 == 63:
                 question_jwt = fresh_token(question_jwt)
                 answer_jwt = fresh_token(answer_jwt)

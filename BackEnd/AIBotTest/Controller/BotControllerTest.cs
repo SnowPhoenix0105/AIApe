@@ -54,7 +54,7 @@ namespace AIBotTest.Controller
                     }
                 }
             );
-            BotController controller = new BotController(mockBot.Object, mockUser.Object, null);
+            BotController controller = new BotController(mockBot.Object, mockUser.Object, null, null);
 
             var ret = await controller.StartAsync(body);
             var okRet = Assert.IsType<OkObjectResult>(ret);
@@ -94,7 +94,7 @@ namespace AIBotTest.Controller
                     }
                 }
             );
-            BotController controller = new BotController(mockBot.Object, mockUser.Object, null);
+            BotController controller = new BotController(mockBot.Object, mockUser.Object, null, null);
 
             var ret = await controller.MessageAsync(body);
             var okRet = Assert.IsType<OkObjectResult>(ret);
