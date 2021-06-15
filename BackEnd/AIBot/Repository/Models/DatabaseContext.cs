@@ -38,6 +38,9 @@ namespace Buaa.AIBot.Repository.Models
         public DbSet<LikeAnswer> LikeAnswers { get; set; }
         public DbSet<QuestionTagRelation> QuestionTagRelations { get; set; }
         public DbSet<QuestionHotData> QuestionHotDatas { get; set; }
+        public DbSet<NatrualAnswer> NatrualAnswers { get; set; }
+        public DbSet<NaturalQuestion> NaturalQuestions { get; set; }
+        public DbSet<NatrualQuestionAnswerRelation> NatrualQuestionAnswerRelations { get; set; }
 
         // public string ConnectString { get; }
 
@@ -92,6 +95,21 @@ namespace Buaa.AIBot.Repository.Models
             modelBuilder.Entity<QuestionTagRelation>()
                 .HasOne(qt => qt.Tag)
                 .WithMany(t => t.QuestionTagRelation);
+
+            #endregion
+
+            #region NatrualQuestion--<n>----<n>NatrualAnswer
+
+            modelBuilder.Entity<NatrualQuestionAnswerRelation>()
+                .HasKey(nqa => new { nqa.NaturalQuestionId, nqa.NatrualAnswerId });
+
+            modelBuilder.Entity<NatrualQuestionAnswerRelation>()
+                .HasOne(nqa => nqa.NatrualAnswer)
+                .WithMany(na => na.NatrualQuestionAnswerRelations);
+
+            modelBuilder.Entity<NatrualQuestionAnswerRelation>()
+                .HasOne(nqa => nqa.NaturalQuestion)
+                .WithMany(nq => nq.NatrualQuestionAnswerRelations);
 
             #endregion
 
