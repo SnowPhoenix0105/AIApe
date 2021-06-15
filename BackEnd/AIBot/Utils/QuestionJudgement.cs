@@ -137,7 +137,7 @@ namespace Buaa.AIBot.Utils
                 ;
             if (tags.TryGetValue("代码", out var codeTid))
             {
-                if (IsCode(title, content))
+                if (!ret.ContainsKey("代码") && IsCode(title, content))
                 {
                     ret.Add("代码", codeTid);
                 }
