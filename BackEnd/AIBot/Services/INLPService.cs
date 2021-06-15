@@ -101,7 +101,7 @@ namespace Buaa.AIBot.Services
                 }
 
                 string ret;
-                var response = (HttpWebResponse)await request.GetResponseAsync();
+                var response = (HttpWebResponse)request.GetResponse();
                 {
                     if (response.StatusCode == HttpStatusCode.Unauthorized)
                     {
