@@ -19,7 +19,7 @@ base_urls = [
         "aiape.snowphoenix.design"]
 
 # 修改这里来选择一个合适的远端
-base_url = base_urls[0]
+base_url = base_urls[1]
 log(f"using base_url: {base_url}")
 
 def set_default_jwt(token: str):
@@ -98,7 +98,7 @@ def post(target: str, body, headers: dict=None, jwt: str=None):
     global default_jwt
     jwt = jwt if jwt is not None else default_jwt
     # log("jwt =", jwt)
-    body = json.dumps(body)
+    body = json.dumps(body, ensure_ascii=False)
     if headers is None:
         headers = {}
     headers["Content-Type"] = "application/json"
@@ -108,7 +108,7 @@ def post(target: str, body, headers: dict=None, jwt: str=None):
 
     origin_host =  protocol + "://" + base_url
     url = origin_host + target
-
+    log(f"posting tp {url} with body {body}")
     req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
 
     try:

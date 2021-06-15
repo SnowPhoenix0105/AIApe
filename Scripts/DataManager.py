@@ -2,6 +2,7 @@ from DataManager.QuestionPusher import push_all_question_to_remote
 from DataManager.SelectTags import select_tags
 from DataManager.BuildAutoTag import generate_all_auto_tags
 from DataManager.TagManager import push_all_tags_to_remote
+from DataManager.NatrualPusher import push_all_natrual_to_remote
 import utils.Poster
 from DataManager.Raw2Pure import raw_to_pure
 from utils.Utils import log, pcat
@@ -39,6 +40,7 @@ def help():
 调用autotag通过远端判断，为所有问题添加一个自动生成的标签，其信息将记录于auto_tag文件夹下；
 调用select进行人工添改标签；
 调用questions将本地问题同步至远端；
+调用natrual将本地自然问答同步至远端；
     """
     print(msg)
 
@@ -51,6 +53,7 @@ def main():
         "autotag": generate_all_auto_tags,
         "select": select_tags,
         "questions" : push_all_question_to_remote,
+        "natrual": push_all_natrual_to_remote,
         "help" : help
     }
     prompt = ", ".join(apps)
