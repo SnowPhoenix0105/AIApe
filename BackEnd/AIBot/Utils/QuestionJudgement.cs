@@ -97,6 +97,8 @@ namespace Buaa.AIBot.Utils
             var tags = await tagRepostory.SelectAllTagsAsync();
             var ret = new Dictionary<string, int>();
 
+            content = title + content;
+
             ret.AddTagIfSatisfy(content, "Linux", tags,
                 "ubuntu", "Redhat", "Debain", "Fedora", "openSUSE", "Mandriva", "Mint",
                 "PCLinuxOS", "Cent OS", "CentOS", "Slackware", "Gentoo")
@@ -109,6 +111,26 @@ namespace Buaa.AIBot.Utils
                 .AddTagIfSatisfy(content, "gcc", tags, "GNU Compiler Collection", "g++")
                 .AddTagIfSatisfy(content, "clang", tags, "llvm")
                 .AddTagIfSatisfy(content, "msvc", tags, "Microsoft Visual C++")
+                .AddTagIfSatisfy(content, "代码", tags, "源码", "do")
+                .AddTagIfSatisfy(content, "工具使用", tags, "IDEA", "Eclipse", "IntelliJ", "Oracle", "Nginx", "Jar",
+                "Apache", "MyBatis", "Jedis", "JDK", "Maven", "MVN", "CMD", "pip", "Spyder", "PyCharm", "anaconda",
+                "数据库", "Excel", "runtime", "jupyter", "github", "virtualbox", "nvidia", "chrome", "cuda", "keil")
+                .AddTagIfSatisfy(content, "标准库", tags, "List", "Map", "Set", "Queue", "String", "tuple", "dict", "Input",
+                "Output", "Collections", "Stream", "System", "日期", "天气", "plot", "gae", "turtle", "re", "getchar", "putchar", "std")
+                .AddTagIfSatisfy(content, "第三方库", tags, "API", "接口", "JSP", "javax", "JButton", "swing", 
+                "spring", "java.awt", "JFinal", "JUnit", "log4j", "安卓", "android", "mongoDB", "JQuery", "tomcat",
+                "Vue", "dll", "GUI", "JNA", "JNI", "SSM", "SQL", "包", "pandas", "sklearn", "xlwings", "flask", "selenium",
+                "PyQt", "qt", "pygame", "pytorch", "tensorflow", "keras", "django", "wx", "pylint", "urllib", "pydev", "tkinter",
+                "pytest", "dataframe", "json", "pyinstaller", "beautifulsoup", "hibernate", "pyecharts", "cv", "tensor", "mesh",
+                "scikit-learn")
+                .AddTagIfSatisfy(content, "语句", tags, "泛型", "hashcode", "Object", "this", "super", "equals", "Runnable",
+                "bean", "多态", "enum", "for", "switch", "while", "if", "xpath", "groovy", "namespace", "lambda", "append", "sort",
+                "readline", "round", "宏", "bat", "main", "结构体", "堆", "栈", "指针", "数组", "do", "内存", "转换", "函数")
+                .AddTagIfSatisfy(content, "关键字", tags, "synchronized", "public", "private", "protected", "extern")
+                .AddTagIfSatisfy(content, "算法", tags, "多线程", "并发", "锁", "表达式", "MD5", "thread", "进程", "process", "正则", "公式", "推导",
+                "解", "dbscan", "SVM", "遍历", "二叉树", "算法", "数据结构", "循环", "求余", "递归", "精度", "表", "法", "统计")
+                .AddTagIfSatisfy(content, "网络", tags, "cookie", "爬虫", "http", "html", "request", "response", "web", "session", "header",
+                "ip")
                 ;
             if (tags.TryGetValue("代码", out var codeTid))
             {
