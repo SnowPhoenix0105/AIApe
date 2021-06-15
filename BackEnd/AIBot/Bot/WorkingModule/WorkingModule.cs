@@ -13,10 +13,14 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public static IServiceCollection AddWorkingModule(this IServiceCollection services, IConfiguration config)
         {
             string gccWorkDir = config.GetSection("Path").GetValue<string>("GccWorkDir");
-            double minScore = config.GetSection("BetaBot").GetValue<double>("MinScore");
+            var betaBot = config.GetSection("BetaBot");
+            double minScore = betaBot.GetValue<double>("MinScore");
+            int continueCount = betaBot.GetValue<int>("ContinueCount");
+            double secondLimitScoreTimes = betaBot.GetValue<double>("SecondLimitScoreTimes");
             services
                 .AddTransient<IWorkingModule, WorkingModule>()
                 .AddTransient<QuestionBuilder>()
+                .AddTransient<NaturalAnswerGenerator>()
                 .AddSingleton<GovernmentInstallingInfo>()
                 .AddSingleton<IdeAndCompilerDocumentCollection>()
                 .AddSingleton<IGccHandlerFactory>(provider =>
@@ -27,7 +31,9 @@ namespace Buaa.AIBot.Bot.WorkingModule
                     new InnerRepoSearcher(
                         provider.GetRequiredService<Services.IQuestionService>(),
                         provider.GetRequiredService<Services.INLPService>(),
-                        minScore))
+                        minScore,
+                        continueCount,
+                        secondLimitScoreTimes))
                 .AddTransient<OuterRepoSearcher>()
                 ;
             return services;
@@ -45,6 +51,8 @@ namespace Buaa.AIBot.Bot.WorkingModule
         DocumentCollection GetDocumentCollection();
         OuterRepoSearcher GetOuterRepoSearcher();
         InnerRepoSearcher GetInnerRepoSearcher();
+
+        NaturalAnswerGenerator GetNaturalAnswerGenerator();
     }
 
     public class WorkingModule : IWorkingModule
@@ -99,6 +107,11 @@ namespace Buaa.AIBot.Bot.WorkingModule
         public InnerRepoSearcher GetInnerRepoSearcher()
         {
             return Services.GetService<InnerRepoSearcher>();
+        }
+
+        public NaturalAnswerGenerator GetNaturalAnswerGenerator()
+        {
+            return Services.GetRequiredService<NaturalAnswerGenerator>();
         }
     }
 }

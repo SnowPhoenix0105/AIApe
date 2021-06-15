@@ -9,14 +9,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Buaa.AIBot.Bot.BetaBot.Status
 {
-    public static class GetQuestionStatuses
-    {
-        public static Task<IEnumerable<QuestionScoreInfo>> GetLocalSearchResultAsync(this IWorkingModule worker, string content)
-        {
-            var searcher = worker.GetInnerRepoSearcher();
-            return searcher.SearchAsync(content);
-        }
-    }
 
     public class WelcomeStatus : BetaBotStatusBehaviour
     {
@@ -44,7 +36,8 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             }
 
             
-            var searchTask = worker.GetLocalSearchResultAsync(msg);
+            var searcher = worker.GetInnerRepoSearcher();
+            var searchTask = searcher.SearchAsync(msg, true);
             if (msg.Length <= AIBot.Constants.QuestionTitleMaxLength / 2)
             {
                 status.Put(Constants.Key.Checking, Constants.Value.CheckingShort);
@@ -58,6 +51,16 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             var res = await searchTask;
             var logger = context.Worker.Get<ILogger<WelcomeStatus>>();
             logger.LogInformation("QuestionMatches:\n{questionMatches}", string.Join("\n", res.Select(q => new Tuple<int, double>(q.Qid, q.Score))));
+            
+            var first = res.FirstOrDefault();
+            if (first != default && first.Qid < 0)
+            {
+                var ans = await worker.GetNaturalAnswerGenerator().GetAnswerAsync(first.Qid);
+                context.Sender.AddMessage(ans);
+                status.Clear();
+                return Id;
+            }
+            
             status.Put(Constants.Key.QuestionMatches, res);
             var questions = status.CalculateSortedSelectedQuestions(null, res);
             logger.LogInformation("SortedSelectedQuestionMatches:\n[{sortedSelectedQuestionMatches}]", string.Join(", ", questions));
@@ -188,7 +191,7 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
             status.Put(Constants.Key.Checking, Constants.Value.CheckingShort);
             status.Put(Constants.Key.ShortQuestion, msg);
 
-            var res = await worker.GetLocalSearchResultAsync(msg);
+            var res = await worker.GetInnerRepoSearcher().SearchAsync(msg, false);
             status.Put(Constants.Key.QuestionMatches, res);
             var questions = status.CalculateSortedSelectedQuestions(null, res);
             if (questions.Count == 0)

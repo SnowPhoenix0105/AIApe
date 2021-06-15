@@ -12,12 +12,16 @@ namespace Buaa.AIBot.Bot.WorkingModule
         private readonly IQuestionService questionService;
         private readonly INLPService nlpService;
         private readonly double minScore;
+        private readonly int continueCount;
+        private readonly double secondLimitScoreTimes;
 
-        public InnerRepoSearcher(IQuestionService questionService, INLPService nlpService, double minScore)
+        public InnerRepoSearcher(IQuestionService questionService, INLPService nlpService, double minScore, int continueCount, double secondLimitScoreTimes)
         {
             this.questionService = questionService;
             this.nlpService = nlpService;
             this.minScore = minScore;
+            this.continueCount = continueCount;
+            this.secondLimitScoreTimes = secondLimitScoreTimes;
         }
 
         public class QuestionScoreInfo
@@ -45,16 +49,29 @@ namespace Buaa.AIBot.Bot.WorkingModule
                 ret.Select(kv => new KeyValuePair<TagCategory, IReadOnlyDictionary<int, string>>(kv.Key, kv.Value)));
         }
 
-        public async Task<IEnumerable<QuestionScoreInfo>> SearchAsync(string question)
+        public async Task<IEnumerable<QuestionScoreInfo>> SearchAsync(string question, bool needNatrual)
         {
             var res = await nlpService.RetrievalAsync(question, 30, Enum.GetValues<NLPService.Languages>().ToList());
             var tagIndex = await questionService.GetTagCategoryIndexAsync();
             var ret = new List<QuestionScoreInfo>();
+            if (needNatrual)
+            {
+                var first = res.FirstOrDefault();
+                if (first == default)
+                {
+                    return ret;
+                }
+                if (first.Item1 < 0)
+                {
+                    return new QuestionScoreInfo[]{new QuestionScoreInfo() {Qid = first.Item1, Score = first.Item2}};
+                }
+            }
+            res = res.Where(q => q.Item1 >= 0).ToList();
             foreach (var t in res)
             {
                 if (t.Item2 < minScore)
                 {
-                    continue;
+                    break;
                 }
                 var tags = await BuildTagsAsync(tagIndex, t.Item1);
                 if (tags != null)
@@ -65,6 +82,35 @@ namespace Buaa.AIBot.Bot.WorkingModule
                         Score = t.Item2,
                         Tags = tags
                     });
+                }
+            }
+            if (ret.Count <= continueCount)
+            {
+                var average = ret.Select(q => q.Score).Average();
+                double secondLimitScore = average * secondLimitScoreTimes;
+                if (secondLimitScore <= minScore)
+                {
+                    foreach (var t in res)
+                    {
+                        if (t.Item2 >= minScore)
+                        {
+                            continue;
+                        }
+                        if (t.Item2 < secondLimitScore)
+                        {
+                            break;
+                        }
+                        var tags = await BuildTagsAsync(tagIndex, t.Item1);
+                        if (tags != null)
+                        {
+                        ret.Add(new QuestionScoreInfo()
+                            {
+                                Qid = t.Item1,
+                                Score = t.Item2,
+                                Tags = tags
+                            });
+                        }
+                    }
                 }
             }
             return ret;

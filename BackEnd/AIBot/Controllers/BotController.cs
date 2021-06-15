@@ -4,6 +4,7 @@
 // Generated with EmptyBot .NET Template version v4.12.2
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -26,12 +27,14 @@ namespace Buaa.AIBot.Controllers
         private readonly IBotRunner botRunner;
         private readonly IUserService userService;
         private readonly QuestionTemplateGenerater questionTemplateGenerater = null;
+        private readonly Bot.WorkingModule.NaturalAnswerGenerator naturalAnswerGenerator = null;
 
-        public BotController(IBotRunner botRunner, IUserService userService, QuestionTemplateGenerater questionTemplateGenerater)
+        public BotController(IBotRunner botRunner, IUserService userService, QuestionTemplateGenerater questionTemplateGenerater, Bot.WorkingModule.NaturalAnswerGenerator naturalAnswerGenerator)
         {
             this.botRunner = botRunner;
             this.userService = userService;
             this.questionTemplateGenerater = questionTemplateGenerater;
+            this.naturalAnswerGenerator = naturalAnswerGenerator;
         }
 
         [Authorize(Policy = "UserAdmin")]
@@ -82,6 +85,29 @@ namespace Buaa.AIBot.Controllers
                 Message = "get question template success",
                 Template = res
             });
+        }
+
+        public class QuestionAndAnswerBody
+        {
+            public List<string> Questions {get; set;}
+            public List<string> Answers { get; set; }
+        }
+
+        [Authorize(Policy = "Admin")]
+        [HttpPost("add_natrual")]
+        public async Task<IActionResult> AddNatrualQuestionAndAnswerAsync(QuestionAndAnswerBody body)
+        {
+            if (naturalAnswerGenerator == null)
+            {
+                return NotFound(new
+                {
+                    Status = "notSupport",
+                    Message = "natural answer is disabled"
+                });
+            }
+            await naturalAnswerGenerator.AddQuestionAndAnswersAsync(body.Questions, body.Answers);
+            // TODO
+            return Ok();
         }
     }
 }

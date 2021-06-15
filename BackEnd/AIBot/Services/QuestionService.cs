@@ -173,13 +173,17 @@ namespace Buaa.AIBot.Services
 
         public async Task<IEnumerable<int>> SearchQuestionAsync(string content, IEnumerable<int> tags)
         {
-            var retruevalTask = nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().ToList());
+            var retruevalTask = nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().Where(l => l != NLPService.Languages.Natrual).ToList());
             var tagIndex = await tagRepostory.SelectTagIndexAsync();
             var res = await retruevalTask;
 
             var questionInfos = new List<Utils.QuestionJudgement.IQuestionTagInfo>();
             foreach (var q in res)
             {
+                if (q.Item1 < 0)
+                {
+                    continue;
+                }
                 var qtags = await questionRepository.SelectTagsForQuestionByIdAsync(q.Item1);
                 if (qtags == null)
                 {
