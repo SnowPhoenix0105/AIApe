@@ -133,7 +133,7 @@ namespace Buaa.AIBot.Utils
                 .AddTagIfSatisfy(content, "算法", tags, "多线程", "并发", "锁", "表达式", "MD5", "thread", "进程", "process", "正则", "公式", "推导",
                 "解", "dbscan", "SVM", "遍历", "树", "算法", "数据结构", "循环", "求余", "递归", "精度", "表", "法", "统计", "集")
                 .AddTagIfSatisfy(content, "网络", tags, "cookie", "爬虫", "http", "html", "request", "response", "web", "session", "header",
-                "ip", "")
+                "ip", "socket")
                 ;
             if (tags.TryGetValue("代码", out var codeTid))
             {
