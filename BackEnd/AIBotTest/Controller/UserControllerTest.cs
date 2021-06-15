@@ -391,7 +391,7 @@ namespace AIBotTest.Controller
             var ret = await controller.ModifyAsync(body);
             var okRet = Assert.IsType<ConflictObjectResult>(ret);
             var resRet = okRet.Value;
-            Assert.Equal("NameExisted", resRet.GetType().GetProperty("Status").GetValue(resRet, null));
+            Assert.Equal("nameExisted", resRet.GetType().GetProperty("Status").GetValue(resRet, null));
             Assert.Equal("name has been used by other user", resRet.GetType().GetProperty("Message").GetValue(resRet, null));
         }
 

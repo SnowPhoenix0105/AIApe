@@ -1178,29 +1178,38 @@ namespace AIBotTest.Repository
             {
                 IUserRepository userRepository = new UserRepository(context, cachePool, globalCancellation);
 
-                string name = "user";
-                var origin = new UserInfo()
+                string name1 = "user";
+                var origin1 = new UserInfo()
                 {
                     Bcrypt = BNBCrypt.HashPassword("password"),
-                    Name = name,
+                    Name = name1,
                     Email = "user1@buaa",
                     Auth = AuthLevel.User,
                     ProfilePhoto = 1
                 };
-                int uid = await userRepository.InsertUserAsync(origin);
-                Assert.Single(context.Users);
+                int uid1 = await userRepository.InsertUserAsync(origin1);
+
+                string name2 = "user2";
+                var origin2 = new UserInfo()
+                {
+                    Bcrypt = BNBCrypt.HashPassword("password"),
+                    Name = name2,
+                    Email = "user2@buaa",
+                    Auth = AuthLevel.User,
+                    ProfilePhoto = 1
+                };
+                int uid2 = await userRepository.InsertUserAsync(origin2);
 
                 var user = new UserInfo()
                 {
-                    UserId = uid,
-                    Name = name,
+                    UserId = uid2,
+                    Name = name1,
                 };
                 await Assert.ThrowsAsync<NameHasExistException>(async () =>
                     await userRepository.UpdateUserAsync(user));
-                Assert.Single(context.Users);
 
-                var res = await userRepository.SelectUserByIdAsync(uid);
-                Assert.Equal(origin.Name, res.Name);
+                var res = await userRepository.SelectUserByIdAsync(uid2);
+                Assert.Equal(origin2.Name, res.Name);
             }
         }
 
