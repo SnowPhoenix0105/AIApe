@@ -110,7 +110,7 @@ namespace Buaa.AIBot
                 // .UseHttpsRedirection()
 
                 // set global timeout
-                .UseGlobalTimeout(TimeSpan.FromSeconds(10))
+                // .UseGlobalTimeout(TimeSpan.FromSeconds(10))
 
                 .UseRouting();
 

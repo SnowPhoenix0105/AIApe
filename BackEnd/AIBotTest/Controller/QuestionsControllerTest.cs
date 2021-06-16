@@ -725,6 +725,223 @@ namespace AIBotTest.Controller
             Assert.Equal($"tag with tid={body.Tid.GetValueOrDefault(-1)} dose not exist", resRet.GetType().GetProperty("Message").GetValue(resRet, null));
         
         }
+
+        [Fact]
+        public async Task LikeAnswerAsyncTest()
+        {
+            var controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
+            
+            mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>())).Returns(1);
+            mockQues.Setup(ques => ques.LikeAnswerAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.success,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+
+            var body = new LikeAnswerBody
+            {
+                Aid = 1,
+                MarkAsLike = true,
+            };
+
+            var ret = await controller.LikeAnswerAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+            mockQues.Setup(ques => ques.LikeAnswerAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.alreadyLiked,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+            ret = await controller.LikeAnswerAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+            mockQues.Setup(ques => ques.LikeAnswerAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.notLiked,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+            ret = await controller.LikeAnswerAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+            mockQues.Setup(ques => ques.LikeAnswerAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.answerNotExist,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+            ret = await controller.LikeAnswerAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+        }
+
+        [Fact]
+        public async Task LikeQuestionAsyncTest()
+        {
+            var controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
+            
+            var body = new LikeQuestionBody
+            {
+                Qid = 1,
+                MarkAsLike = true
+            };
+            
+            mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>())).Returns(1);
+            mockQues.Setup(ques => ques.LikeQuestionAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.success,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+            var ret = await controller.LikeQuestionAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+
+            mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>())).Returns(1);
+            mockQues.Setup(ques => ques.LikeQuestionAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.alreadyLiked,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+            ret = await controller.LikeQuestionAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+
+            mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>())).Returns(1);
+            mockQues.Setup(ques => ques.LikeQuestionAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.notLiked,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+            ret = await controller.LikeQuestionAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+
+            mockUser.Setup(user => user.GetUidFromToken(It.IsAny<HttpRequest>())).Returns(1);
+            mockQues.Setup(ques => ques.LikeQuestionAsync
+            (
+                           It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
+                    .ReturnsAsync(new LikeProduceResult
+                {
+                    Status = LikeProduceResult.ResultStatus.answerNotExist,
+                    UserLiked = true,
+                    LikeNum = 1
+                }
+            );
+            ret = await controller.LikeQuestionAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+        }
+
+        [Fact]
+        public async Task SearchAsyncTest()
+        {
+            var controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
+            var body = new QuestionBody
+            {
+                Tags = new int[]
+                {
+                    1, 2, 3
+                },
+                Content = ""
+            };
+            mockQues.Setup(ques => ques.SearchQuestionAsync
+            (
+                It.IsAny<string>(), It.IsAny<IEnumerable<int>>()
+            )).ReturnsAsync(new int[]
+            {
+                1, 2, 3
+            });
+            var ret = await controller.SearchAsync(body);
+            Assert.IsType<OkObjectResult>(ret);
+        }
+
+        [Fact]
+        public async Task HotlistAsyncTest()
+        {
+            var controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
+            mockHotList.Setup(hot => hot.GetHotListAsync()).ReturnsAsync(new int[]
+            {
+                1, 2, 3
+            });
+            var ret = await controller.HotlistAsync();
+            Assert.IsType<OkObjectResult>(ret);
+        }
+
+        [Fact]
+        public async Task TagCategooryAsyncTest()
+        {
+            var controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
+            var ret = new Dictionary<string, IReadOnlyDictionary<string, int>>();
+            ret.Add("1", new Dictionary<string, int>
+            {
+                {"2", 2}
+            });
+            mockQues.Setup(ques => ques.GetTagCategoryAsync()).ReturnsAsync(ret);
+            var ret1 = await controller.TagCategooryAsync();
+            Assert.IsType<OkObjectResult>(ret1);
+        }
+
+        [Fact]
+        public async Task AutoTagAsyncTest()
+        {
+            var controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
+            var body = new QuestionBody
+            {
+                Title = "",
+                Remarks = ""
+            };
+            mockQues.Setup(ques => ques.GenerageTagsForQuestionAsync
+            (
+                It.IsAny<string>(), It.IsAny<string>()
+            )).ReturnsAsync(new Dictionary<string, int>
+            {
+                {"1", 1}
+            });
+            var ret1 = await controller.AutoTagAsync(body);
+            Assert.IsType<OkObjectResult>(ret1);
+        }
+
+        [Fact]
+        public async Task IsCodeAsyncTest()
+        {
+            var controller = new QuestionsController(mockQues.Object, mockUser.Object, mockHotList.Object);
+            var body = new QuestionBody
+            {
+                Title = "",
+                Remarks = ""
+            };
+            mockQues.Setup(ques => ques.QuestionIsCodeAsync
+            (
+                It.IsAny<string>(), It.IsAny<string>()
+            )).ReturnsAsync(true);
+            var ret1 = await controller.IsCodeAsync(body);
+            Assert.IsType<OkObjectResult>(ret1);
+        }
     }
 
 }

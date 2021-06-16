@@ -1,20 +1,20 @@
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Xunit;
 using Moq;
 
 using Buaa.AIBot.Services;
-using Buaa.AIBot.Services.Exceptions;
-using Buaa.AIBot.Services.Models;
 using Buaa.AIBot.Controllers;
 using Buaa.AIBot.Controllers.Models;
-using Buaa.AIBot.Repository;
-using Buaa.AIBot.Repository.Models;
 using Buaa.AIBot.Bot.Framework;
-using Microsoft.Extensions.Options;
+using Buaa.AIBot.Repository.Models;
+using Buaa.AIBot.Utils;
+
+using Buaa.AIBot.Bot.BetaBot;
+using Buaa.AIBot.Bot.WorkingModule;
 
 namespace AIBotTest.Controller
 {
@@ -24,12 +24,21 @@ namespace AIBotTest.Controller
 
         private Mock<IUserService> mockUser;
 
+        private Mock<QuestionTemplateGenerater> mockQGen;
+
+        private Mock<NaturalAnswerGenerator> mockAGen;
+
         private BotBody body;
 
         public BotControllerTest()
         {
             mockBot = new Mock<IBotRunner>();
             mockUser = new Mock<IUserService>();
+            mockQGen = new Mock<QuestionTemplateGenerater>();
+            mockAGen = new Mock<NaturalAnswerGenerator>(Mock.Of<DatabaseContext>(),
+                                                        Mock.Of<INLPService>(),
+                                                        Mock.Of<GlobalCancellationTokenSource>(),
+                                                        Mock.Of<ILogger<NaturalAnswerGenerator>>());
             body = new BotBody();
         }
 
@@ -54,7 +63,7 @@ namespace AIBotTest.Controller
                     }
                 }
             );
-            BotController controller = new BotController(mockBot.Object, mockUser.Object);
+            BotController controller = new BotController(mockBot.Object, mockUser.Object, null, null);
 
             var ret = await controller.StartAsync(body);
             var okRet = Assert.IsType<OkObjectResult>(ret);
@@ -94,7 +103,7 @@ namespace AIBotTest.Controller
                     }
                 }
             );
-            BotController controller = new BotController(mockBot.Object, mockUser.Object);
+            BotController controller = new BotController(mockBot.Object, mockUser.Object, null, null);
 
             var ret = await controller.MessageAsync(body);
             var okRet = Assert.IsType<OkObjectResult>(ret);
@@ -112,5 +121,32 @@ namespace AIBotTest.Controller
             promptIter.MoveNext();
             Assert.Equal("choice2", promptIter.Current);
         }
+
+        [Fact]
+        public async Task QuestionTemplateAsyncTest()
+        {
+            BotController controller = new BotController(mockBot.Object, mockUser.Object, null, null);
+            var ret = await controller.QuestionTemplateAsync();
+            var nfRet = Assert.IsType<NotFoundObjectResult>(ret);
+        }
+
+        [Fact]
+        public async Task AddNatrualQuestionAndAnswerAsyncTest()
+        {
+            BotController controller = new BotController(mockBot.Object, mockUser.Object, null, null);
+            var ret = await controller.AddNatrualQuestionAndAnswerAsync(new BotController.QuestionAndAnswerBody());
+            var nfRet = Assert.IsType<NotFoundObjectResult>(ret);
+            
+            // mockAGen.Setup(agen => agen.AddQuestionAndAnswersAsync(new string[]{},
+            //                                                        new string[]{})).Returns(Task.CompletedTask);
+            // controller = new BotController(mockBot.Object, mockUser.Object, null, mockAGen.Object);
+            // ret = await controller.AddNatrualQuestionAndAnswerAsync(new BotController.QuestionAndAnswerBody
+            // {
+            //     Questions = new List<string>(),
+            //     Answers = new List<string>()
+            // });
+            // var okRet = Assert.IsType<OkObjectResult>(ret);
+        }
+
     }
 }

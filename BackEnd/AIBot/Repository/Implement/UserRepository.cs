@@ -29,7 +29,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Email = u.Email,
                     Bcrypt = u.Bcrypt,
                     Name = u.Name,
-                    Auth = u.Auth
+                    Auth = u.Auth,
+                    ProfilePhoto = u.ProfilePhoto
                 })
                 .SingleOrDefaultAsync(user => user.UserId == userId, CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
@@ -46,7 +47,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Email = u.Email,
                     Bcrypt = u.Bcrypt,
                     Name = u.Name,
-                    Auth = u.Auth
+                    Auth = u.Auth,
+                    ProfilePhoto = u.ProfilePhoto
                 })
                 .SingleOrDefaultAsync(user => user.Email == email, CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
@@ -63,7 +65,8 @@ namespace Buaa.AIBot.Repository.Implement
                     Email = u.Email,
                     Bcrypt = u.Bcrypt,
                     Name = u.Name,
-                    Auth = u.Auth
+                    Auth = u.Auth,
+                    ProfilePhoto = u.ProfilePhoto
                 })
                 .SingleOrDefaultAsync(user => user.Name == name, CancellationToken);
             CancellationToken.ThrowIfCancellationRequested();
@@ -84,12 +87,16 @@ namespace Buaa.AIBot.Repository.Implement
             return user.Bcrypt;
         }
 
-        public async Task<IEnumerable<int>> SelectAnswersIdByIdAsync(int userId)
+        public async Task<IEnumerable<AnswerIdInfo>> SelectAnswersIdByIdAsync(int userId)
         {
             var query = await Context
                 .Answers
                 .Where(a => a.UserId == userId)
-                .Select(a => a.AnswerId)
+                .Select(a => new AnswerIdInfo()
+                {
+                    AnswerId = a.AnswerId,
+                    QuestionId = a.QuestionId
+                })
                 .ToListAsync(CancellationToken)
                 ;
             CancellationToken.ThrowIfCancellationRequested();
@@ -105,13 +112,17 @@ namespace Buaa.AIBot.Repository.Implement
             return query;
         }
 
-        public async Task<IEnumerable<int>> SelectAnswersIdByIdByModifyTimeAsync(int userId)
+        public async Task<IEnumerable<AnswerIdInfo>> SelectAnswersIdByIdByModifyTimeAsync(int userId)
         {
             var query = await Context
                 .Answers
                 .Where(a => a.UserId == userId)
                 .OrderByDescending(a => a.ModifyTime)
-                .Select(a => a.AnswerId)
+                .Select(a => new AnswerIdInfo()
+                {
+                    AnswerId = a.AnswerId,
+                    QuestionId = a.QuestionId
+                })
                 .ToListAsync(CancellationToken)
                 ;
             CancellationToken.ThrowIfCancellationRequested();
@@ -201,6 +212,10 @@ namespace Buaa.AIBot.Repository.Implement
             {
                 throw new ArgumentNullException(nameof(user.Email));
             }
+            if (user.ProfilePhoto == null)
+            {
+                throw new ArgumentNullException(nameof(user.ProfilePhoto));
+            }
             if (user.Auth == AuthLevel.None)
             {
                 throw new ArgumentNullException(nameof(user.Auth));
@@ -222,7 +237,8 @@ namespace Buaa.AIBot.Repository.Implement
                 Email = user.Email,
                 Bcrypt = user.Bcrypt,
                 Name = user.Name,
-                Auth = user.Auth
+                Auth = user.Auth,
+                ProfilePhoto = (int)user.ProfilePhoto
             };
             await CheckInsert(user);
             bool success = false;
@@ -270,6 +286,11 @@ namespace Buaa.AIBot.Repository.Implement
                 success = false;
                 target.Auth = user.Auth;
             }
+            if (user.ProfilePhoto != null)
+            {
+                success = false;
+                target.ProfilePhoto = (int)user.ProfilePhoto;
+            }
             while (!success)
             {
                 if (user.Name != null)
@@ -278,12 +299,12 @@ namespace Buaa.AIBot.Repository.Implement
                         .Where(u => u.Name == user.Name)
                         .FirstOrDefaultAsync(CancellationToken);
                     CancellationToken.ThrowIfCancellationRequested();
-                    if (old != null)
+                    if (old != null && old.UserId != user.UserId)
                     {
                         throw new NameHasExistException(user.Name);
                     }
                 } 
-                if ((await Context.Users.FindAsync(user.UserId)) == null)
+                if ((await Context.Users.Where(u => u.UserId == user.UserId).FirstOrDefaultAsync(CancellationToken)) == null)
                 {
                     throw new UserNotExistException(user.UserId);
                 }

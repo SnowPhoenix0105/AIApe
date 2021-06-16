@@ -17,16 +17,19 @@ namespace Buaa.AIBot.Repository.Implement
     public class QuestionRepository : RepositoryBase , IQuestionRepository
     {
         private ILogger<QuestionRepository> logger;
+        private ITagRepostory tagRepostory;
 
-        public QuestionRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource)
+        public QuestionRepository(DatabaseContext context, ICachePool<int> cachePool, ITagRepostory tagRepostory, GlobalCancellationTokenSource globalCancellationTokenSource)
             : base(context, cachePool, globalCancellationTokenSource.Token)
         {
+            this.tagRepostory = tagRepostory;
         }
 
-        public QuestionRepository(DatabaseContext context, ICachePool<int> cachePool, GlobalCancellationTokenSource globalCancellationTokenSource, ILogger<QuestionRepository> logger)
+        public QuestionRepository(DatabaseContext context, ICachePool<int> cachePool, ITagRepostory tagRepostory, GlobalCancellationTokenSource globalCancellationTokenSource, ILogger<QuestionRepository> logger)
             : base(context, cachePool, globalCancellationTokenSource.Token) 
         {
             this.logger = logger;
+            this.tagRepostory = tagRepostory;
         }
 
         public async Task<IEnumerable<int>> SelectAnswersForQuestionByIdAsync(int questionId)
@@ -140,44 +143,100 @@ namespace Buaa.AIBot.Repository.Implement
             }
         }
 
-        public async Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags)
+        //public async Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags)
+        //{
+        //    var matcher = new TagMatcher(tags);
+        //    var list = tags.ToList();
+        //    if (list.Count == 0)
+        //    {
+        //        return await Context.Questions.Select(q => q.QuestionId).ToListAsync(CancellationToken);
+        //    }
+        //    // TODO can make it faster?
+        //    string create_set = "drop table if exists tids;\ncreate temporary table tids (tid int not null, primary key(tid));\n";
+        //    string values = string.Join("),(", list);
+        //    string insert_set = $"insert into tids values ({values});\n";
+        //    string select =
+        //        "select *\n" +
+        //        "from Questions\n" +
+        //        "where not exists\n" +
+        //        "(\n  " +
+        //            "select tid from tids\n  " +
+        //            "where not exists\n  " +
+        //            "(\n    " +
+        //                "select *\n    " +
+        //                "from QuestionTagRelations as qt\n    " +
+        //                "where qt.QuestionId=Questions.QuestionId and qt.TagId=tids.tid\n  " +
+        //            ")\n" +
+        //        ");";
+        //    string sql = create_set + insert_set + select;
+        //    var query = Context
+        //        .Questions
+        //        .FromSqlRaw(sql)
+        //        .AsEnumerable()
+        //        .Select(q => q.QuestionId);
+
+        //    //var query = Context
+        //    //    .QuestionTagRelations
+        //    //    .GroupBy(qt => qt.QuestionId)
+        //    //    .Where(q => matcher.Match(q.Select(qt => qt.TagId)))
+        //    //    .Select(q => q.First().QuestionId);
+        //    return query.ToList();
+        //}
+
+        private string SqlCommandForExistTid(int tid)
+        {
+            return $"exists (select `qt`.`TagId` from `QuestionTagRelations` as `qt` " +
+                $"where `qt`.QuestionId=Questions.QuestionId and `qt`.TagId={tid})";
+        }
+
+        public async Task<IEnumerable<int>> SelectQuestionsByTagsAsync(IEnumerable<int> tags, int maxQid=int.MaxValue, int num = int.MaxValue)
         {
             var matcher = new TagMatcher(tags);
             var list = tags.ToList();
             if (list.Count == 0)
             {
-                return await Context.Questions.Select(q => q.QuestionId).ToListAsync(CancellationToken);
+                return await Context
+                    .Questions
+                    .Where(q => q.QuestionId < maxQid)
+                    .OrderByDescending(q => q.QuestionId)
+                    .Select(q => q.QuestionId)
+                    .Take(num)
+                    .ToListAsync(CancellationToken);
             }
             // TODO can make it faster?
-            string create_set = "drop table if exists tids;\ncreate temporary table tids (tid int not null, primary key(tid));\n";
-            string values = string.Join("),(", list);
-            string insert_set = $"insert into tids values ({values});\n";
-            string select =
-                "select *\n" +
-                "from Questions\n" +
-                "where not exists\n" +
-                "(\n  " +
-                    "select tid from tids\n  " +
-                    "where not exists\n  " +
-                    "(\n    " +
-                        "select *\n    " +
-                        "from QuestionTagRelations as qt\n    " +
-                        "where qt.QuestionId=Questions.QuestionId and qt.TagId=tids.tid\n  " +
-                    ")\n" +
-                ");";
-            string sql = create_set + insert_set + select;
-            var query = Context
+
+
+            var tagIndex = await tagRepostory.SelectTagIndexAsync();
+            var classifiedTags = new Dictionary<TagCategory, List<int>>(
+                Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, List<int>>(c, new List<int>())));
+            foreach (var tid in tags)
+            {
+                if (tagIndex.TryGetValue(tid, out var category))
+                {
+                    classifiedTags[category].Add(tid);
+                }
+            }
+
+            string filter = string.Join("\nand\n", classifiedTags.Values
+                .Where(categoryList => categoryList.Count > 0)
+                .Select(categoryList => string.Join("\nor\n", categoryList
+                    .Select(tid => SqlCommandForExistTid(tid)))));
+
+            string sql =
+                "select * from `Questions`\n" +
+                "where\n" +
+                filter
+                ;
+
+            var query = await Context
                 .Questions
                 .FromSqlRaw(sql)
-                .AsEnumerable()
-                .Select(q => q.QuestionId);
-
-            //var query = Context
-            //    .QuestionTagRelations
-            //    .GroupBy(qt => qt.QuestionId)
-            //    .Where(q => matcher.Match(q.Select(qt => qt.TagId)))
-            //    .Select(q => q.First().QuestionId);
-            return query.ToList();
+                .Where(q => q.QuestionId < maxQid)
+                .OrderByDescending(q => q.QuestionId)
+                .Select(q => q.QuestionId)
+                .Take(num)
+                .ToListAsync();
+            return query;
         }
 
         public async Task<IEnumerable<KeyValuePair<string, int>>> SelectTagsForQuestionByIdAsync(int questionId)

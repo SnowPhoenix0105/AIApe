@@ -12,6 +12,7 @@ class EmbeddingSet:
         self.cache_name = '{}_EmbeddingSet.pkl'.format(self.model.model_name)
         self.add_filename = 'QuestionAddFile.csv'
         self.delete_filename = 'QuestionDeleteFile.csv'
+
         if self.cache_name in os.listdir(const.CACHE_PATH):
             with open(os.path.join(const.CACHE_PATH, self.cache_name), 'rb') as f:
                 self.data = pickle.load(f)
@@ -21,6 +22,7 @@ class EmbeddingSet:
         else:
             self.data = dict([[language, [[], []]] for language in languages])
             self.data['prompts'] = dict()
+        
         self.dump_seconds = dump_seconds
         self.last_dump_time = datetime.datetime.now()
     
@@ -42,19 +44,23 @@ class EmbeddingSet:
 
     
     def delete(self, qid):
+        flag = False
         for language, records in self.data.items():
             if language == 'prompts':
                 continue
+            del_positions = list()
             for i, temp_qid in enumerate(records[0]):
                 if qid == temp_qid:
-                    with open(os.path.join(const.CACHE_PATH, self.delete_filename), 'a', encoding='utf8') as f:
-                        f.write('{}\n'.format(qid))
-                    records[0].pop(i)
-                    records[1].pop(i)
-                    self._update()
-                    return True
+                    flag = True
+                    del_positions.append(i)
+            for i, position in enumerate(del_positions):
+                records[0].pop(position - i)
+                records[1].pop(position - i)
+        if flag:
+            with open(os.path.join(const.CACHE_PATH, self.delete_filename), 'a', encoding='utf8') as f:
+                            f.write('{}\n'.format(qid))
         self._update()
-        return False
+        return flag
 
     def checkqids(self, qids):
         to_be_checked = set(qids)

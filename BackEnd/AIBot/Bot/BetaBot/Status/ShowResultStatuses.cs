@@ -56,7 +56,7 @@ namespace Buaa.AIBot.Bot.BetaBot.Status
         {
             var category = status.Get<TagCategory>(Constants.Key.Cached_CheckingTagCategory);
             var selectedTags = status.GetSelectedTags();
-            selectedTags[category] = new HashSet<int>();
+            selectedTags[category] = selected; new HashSet<int>();
             var questions = status.CalculateSortedSelectedQuestions(selectedTags);
             if (questions.Count == 0)
             {

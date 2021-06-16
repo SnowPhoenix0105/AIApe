@@ -8,6 +8,7 @@ using Buaa.AIBot.Services.Exceptions;
 using Buaa.AIBot.Repository;
 using Buaa.AIBot.Repository.Models;
 using Buaa.AIBot.Repository.Exceptions;
+using Buaa.AIBot.Utils;
 
 namespace Buaa.AIBot.Services
 {
@@ -144,10 +145,60 @@ namespace Buaa.AIBot.Services
             }
             return new TagInformation()
             {
-                Category = tag.Category,
+                Category = (TagCategory)tag.Category,
                 Name = tag.Name,
                 Desc = tag.Desc
             };
+        }
+
+        public Task<IReadOnlyDictionary<int, TagCategory>> GetTagCategoryIndexAsync()
+        {
+            return tagRepostory.SelectTagIndexAsync();
+        }
+
+        public async Task<Dictionary<TagCategory, IEnumerable<int>>> ClassifyTagsAsync(IEnumerable<int> tags, IReadOnlyDictionary<int, TagCategory> tagIndex = null)
+        {
+            tagIndex ??= await tagRepostory.SelectTagIndexAsync();
+            var ret = new Dictionary<TagCategory, List<int>>(
+                Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, List<int>>(c, new List<int>())));
+            foreach (var tid in tags)
+            {
+                if (tagIndex.TryGetValue(tid, out var category))
+                {
+                    ret[category].Add(tid);
+                }
+            }
+            return new Dictionary<TagCategory, IEnumerable<int>>(ret.Select(c => new KeyValuePair<TagCategory, IEnumerable<int>>(c.Key, c.Value)));
+        }
+
+        public async Task<IEnumerable<int>> SearchQuestionAsync(string content, IEnumerable<int> tags)
+        {
+            var retruevalTask = nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().Where(l => l != NLPService.Languages.Natrual).ToList());
+            var tagIndex = await tagRepostory.SelectTagIndexAsync();
+            var res = await retruevalTask;
+
+            var questionInfos = new List<Utils.QuestionJudgement.IQuestionTagInfo>();
+            foreach (var q in res)
+            {
+                if (q.Item1 < 0)
+                {
+                    continue;
+                }
+                var qtags = await questionRepository.SelectTagsForQuestionByIdAsync(q.Item1);
+                if (qtags == null)
+                {
+                    continue;
+                }
+                var qtids = qtags.Select(t => t.Value);
+                questionInfos.Add(new Utils.QuestionJudgement.QuestionTagInfo()
+                {
+                    Qid = q.Item1,
+                    Tags = await ClassifyTagsAsync(qtids)
+                });
+            }
+            return Utils.QuestionJudgement.GetFilteredQuestions(questionInfos, await ClassifyTagsAsync(tags));
+
+                        
         }
 
         public async Task<IEnumerable<int>> GetQuestionListAsync(IEnumerable<int> tags, int? pt, int number)
@@ -156,33 +207,28 @@ namespace Buaa.AIBot.Services
             {
                 return new int[0];
             }
-            var questions = await questionRepository.SelectQuestionsByTagsAsync(tags);
             int upper = pt ?? int.MaxValue;
-            var res = from qid in questions
-                      where qid < upper
-                      orderby qid descending
-                      select qid;
-            var ret = new List<int>();
             if (number > Constants.QuestionListMaxNumber)
             {
                 number = Constants.QuestionListMaxNumber;
             }
-            foreach (var qid in res)
-            {
-                if (number <= 0)
-                {
-                    break;
-                }
-                ret.Add(qid);
-                number--;
-            }
-            return ret;
-        }
-
-        public async Task<IEnumerable<int>> SearchQuestionAsync(string content)
-        {
-            var res = await nlpService.RetrievalAsync(content, 50, Enum.GetValues<NLPService.Languages>().ToList());
-            return res.OrderByDescending(t => t.Item2).Select(t => t.Item1).ToList();
+            var questions = await questionRepository.SelectQuestionsByTagsAsync(tags, upper, number);
+            return questions;
+            //var res = from qid in questions
+            //          where qid < upper
+            //          orderby qid descending
+            //          select qid;
+            //var ret = new List<int>();
+            //foreach (var qid in res)
+            //{
+            //    if (number <= 0)
+            //    {
+            //        break;
+            //    }
+            //    ret.Add(qid);
+            //    number--;
+            //}
+            //return ret;
         }
 
         public Task<IReadOnlyDictionary<string, int>> GetTagListAsync()
@@ -223,8 +269,7 @@ namespace Buaa.AIBot.Services
                     Remarks = remarks,
                     Tags = tags
                 });
-                // TODO
-                await nlpService.AddAsync(qid, title, NLPService.Languages.C);
+                await TimedTask.NLPSynchronizer.DEFAULT.AddQuestion(qid, nlpService, title, tags);
                 return qid;
             }
             catch (Repository.Exceptions.UserNotExistException e)
@@ -277,10 +322,10 @@ namespace Buaa.AIBot.Services
                     throw new UnknownTagCategoryException(category);
                 }
             }
-            if (tagCategory == TagCategory.None)
-            {
-                tagCategory = TagCategory.Other;
-            }
+            //if (tagCategory == TagCategory.None)
+            //{
+            //    tagCategory = TagCategory.Other;
+            //}
             try
             {
                 int tid = await tagRepostory.InsertTagAsync(new TagInfo()
@@ -313,6 +358,14 @@ namespace Buaa.AIBot.Services
                     Remarks = modifyItems.Remarks,
                     Tags = modifyItems.Tags
                 });
+                if (modifyItems.Title != null || modifyItems.Tags != null)
+                {
+                    var deleteTask = nlpService.DeleteAsync(qid);
+                    var title = modifyItems.Title ?? (await questionRepository.SelectQuestionByIdAsync(qid)).Title;
+                    var tags = modifyItems.Tags ?? (await questionRepository.SelectTagsForQuestionByIdAsync(qid)).Select(t => t.Value);
+                    await deleteTask;
+                    await TimedTask.NLPSynchronizer.DEFAULT.AddQuestion(qid, nlpService, title, tags);
+                }
             }
             catch (Repository.Exceptions.TagNotExistException e)
             {
@@ -359,21 +412,23 @@ namespace Buaa.AIBot.Services
                     throw new Exceptions.TagNameTooLongException(actual, max);
                 }
             }
-            TagCategory tagCategory = TagCategory.None;
+            TagCategory? tagCategory = null;// = TagCategory.None;
             if (category != null)
             {
-                if (!Enum.TryParse<TagCategory>(category, out tagCategory))
+                if (!Enum.TryParse<TagCategory>(category, out var tmp))
                 {
+                    tagCategory = tmp;
                     category = category.Substring(0, 1).ToUpper() + category.Substring(1);
-                    if (!Enum.TryParse(category, out tagCategory))
+                    if (!Enum.TryParse(category, out tmp))
                     {
+                        tagCategory = tmp;
                         throw new UnknownTagCategoryException(category);
                     }
                 }
-                if (tagCategory == TagCategory.None)
-                {
-                    tagCategory = TagCategory.Other;
-                }
+                //if (tagCategory == TagCategory.None)
+                //{
+                //    tagCategory = TagCategory.Other;
+                //}
             }
             try
             {

@@ -19,6 +19,7 @@ namespace Buaa.AIBot.Repository.Models
         public string Bcrypt { get; set; }
         public string Name { get; set; }
         public AuthLevel Auth { get; set; } = AuthLevel.None;
+        public int? ProfilePhoto { get; set; }
     }
 
     public class QuestionInfo
@@ -62,9 +63,14 @@ namespace Buaa.AIBot.Repository.Models
         public DateTime ModifyTime { get; set; }
     }
 
+    public class AnswerIdInfo
+    {
+        public int AnswerId { get; set; }
+        public int QuestionId { get; set; }
+    }
+
     public enum TagCategory
     {
-        None = default,
         Lang = 1,
         Env = 2,
         Other = 3
@@ -73,7 +79,7 @@ namespace Buaa.AIBot.Repository.Models
     public class TagInfo
     {
         public int TagId { get; set; }
-        public TagCategory Category { get; set; }
+        public TagCategory? Category { get; set; }
         public string Name { get; set; }
         public string Desc { get; set; }
     }

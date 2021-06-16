@@ -12,12 +12,16 @@ namespace Buaa.AIBot.Bot.WorkingModule
         private readonly IQuestionService questionService;
         private readonly INLPService nlpService;
         private readonly double minScore;
+        private readonly int continueCount;
+        private readonly double secondLimitScoreTimes;
 
-        public InnerRepoSearcher(IQuestionService questionService, INLPService nlpService, double minScore)
+        public InnerRepoSearcher(IQuestionService questionService, INLPService nlpService, double minScore, int continueCount, double secondLimitScoreTimes)
         {
             this.questionService = questionService;
             this.nlpService = nlpService;
             this.minScore = minScore;
+            this.continueCount = continueCount;
+            this.secondLimitScoreTimes = secondLimitScoreTimes;
         }
 
         public class QuestionScoreInfo
@@ -27,9 +31,13 @@ namespace Buaa.AIBot.Bot.WorkingModule
             public IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>> Tags { get; set; }
         }
 
-        private async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> BuildTagsAsync(Dictionary<int, TagCategory> tagIndex, int qid)
+        private async Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> BuildTagsAsync(IReadOnlyDictionary<int, TagCategory> tagIndex, int qid)
         {
             var questionTags = await questionService.QuestionRepository.SelectTagsForQuestionByIdAsync(qid);
+            if (questionTags == null)
+            {
+                return null;
+            }
             var ret = new Dictionary<TagCategory, Dictionary<int, string>>(
                 Enum.GetValues<TagCategory>().Select(c => new KeyValuePair<TagCategory, Dictionary<int, string>>(c, new Dictionary<int, string>())));
             foreach (var kv in questionTags)
@@ -41,32 +49,69 @@ namespace Buaa.AIBot.Bot.WorkingModule
                 ret.Select(kv => new KeyValuePair<TagCategory, IReadOnlyDictionary<int, string>>(kv.Key, kv.Value)));
         }
 
-        public async Task<IEnumerable<QuestionScoreInfo>> SearchAsync(string question)
+        public async Task<IEnumerable<QuestionScoreInfo>> SearchAsync(string question, bool needNatrual)
         {
             var res = await nlpService.RetrievalAsync(question, 30, Enum.GetValues<NLPService.Languages>().ToList());
-            var tagCategory = await questionService.GetTagCategoryAsync();
-            var tagIndex = new Dictionary<int, TagCategory>();
-            foreach (var c in tagCategory)
+            var tagIndex = await questionService.GetTagCategoryIndexAsync();
+            var ret = new List<QuestionScoreInfo>();
+            if (needNatrual)
             {
-                TagCategory category = Enum.Parse<TagCategory>(c.Key);
-                foreach (var t in c.Value)
+                var first = res.FirstOrDefault();
+                if (first == default)
                 {
-                    tagIndex[t.Value] = category;
+                    return ret;
+                }
+                if (first.Item1 < 0)
+                {
+                    return new QuestionScoreInfo[]{new QuestionScoreInfo() {Qid = first.Item1, Score = first.Item2}};
                 }
             }
-            var ret = new List<QuestionScoreInfo>();
+            res = res.Where(q => q.Item1 >= 0).ToList();
             foreach (var t in res)
             {
                 if (t.Item2 < minScore)
                 {
-                    continue;
+                    break;
                 }
-                ret.Add(new QuestionScoreInfo()
+                var tags = await BuildTagsAsync(tagIndex, t.Item1);
+                if (tags != null)
                 {
-                    Qid = t.Item1,
-                    Score = t.Item2,
-                    Tags = await BuildTagsAsync(tagIndex, t.Item1)
-                });
+                ret.Add(new QuestionScoreInfo()
+                    {
+                        Qid = t.Item1,
+                        Score = t.Item2,
+                        Tags = tags
+                    });
+                }
+            }
+            if (ret.Count <= continueCount)
+            {
+                var average = res.Select(q => q.Item2).Average();
+                double secondLimitScore = average * secondLimitScoreTimes;
+                if (secondLimitScore <= minScore)
+                {
+                    foreach (var t in res)
+                    {
+                        if (t.Item2 >= minScore)
+                        {
+                            continue;
+                        }
+                        if (t.Item2 < secondLimitScore)
+                        {
+                            break;
+                        }
+                        var tags = await BuildTagsAsync(tagIndex, t.Item1);
+                        if (tags != null)
+                        {
+                        ret.Add(new QuestionScoreInfo()
+                            {
+                                Qid = t.Item1,
+                                Score = t.Item2,
+                                Tags = tags
+                            });
+                        }
+                    }
+                }
             }
             return ret;
         }

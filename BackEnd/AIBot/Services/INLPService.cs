@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Buaa.AIBot.Utils;
@@ -11,6 +12,7 @@ using System.Text;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Buaa.AIBot.Services
 {
@@ -23,6 +25,7 @@ namespace Buaa.AIBot.Services
         Task<List<Tuple<int, double>>> RetrievalAsync(string question, int num, IEnumerable<NLPService.Languages> languages);
         Task<string> SelectAsync(string reply, IEnumerable<string> prompts);
         Task<string> SelectAsync(string reply, params string[] prompts);
+        Task<List<int>> CheckqidsAsync(IEnumerable<int> qids);
     }
 
     public class NLPService : INLPService
@@ -32,11 +35,13 @@ namespace Buaa.AIBot.Services
             public string BaseUrl { get; set; }
             public string Name { get; set; }
             public string Password { get; set; }
+            public readonly SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1);
         }
 
         private ILogger<NLPService> logger;
         private GlobalCancellationTokenSource globalCancellationTokenSource;
         private Options options;
+
 
         public NLPService(ILogger<NLPService> logger, GlobalCancellationTokenSource globalCancellationTokenSource, Options options)
         {
@@ -78,59 +83,69 @@ namespace Buaa.AIBot.Services
 
         private async Task<string> PostResultAsync(string url, Dictionary<string, object> body)
         {
-            var fullUrl = options.BaseUrl + url;
-            var request = WebRequest.CreateHttp(fullUrl);
+            await options.semaphoreSlim.WaitAsync();
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            try
             {
-                request.Method = "POST";
-                var stream = await request.GetRequestStreamAsync();
-                body["name"] = options.Name;
-                body["password"] = options.Password;
-                var json = JsonSerializer.Serialize(body);
-                request.ContentType = "application/json";
-                logger.LogInformation("POST to {fullUrl} with body:{body}", fullUrl, json);
-                await stream.WriteAsync(Encoding.UTF8.GetBytes(json));
-            }
+                var fullUrl = options.BaseUrl + url;
+                var request = WebRequest.CreateHttp(fullUrl);
+                {
+                    request.Method = "POST";
+                    var stream = await request.GetRequestStreamAsync();
+                    body["name"] = options.Name;
+                    body["password"] = options.Password;
+                    var json = JsonSerializer.Serialize(body);
+                    request.ContentType = "application/json";
+                    body["password"] = "__PASSWORD__";
+                    logger.LogInformation("POST to {fullUrl} with body:{body}", fullUrl, JsonSerializer.Serialize(body));
+                    await stream.WriteAsync(Encoding.UTF8.GetBytes(json));
+                }
 
-            string ret;
-            var response = (HttpWebResponse)request.GetResponse();
+                string ret;
+                var response = (HttpWebResponse)await request.GetResponseAsync();
+                {
+                    if (response.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        logger.LogError("Unauthorized!");
+                        throw new UnauthorizedException("wrong name or password when calling nlp-service");
+                    }
+                    var stream = response.GetResponseStream();
+                    // if (response.ContentEncoding.ToLower().Contains("gzip"))
+                    // {
+                    //     using (GZipStream gzip = new GZipStream(stream, CompressionMode.Decompress))
+                    //     {
+                    //         using (StreamReader reader = new StreamReader(gzip, Encoding.UTF8))
+                    //         {
+                    //             ret = reader.ReadToEnd();
+                    //         }
+                    //     }
+                    // }
+                    // else if (response.ContentEncoding.ToLower().Contains("deflate"))
+                    // {
+                    //     using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Decompress))
+                    //     {
+                    //         using (StreamReader reader = new StreamReader(deflate, Encoding.UTF8))
+                    //         {
+                    //             ret = reader.ReadToEnd();
+                    //         }
+
+                    //     }
+                    // }
+                    // else
+                    // {
+                    // }
+                    using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
+                    {
+
+                        ret = reader.ReadToEnd();
+                    }
+                }
+                return ret;
+            }
+            finally
             {
-                if (response.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    logger.LogError("Unauthorized!");
-                    throw new UnauthorizedException("wrong name or password when calling nlp-service");
-                }
-                var stream = response.GetResponseStream();
-                // if (response.ContentEncoding.ToLower().Contains("gzip"))
-                // {
-                //     using (GZipStream gzip = new GZipStream(stream, CompressionMode.Decompress))
-                //     {
-                //         using (StreamReader reader = new StreamReader(gzip, Encoding.UTF8))
-                //         {
-                //             ret = reader.ReadToEnd();
-                //         }
-                //     }
-                // }
-                // else if (response.ContentEncoding.ToLower().Contains("deflate"))
-                // {
-                //     using (DeflateStream deflate = new DeflateStream(stream, CompressionMode.Decompress))
-                //     {
-                //         using (StreamReader reader = new StreamReader(deflate, Encoding.UTF8))
-                //         {
-                //             ret = reader.ReadToEnd();
-                //         }
-
-                //     }
-                // }
-                // else
-                // {
-                // }
-                using (StreamReader reader = new StreamReader(stream, Encoding.UTF8))
-                {
-
-                    ret = reader.ReadToEnd();
-                }
+                options.semaphoreSlim.Release();
             }
-            return ret;
         }
 
         #region embeddings
@@ -161,7 +176,7 @@ namespace Buaa.AIBot.Services
             });
             if (res.Status == "fail")
             {
-                logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
                 return null;
             }
             return res.Embeddings;
@@ -185,6 +200,19 @@ namespace Buaa.AIBot.Services
                 }
                 string res = string.Join(", ", Results.Select(t => $"({t[0]}, {t[1]})"));
                 return $"{nameof(RetrievalResult)}{{{nameof(Status)}={Status}, {nameof(Message)}={Message}, {nameof(Results)}=[{res}]}}";
+            }
+        }
+
+        private class QidEqualityComparer : IEqualityComparer<Tuple<int, double>>
+        {
+            public bool Equals(Tuple<int, double> x, Tuple<int, double> y)
+            {
+                return x.Item1 == y.Item2;
+            }
+
+            public int GetHashCode([DisallowNull] Tuple<int, double> obj)
+            {
+                return obj.GetHashCode();
             }
         }
 
@@ -217,10 +245,14 @@ namespace Buaa.AIBot.Services
             });
             if (res.Status == "fail")
             {
-                logger.LogWarning("nlp-service response faile with message: {msg}", res.Message);
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
                 return null;
             }
-            return res.Results.Select(l => new Tuple<int, double>((int)l[0], l[1])).ToList();
+            return res.Results
+                .Select(l => new Tuple<int, double>((int)l[0], l[1]))
+                .Distinct(new QidEqualityComparer())
+                .OrderByDescending(t => t.Item2)
+                .ToList();
         }
 
         #endregion
@@ -324,6 +356,39 @@ namespace Buaa.AIBot.Services
             }
             return res.Prompt;
         }
+
+        #endregion
+
+        #region checkqids
+
+        private class CheckqidsResult
+        {
+            public string Status { get; set; }
+            public string Message { get; set; }
+            public List<int> Qids { get; set; }
+        }
+
+        public async Task<List<int>> CheckqidsAsync(IEnumerable<int> qids)
+        {
+            var body = new Dictionary<string, object>()
+            {
+                ["qids"] = qids
+            };
+            var json = await PostResultAsync("/api/checkqids", body);
+            logger.LogInformation("nlp-service response body: {msg}", json);
+
+            var res = JsonSerializer.Deserialize<CheckqidsResult>(json, new JsonSerializerOptions()
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            if (res.Status == "fail")
+            {
+                logger.LogWarning("nlp-service response fail with message: {msg}", res.Message);
+                return null;
+            }
+            return res.Qids;
+        }
+
 
         #endregion
     }

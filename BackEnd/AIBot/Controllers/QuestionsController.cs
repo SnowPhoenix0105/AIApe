@@ -175,13 +175,12 @@ namespace Buaa.AIBot.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("questionlist")]
-        public async Task<IActionResult> QuestionlistAsync(QuestionBody body)
+        [HttpPost("search")]
+        public async Task<IActionResult> SearchAsync(QuestionBody body)
         {
-            IEnumerable<int> tags = (body.Tags == null)? new int[0] : body.Tags;
-            int? pt = body.Pt;
-            int number = body.Number.GetValueOrDefault(Constants.QuestionListMaxNumber);
-            return Ok(await questionService.GetQuestionListAsync(tags, pt, number));
+            IEnumerable<int> tags = body.Tags ?? new int[0];
+            string content = body.Content ?? "";
+            return Ok(await questionService.SearchQuestionAsync(content, tags));
         }
 
         [AllowAnonymous]
@@ -189,6 +188,16 @@ namespace Buaa.AIBot.Controllers
         public async Task<IActionResult> HotlistAsync()
         {
             return Ok(await hotListService.GetHotListAsync());
+        }
+
+        [AllowAnonymous]
+        [HttpPost("questionlist")]
+        public async Task<IActionResult> QuestionlistAsync(QuestionBody body)
+        {
+            IEnumerable<int> tags = (body.Tags == null)? new int[0] : body.Tags;
+            int? pt = body.Pt;
+            int number = body.Number.GetValueOrDefault(Constants.QuestionListMaxNumber);
+            return Ok(await questionService.GetQuestionListAsync(tags, pt, number));
         }
 
         [AllowAnonymous]

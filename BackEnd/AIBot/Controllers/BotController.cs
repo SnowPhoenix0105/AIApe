@@ -4,6 +4,7 @@
 // Generated with EmptyBot .NET Template version v4.12.2
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Buaa.AIBot.Bot.Framework;
 using Buaa.AIBot.Services;
 using Buaa.AIBot.Controllers.Models;
+using Buaa.AIBot.Bot.BetaBot;
 
 namespace Buaa.AIBot.Controllers
 {
@@ -24,11 +26,15 @@ namespace Buaa.AIBot.Controllers
     {
         private readonly IBotRunner botRunner;
         private readonly IUserService userService;
+        private readonly QuestionTemplateGenerater questionTemplateGenerater = null;
+        private readonly Bot.WorkingModule.NaturalAnswerGenerator naturalAnswerGenerator = null;
 
-        public BotController(IBotRunner botRunner, IUserService userService)
+        public BotController(IBotRunner botRunner, IUserService userService, QuestionTemplateGenerater questionTemplateGenerater, Bot.WorkingModule.NaturalAnswerGenerator naturalAnswerGenerator)
         {
             this.botRunner = botRunner;
             this.userService = userService;
+            this.questionTemplateGenerater = questionTemplateGenerater;
+            this.naturalAnswerGenerator = naturalAnswerGenerator;
         }
 
         [Authorize(Policy = "UserAdmin")]
@@ -52,6 +58,60 @@ namespace Buaa.AIBot.Controllers
                 Message = message
             });
             return Ok(info);
+        }
+
+        [Authorize(Policy = "UserAdmin")]
+        [HttpGet("question_template")]
+        public async Task<IActionResult> QuestionTemplateAsync()
+        {
+            if (questionTemplateGenerater == null)
+            {
+                return NotFound(new
+                {
+                    Status = "notSupport",
+                    Message = "question template is disabled"
+                });
+            }
+            bool force = false;
+            if (HttpContext.Request.Query.TryGetValue("f", out var f))
+            {
+                force = (f == "1");
+            }
+            int uid = userService.GetUidFromToken(Request);
+            var res = await questionTemplateGenerater.GenerateAsync(uid, force);
+            return Ok(new
+            {
+                Status = "success",
+                Message = "get question template success",
+                Template = res
+            });
+        }
+
+        public class QuestionAndAnswerBody
+        {
+            public List<string> Questions {get; set;}
+            public List<string> Answers { get; set; }
+        }
+
+        [Authorize(Policy = "Admin")]
+        [HttpPost("add_natrual")]
+        public async Task<IActionResult> AddNatrualQuestionAndAnswerAsync(QuestionAndAnswerBody body)
+        {
+            if (naturalAnswerGenerator == null)
+            {
+                return NotFound(new
+                {
+                    Status = "notSupport",
+                    Message = "natural answer is disabled"
+                });
+            }
+            await naturalAnswerGenerator.AddQuestionAndAnswersAsync(body.Questions, body.Answers);
+            // TODO
+            return Ok(new 
+            {
+                Status = "success",
+                Message = "success"
+            });
         }
     }
 }

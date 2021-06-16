@@ -12,12 +12,15 @@ class NotFound(Exception):
     pass
 
 default_jwt = ""
-protocol = "http"
+protocol = "https"
 base_urls = [
         "test.snowphoenix.design", 
         "localhost:5000", 
         "aiape.snowphoenix.design"]
-base_url = base_urls[1]
+
+# 修改这里来选择一个合适的远端
+base_url = base_urls[2]
+log(f"using base_url: {base_url}")
 
 def set_default_jwt(token: str):
     global default_jwt
@@ -49,6 +52,18 @@ def signup():
             print("signup success")
         else:
             print(rsp["message"])
+
+def fresh_token(jwt : str=None) -> str:
+    if jwt == None:
+        global default_jwt
+        res = post("/api/user/fresh", {"token": default_jwt})
+        jwt = res["token"]
+        default_jwt = jwt
+        return jwt
+    else:
+        res = post("/api/user/fresh", {"token": jwt})
+        jwt = res["token"]
+        return jwt
 
 def get(target: str, headers: dict=None, jwt: str=None):
     global default_jwt
@@ -83,7 +98,7 @@ def post(target: str, body, headers: dict=None, jwt: str=None):
     global default_jwt
     jwt = jwt if jwt is not None else default_jwt
     # log("jwt =", jwt)
-    body = json.dumps(body)
+    body = json.dumps(body, ensure_ascii=False)
     if headers is None:
         headers = {}
     headers["Content-Type"] = "application/json"
@@ -93,7 +108,7 @@ def post(target: str, body, headers: dict=None, jwt: str=None):
 
     origin_host =  protocol + "://" + base_url
     url = origin_host + target
-
+    # log(f"posting tp {url} with body {body}")
     req = urllib.request.Request(url, data=body.encode("utf8"), headers=headers, origin_req_host=origin_host, method="POST")
 
     try:

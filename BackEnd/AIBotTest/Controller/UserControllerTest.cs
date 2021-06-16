@@ -391,7 +391,7 @@ namespace AIBotTest.Controller
             var ret = await controller.ModifyAsync(body);
             var okRet = Assert.IsType<ConflictObjectResult>(ret);
             var resRet = okRet.Value;
-            Assert.Equal("NameExisted", resRet.GetType().GetProperty("Status").GetValue(resRet, null));
+            Assert.Equal("nameExisted", resRet.GetType().GetProperty("Status").GetValue(resRet, null));
             Assert.Equal("name has been used by other user", resRet.GetType().GetProperty("Message").GetValue(resRet, null));
         }
 
@@ -449,7 +449,7 @@ namespace AIBotTest.Controller
         {
             mockServ.Setup(serv => serv.GetUidFromParameters(It.IsAny<HttpRequest>()))
             .Returns(1);
-            IEnumerable<int> aids = null;
+            IEnumerable<AnswerIdInfo> aids = null;
             mockRepo.Setup(repo => repo.SelectAnswersIdByIdByModifyTimeAsync(1)).ReturnsAsync(aids);
             UserController controller = new UserController(mockServ.Object, mockRepo.Object, mockTMO.Object);
 
@@ -465,7 +465,7 @@ namespace AIBotTest.Controller
         {
             mockServ.Setup(serv => serv.GetUidFromParameters(It.IsAny<HttpRequest>()))
             .Returns(1);
-            mockRepo.Setup(repo => repo.SelectAnswersIdByIdByModifyTimeAsync(1)).ReturnsAsync(new int[0]);
+            mockRepo.Setup(repo => repo.SelectAnswersIdByIdByModifyTimeAsync(1)).ReturnsAsync(new AnswerIdInfo[0]);
             UserController controller = new UserController(mockServ.Object, mockRepo.Object, mockTMO.Object);
 
             var ret = await controller.AnswersAsync();

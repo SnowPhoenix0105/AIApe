@@ -28,6 +28,8 @@ namespace Buaa.AIBot.Repository.Models
         [Column(TypeName = "int")]
         public AuthLevel Auth { get; set; }
 
+        public int ProfilePhoto { get; set; }
+
         // relation references
         public List<QuestionData> Questions { get; set; }
         public List<AnswerData> Answers { get; set; }
@@ -47,6 +49,7 @@ namespace Buaa.AIBot.Repository.Models
         public string Title { get; set; }
 
         [Required]
+        [Column(TypeName = "longtext")]
         public string Remarks { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -83,6 +86,7 @@ namespace Buaa.AIBot.Repository.Models
         public int QuestionId { get; set; }
 
         [Required]
+        [Column(TypeName = "longtext")]
         public string Content { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -186,5 +190,38 @@ namespace Buaa.AIBot.Repository.Models
         {
             return HashCode.Combine(UserId, QuestionId);
         }
+    }
+
+    public class NaturalQuestion
+    {
+        [Key]
+        public int NaturalQuestionId { get; set; }
+
+        [Required]
+        [Column(TypeName = "longtext")]
+        public string Content { get; set; }
+
+        public List<NatrualQuestionAnswerRelation> NatrualQuestionAnswerRelations { get; set; }
+    }
+
+    public class NatrualAnswer
+    {
+        [Key]
+        public int NatrualAnswerId { get; set; }
+
+        [Required]
+        [Column(TypeName = "longtext")]
+        public string Content { get; set; }
+
+        public List<NatrualQuestionAnswerRelation> NatrualQuestionAnswerRelations { get; set; }
+    }
+
+    public class NatrualQuestionAnswerRelation
+    {
+        public int NaturalQuestionId { get; set; }
+        public int NatrualAnswerId { get; set; }
+
+        public NatrualAnswer NatrualAnswer { get; set; }
+        public NaturalQuestion NaturalQuestion { get; set; }
     }
 }

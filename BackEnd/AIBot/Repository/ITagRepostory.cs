@@ -11,6 +11,7 @@ namespace Buaa.AIBot.Repository
     {
         Task<IReadOnlyDictionary<string, int>> SelectAllTagsAsync();
         Task<IReadOnlyDictionary<TagCategory, IReadOnlyDictionary<int, string>>> SelectAllTagsCategorysAsync();
+        Task<IReadOnlyDictionary<int, TagCategory>> SelectTagIndexAsync();
 
         /// <summary>
         /// Select a tag by id.
