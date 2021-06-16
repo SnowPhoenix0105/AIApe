@@ -135,7 +135,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
         private async Task<string> GenerateWeatherAsync()
         {
             string html = await GetHtmlForWeatherAsync();
-            logger.LogInformation("html={html}", html);
+            // logger.LogInformation("html={html}", html);
             var m = weatherRegex.Match(html);
             if (!m.Success)
             {
@@ -178,7 +178,7 @@ namespace Buaa.AIBot.Bot.WorkingModule
             {
                 return "小猿出了点问题呜呜呜";
             }
-            logger.LogInformation("qid={qid}, answers={aids}", qid, answers);
+            // logger.LogInformation("qid={qid}, answers={aids}", qid, answers);
             Random rnd = new Random();
             int aid = answers[rnd.Next(answers.Count)];
             var ret = await context

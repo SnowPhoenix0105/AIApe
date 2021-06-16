@@ -78,7 +78,14 @@ def print_cli_message(guid: str):
     log("line-coverage:\t{:.2f} % ({:d}/{:d})".format(line_rate * 100, lines_covered, lines_valid))
     log("branch-coverage:\t{:.2f} % ({:d}/{:d})".format(branch_rate * 100, branches_covered, branches_valid))
 
-
+def open_chrome(guid: str):
+    log("使用Chrome浏览器查看报告")
+    result_path = pcat(Path.AIBotTest_TestResults, guid)
+    xml_path = pcat(result_path, "coverage.cobertura.xml")
+    report_path = pcat(result_path, "coverage_report")
+    index_path = pcat(report_path, "index.html")
+    command = f"start chrome {index_path}"
+    exec(command, False)
     
     
 def main() -> int:
@@ -90,6 +97,7 @@ def main() -> int:
             install_tool_ReportGenerator()
             generate_report(guid)
             package(guid)
+            open_chrome(guid)
             return 0
         finally:
             print_cli_message(guid)
