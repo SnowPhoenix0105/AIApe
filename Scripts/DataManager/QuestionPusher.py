@@ -100,7 +100,7 @@ def push_all_question_to_remote():
         print("please login with answer account")
         answer_jwt = login()
         for i, question in enumerate(to_add):
-            time.sleep(0.1)
+            # time.sleep(0.1)
             if i % 64 == 63:
                 question_jwt = fresh_token(question_jwt)
                 answer_jwt = fresh_token(answer_jwt)

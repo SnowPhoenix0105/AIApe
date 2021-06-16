@@ -44,7 +44,7 @@ def push_all_natrual_to_remote():
         print("please login with admin account")
         admin_jwt = login()
         for i, natrual in enumerate(to_add):
-            time.sleep(0.1)
+            # time.sleep(0.1)
             if i % 64 == 63:
                 admin_jwt = fresh_token(admin_jwt)
             add_natrual(natrual["questions"], natrual["answers"], admin_jwt)
