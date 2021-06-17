@@ -135,7 +135,11 @@ namespace Buaa.AIBot.TimedTask
                 }
                 // questionLikeCount++;
                 int decreaseTimes = (DateTime.Now - oldHot.ModifyTime).Minutes;
-                double newBase = oldHot.HotValue * CalculateDamping(decreaseTimes); // 0.9995^(24 * 60) = 0.48
+                double newBase = oldHot.HotValue;
+                if (newBase != 0)
+                {
+                    newBase = newBase * CalculateDamping(decreaseTimes); // 0.9995^(24 * 60) = 0.48
+                } 
                 double newHots = (answerCount * questionLikeCount * 0.5 / Math.Log10(questionLikeCount + 10) + answerLikeCount) * 100000;
                 double ret = newBase + newHots;
                 // logger.LogInformation("new hot-value for question[{qid}] is {hot}", qid, ret);
