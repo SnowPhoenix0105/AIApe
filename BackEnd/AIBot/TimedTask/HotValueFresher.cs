@@ -133,7 +133,7 @@ namespace Buaa.AIBot.TimedTask
                     }
                     catch (AnswerNotExistException) { }
                 }
-                questionLikeCount++;
+                // questionLikeCount++;
                 int decreaseTimes = (DateTime.Now - oldHot.ModifyTime).Minutes;
                 double newBase = oldHot.HotValue * CalculateDamping(decreaseTimes); // 0.9995^(24 * 60) = 0.48
                 double newHots = (answerCount * questionLikeCount * 0.5 / Math.Log10(questionLikeCount + 10) + answerLikeCount) * 100000;
